@@ -112,66 +112,71 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col font-sans">
-      {/* Top Header - Widescreen 16:9 */}
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 w-full">
-        <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/20 font-bold text-white text-lg">
+    <div className="min-h-screen w-full bg-[#090a0d] text-[#f1f3f7] flex flex-col font-sans">
+      {/* Top Unified Header - Matching Reference Command HUD Exactly */}
+      <header className="border-b border-white/10 bg-[#0c0e14]/95 backdrop-blur-2xl sticky top-0 z-50 w-full shadow-2xl">
+        <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-3">
+          
+          {/* Left: Logo + Title + Integrated Navigation Pills */}
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center font-bold text-white text-base shadow-inner flex-shrink-0">
               U
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-200 bg-clip-text text-transparent">UNDERCURRENT</span>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-950 border border-sky-800 text-sky-400">Geospatial Intelligence</span>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-950 border border-indigo-800 text-indigo-300 font-mono">16:9 Fullscreen</span>
-              </div>
-              <p className="text-xs text-slate-400">Himalayan Water Intelligence & Glacial Risk Monitoring System</p>
+            <div className="hidden sm:flex items-center space-x-2 flex-shrink-0">
+              <span className="text-base lg:text-lg font-black tracking-tight text-white">UNDERCURRENT</span>
+              <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Track
+              </span>
             </div>
+
+            <div className="hidden lg:block h-6 w-px bg-white/10 mx-1"></div>
+
+            {/* Navigation Tabs (Directly in Header, matching reference) */}
+            <nav className="flex items-center gap-1 overflow-x-auto custom-scrollbar py-1">
+              {[
+                { id: 'overview', label: 'Live Command' },
+                { id: 'lakes', label: 'Lake Monitor' },
+                { id: 'reservoirs', label: 'Reservoirs' },
+                { id: 'exposure', label: 'Exposure' },
+                { id: 'gis-map', label: 'GIS Map' },
+                { id: 'methodology', label: 'Methodology' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition cursor-pointer select-none ${
+                    activeTab === tab.id
+                      ? 'bg-white/15 border border-white/30 text-white shadow-sm'
+                      : 'border border-transparent text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
           </div>
-          <div className="flex items-center space-x-3 text-xs">
-            <span className="hidden sm:inline px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">
-              Basin: <strong className="text-sky-400">Teesta River (Sikkim)</strong>
+
+          {/* Right: System Info & Icons */}
+          <div className="flex items-center gap-2.5 flex-shrink-0 text-xs">
+            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/30 border border-amber-500/20 text-[11px] font-mono text-amber-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Prototype
             </span>
+
             <button
               onClick={toggleFullscreen}
-              className="px-3 py-1.5 rounded-lg bg-sky-950 border border-sky-800 text-sky-300 hover:bg-sky-900 transition flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-200 hover:text-white transition flex items-center gap-1.5"
             >
-              <span>{isFullscreen ? 'Exit Fullscreen' : '16:9 Fullscreen'}</span>
+              <span>{isFullscreen ? 'Exit' : '16:9'}</span>
             </button>
-            <a href="/api/docs" target="_blank" className="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">
-              FastAPI Swagger
+
+            <a href="/api/docs" target="_blank" className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white transition">
+              API Docs
             </a>
+
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-sky-400 border border-white/20 flex items-center justify-center text-white font-mono font-bold text-[11px] shadow-sm flex-shrink-0">
+              OP
+            </div>
           </div>
-        </div>
-
-        {/* Prototype Disclaimer */}
-        <div className="bg-amber-950/60 border-t border-b border-amber-500/20 px-4 py-1.5 text-center text-xs text-amber-200">
-          <strong>Important Positioning:</strong> Undercurrent is a prototype for monitoring and preliminary exposure screening. It is not an operational GLOF early-warning system or substitute for official disaster-management authorities.
-        </div>
-
-        {/* Navigation Tabs (Full Width, Fully Clickable) */}
-        <div className="w-full px-4 sm:px-6 lg:px-8 flex space-x-1 py-1.5 overflow-x-auto text-sm border-b border-slate-800/50 bg-slate-900/40">
-          {[
-            { id: 'overview', label: 'Overview' },
-            { id: 'lakes', label: 'Glacial Lake Monitor' },
-            { id: 'reservoirs', label: 'Reservoir Water Spread' },
-            { id: 'exposure', label: 'Downstream Exposure' },
-            { id: 'gis-map', label: 'Interactive GIS Map' },
-            { id: 'methodology', label: 'Data & Provenance' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer select-none ${
-                activeTab === tab.id
-                  ? 'bg-sky-950/80 border border-sky-800 text-sky-400 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
         </div>
       </header>
 
@@ -182,51 +187,54 @@ export default function App() {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-xl">
-                <div className="text-xs text-slate-400">Monitored Basin</div>
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-2xl shadow-xl">
+                <div className="text-xs text-slate-400 font-medium">Monitored Basin</div>
                 <div className="text-lg font-bold text-white mt-1">Teesta River, Sikkim</div>
-                <div className="text-xs text-sky-400 mt-0.5">5,200m &rarr; 280m ASL</div>
+                <div className="text-xs text-cyan-400 mt-0.5 font-mono">5,200m &rarr; 280m ASL</div>
               </div>
-              <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-xl">
-                <div className="text-xs text-slate-400">Glacial Lake Target</div>
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-2xl shadow-xl">
+                <div className="text-xs text-slate-400 font-medium">Glacial Lake Target</div>
                 <div className="text-lg font-bold text-white mt-1">South Lhonak Lake</div>
-                <div className="text-xs text-rose-400 mt-0.5">-38.7% Breached Oct 2023</div>
+                <div className="text-xs text-rose-400 mt-0.5 font-mono">-38.7% Breached Oct 2023</div>
               </div>
-              <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-xl">
-                <div className="text-xs text-slate-400">Downstream Reservoir</div>
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-2xl shadow-xl">
+                <div className="text-xs text-slate-400 font-medium">Downstream Reservoir</div>
                 <div className="text-lg font-bold text-white mt-1">Chungthang (Teesta-III)</div>
-                <div className="text-xs text-amber-400 mt-0.5">Water-spread: 0.241 km²</div>
+                <div className="text-xs text-amber-400 mt-0.5 font-mono">Water-spread: 0.241 km²</div>
               </div>
-              <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-xl">
-                <div className="text-xs text-slate-400">Screening Corridor</div>
-                <div className="text-lg font-bold text-sky-400 mt-1">112.4 km</div>
-                <div className="text-xs text-emerald-400 mt-0.5">8 Downstream Assets</div>
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-2xl shadow-xl">
+                <div className="text-xs text-slate-400 font-medium">Screening Corridor</div>
+                <div className="text-lg font-bold text-cyan-400 mt-1">112.4 km Hydraulic Reach</div>
+                <div className="text-xs text-emerald-400 mt-0.5 font-mono">8 Downstream Assets</div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
               <div className="xl:col-span-8 space-y-6">
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
-                  <h2 className="text-lg font-bold text-white mb-2">Core User Journeys</h2>
-                  <p className="text-sm text-slate-400 mb-6">Click any journey below to navigate directly into that module:</p>
+                <div className="bg-[#12141b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
+                  <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>
+                    Core Operational Modules
+                  </h2>
+                  <p className="text-sm text-slate-400 mb-6">Click any module below to inspect full satellite observations:</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div onClick={() => setActiveTab('lakes')} className="cursor-pointer p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500 transition">
-                      <div className="text-xs font-semibold text-sky-400 uppercase tracking-wider mb-1">Journey A</div>
+                    <div onClick={() => setActiveTab('lakes')} className="cursor-pointer p-4 rounded-xl bg-[#161a24]/90 border border-white/10 hover:border-cyan-400 transition-all hover:-translate-y-0.5">
+                      <div className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1 font-mono">Module 01</div>
                       <h3 className="text-sm font-bold text-white">Glacial Lake Review</h3>
                       <p className="text-xs text-slate-400 mt-1">NDWI calculation, multi-date area comparison, and moraine breach detection.</p>
-                      <div className="mt-3 text-xs text-sky-400 font-medium">Launch &rarr;</div>
+                      <div className="mt-3 text-xs text-cyan-400 font-medium">Launch &rarr;</div>
                     </div>
 
-                    <div onClick={() => setActiveTab('reservoirs')} className="cursor-pointer p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 transition">
-                      <div className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1">Journey B</div>
+                    <div onClick={() => setActiveTab('reservoirs')} className="cursor-pointer p-4 rounded-xl bg-[#161a24]/90 border border-white/10 hover:border-blue-400 transition-all hover:-translate-y-0.5">
+                      <div className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1 font-mono">Module 02</div>
                       <h3 className="text-sm font-bold text-white">Reservoir Water-Spread</h3>
                       <p className="text-xs text-slate-400 mt-1">Seasonal water-spread tracking with area vs volume distinction.</p>
-                      <div className="mt-3 text-xs text-cyan-400 font-medium">Inspect &rarr;</div>
+                      <div className="mt-3 text-xs text-blue-400 font-medium">Inspect &rarr;</div>
                     </div>
 
-                    <div onClick={() => setActiveTab('exposure')} className="cursor-pointer p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-rose-500 transition">
-                      <div className="text-xs font-semibold text-rose-400 uppercase tracking-wider mb-1">Journey C</div>
+                    <div onClick={() => setActiveTab('exposure')} className="cursor-pointer p-4 rounded-xl bg-[#161a24]/90 border border-white/10 hover:border-rose-400 transition-all hover:-translate-y-0.5">
+                      <div className="text-xs font-semibold text-rose-400 uppercase tracking-wider mb-1 font-mono">Module 03</div>
                       <h3 className="text-sm font-bold text-white">Exposure Screening</h3>
                       <p className="text-xs text-slate-400 mt-1">DEM slope, valley elevation profile, and settlement intersections.</p>
                       <div className="mt-3 text-xs text-rose-400 font-medium">Screen &rarr;</div>
@@ -234,7 +242,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+                <div className="bg-[#12141b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
                   <h2 className="text-lg font-bold text-white mb-2">Teesta River Basin Context (Sikkim)</h2>
                   <p className="text-sm text-slate-300 leading-relaxed">
                     In October 2023, the sudden outburst of South Lhonak Glacial Lake (~5,200m altitude) cascaded through the steep Lhonak and Zemu Chu gorges, severely overtopping and breaching the 1,200 MW Chungthang Dam (Teesta-III) and damaging bridges and highways down to Singtam and Rangpo.
@@ -243,17 +251,20 @@ export default function App() {
               </div>
 
               <div className="xl:col-span-4 space-y-6">
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
-                  <h2 className="text-md font-bold text-white mb-3">Active Anomaly Flags</h2>
+                <div className="bg-[#2d1216]/80 backdrop-blur-xl border border-rose-500/30 rounded-2xl p-6 shadow-2xl">
+                  <h2 className="text-md font-bold text-white mb-3 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block pulse-dot"></span>
+                    Active Basin Hazards
+                  </h2>
                   <div className="space-y-3">
                     {alerts.map(a => (
-                      <div key={a.alert_id} className="p-3.5 bg-slate-950 rounded-xl border border-rose-900/50 space-y-2">
+                      <div key={a.alert_id} className="p-3.5 bg-black/40 rounded-xl border border-rose-500/30 space-y-2">
                         <div className="flex justify-between items-center text-xs">
-                          <span className="px-2 py-0.5 rounded bg-rose-900/80 text-rose-300 font-bold">{a.level}</span>
+                          <span className="px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-800 text-rose-300 font-bold">{a.level}</span>
                           <span className="text-slate-400 font-mono">{a.observation_date}</span>
                         </div>
-                        <div className="text-sm font-semibold text-slate-200">{a.target_name}</div>
-                        <p className="text-xs text-slate-400">{a.summary}</p>
+                        <div className="text-sm font-semibold text-slate-100">{a.target_name}</div>
+                        <p className="text-xs text-slate-300">{a.summary}</p>
                       </div>
                     ))}
                   </div>
@@ -265,18 +276,21 @@ export default function App() {
 
         {/* TAB 2: GLACIAL LAKE MONITOR */}
         {activeTab === 'lakes' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
+          <div className="bg-[#12141b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-4">
               <div>
-                <h2 className="text-xl font-bold text-white">South Lhonak Glacial Lake Review</h2>
-                <p className="text-xs text-slate-400">Lat: 27.9128° N | Lon: 88.2045° E | Altitude: 5,200 m ASL | CRS: EPSG:32645</p>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>
+                  South Lhonak Glacial Lake Review
+                </h2>
+                <p className="text-xs text-slate-400 font-mono mt-1">Lat: 27.9128° N | Lon: 88.2045° E | Altitude: 5,200 m ASL | CRS: EPSG:32645</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Date:</span>
+                <span className="text-xs text-slate-400 font-semibold uppercase">Epoch:</span>
                 <select
                   value={selectedLakeDate}
                   onChange={(e) => setSelectedLakeDate(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 font-mono"
+                  className="bg-[#131722] border border-white/10 text-slate-200 text-xs rounded-full px-3 py-1.5 font-mono focus:outline-none focus:border-cyan-400"
                 >
                   <option value="2023-09-17">2023-09-17 (Pre-Event Peak - 1.68 km²)</option>
                   <option value="2023-10-04">2023-10-04 (Post-Outburst Breach - 1.03 km²)</option>
@@ -288,30 +302,30 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-xl">
                 <div className="text-xs text-slate-400">Surface Area</div>
-                <div className="text-2xl font-bold text-sky-400 mt-1 font-mono">{currentLakeObs.area_km2} km²</div>
+                <div className="text-2xl font-black text-cyan-400 mt-1 font-mono">{currentLakeObs.area_km2} km²</div>
               </div>
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-xl">
                 <div className="text-xs text-slate-400">Area Delta</div>
-                <div className="text-2xl font-bold text-rose-400 mt-1 font-mono">{currentLakeObs.area_change_km2 || '0.00'} km²</div>
-                <div className="text-xs text-rose-400">{currentLakeObs.area_change_pct ? `${currentLakeObs.area_change_pct}%` : 'Baseline'}</div>
+                <div className="text-2xl font-black text-rose-400 mt-1 font-mono">{currentLakeObs.area_change_km2 || '0.00'} km²</div>
+                <div className="text-xs text-rose-400 font-mono">{currentLakeObs.area_change_pct ? `${currentLakeObs.area_change_pct}%` : 'Baseline'}</div>
               </div>
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-xl">
                 <div className="text-xs text-slate-400">Sensor</div>
                 <div className="text-sm font-bold text-slate-200 mt-1">{currentLakeObs.sensor}</div>
               </div>
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
+              <div className="p-4 bg-[#161a24]/90 border border-white/10 rounded-xl">
                 <div className="text-xs text-slate-400">Method</div>
-                <div className="text-sm font-bold text-slate-200 mt-1">NDWI &ge; {ndwiThreshold}</div>
+                <div className="text-sm font-bold text-cyan-200 mt-1 font-mono">NDWI &ge; {ndwiThreshold}</div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-5 bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+              <div className="lg:col-span-5 bg-[#161a24]/90 border border-white/10 rounded-xl p-5 space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-sm font-bold text-white">NDWI Water Classification Grid</h3>
-                  <span className="text-xs font-mono bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono bg-cyan-950/80 border border-cyan-800/80 text-cyan-300 px-2.5 py-0.5 rounded-full">
                     Cutoff: {ndwiThreshold.toFixed(2)}
                   </span>
                 </div>
@@ -322,18 +336,18 @@ export default function App() {
                   step="0.01"
                   value={ndwiThreshold}
                   onChange={(e) => setNdwiThreshold(parseFloat(e.target.value))}
-                  className="w-full accent-sky-500 cursor-pointer"
+                  className="w-full accent-cyan-400 cursor-pointer"
                 />
-                <div className="flex justify-center p-2 bg-slate-900 border border-slate-800 rounded-lg">
-                  <canvas ref={canvasRef} width="320" height="320" className="rounded" />
+                <div className="flex justify-center p-3 bg-[#0b0e14] border border-white/10 rounded-xl shadow-inner">
+                  <canvas ref={canvasRef} width="320" height="320" className="rounded-lg" />
                 </div>
               </div>
 
-              <div className="lg:col-span-7 bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+              <div className="lg:col-span-7 bg-[#161a24]/90 border border-white/10 rounded-xl p-5 space-y-3">
                 <h3 className="text-sm font-bold text-white">Multi-Date Historical Observations</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                    <thead className="bg-white/5 text-slate-300 border-b border-white/10 font-mono text-[11px] uppercase">
                       <tr>
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Sensor</th>
@@ -341,12 +355,12 @@ export default function App() {
                         <th className="py-2.5 px-3">Quality</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
+                    <tbody className="divide-y divide-white/5">
                       {lakeHistory.map(obs => (
-                        <tr key={obs.observation_id} className="hover:bg-slate-900/50">
+                        <tr key={obs.observation_id} className="hover:bg-white/5">
                           <td className="py-2.5 px-3 font-mono">{obs.date}</td>
                           <td className="py-2.5 px-3">{obs.sensor}</td>
-                          <td className="py-2.5 px-3 font-mono font-bold text-sky-400">{obs.area_km2}</td>
+                          <td className="py-2.5 px-3 font-mono font-bold text-cyan-400">{obs.area_km2}</td>
                           <td className="py-2.5 px-3 text-emerald-400">{obs.quality_flag}</td>
                         </tr>
                       ))}
@@ -360,31 +374,34 @@ export default function App() {
 
         {/* TAB 3: RESERVOIR MONITOR */}
         {activeTab === 'reservoirs' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
+          <div className="bg-[#12141b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-4">
               <div>
-                <h2 className="text-xl font-bold text-white">Downstream Reservoir Water-Spread Variations</h2>
-                <p className="text-xs text-slate-400">Monitoring Teesta-III Chungthang Dam & Teesta-V Dam (Dikchu)</p>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>
+                  Downstream Reservoir Water-Spread Variations
+                </h2>
+                <p className="text-xs text-slate-400 font-mono mt-1">Monitoring Teesta-III Chungthang Dam & Teesta-V Dam (Dikchu)</p>
               </div>
               <select
                 value={selectedResId}
                 onChange={(e) => handleReservoirChange(e.target.value)}
-                className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 font-mono"
+                className="bg-[#131722] border border-white/10 text-slate-200 text-xs rounded-full px-3 py-1.5 font-mono focus:outline-none focus:border-cyan-400"
               >
                 <option value="RES-TK-01">Teesta-III Chungthang Dam (Breached Oct 2023)</option>
                 <option value="RES-TK-02">Teesta-V Dikchu Dam (NHPC)</option>
               </select>
             </div>
 
-            <div className="p-4 rounded-xl bg-cyan-950/40 border border-cyan-800/50 text-xs text-slate-300">
-              <strong>Scientific Distinction: Water-Spread vs Storage Volume:</strong> Optical imagery measures water-spread surface area, which is <strong>NOT direct storage volume</strong>. Undercurrent reports water-spread to maintain scientific defensibility.
+            <div className="p-4.5 rounded-xl bg-gradient-to-r from-rose-950/40 to-slate-900/60 border border-rose-500/30 text-xs text-slate-300 leading-relaxed shadow-sm">
+              <strong className="text-rose-300">Scientific Distinction: Water-Spread vs Storage Volume:</strong> Optical imagery measures water-spread surface area, which is <strong>NOT direct volumetric storage capacity</strong>. Undercurrent reports water-spread only to preserve rigorous scientific defensibility.
             </div>
 
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div className="bg-[#161a24]/90 border border-white/10 rounded-xl p-5 space-y-3">
               <h3 className="text-sm font-bold text-white">Multi-Date Water-Spread History</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                  <thead className="bg-white/5 text-slate-300 border-b border-white/10 font-mono text-[11px] uppercase">
                     <tr>
                       <th className="py-2.5 px-3">Date</th>
                       <th className="py-2.5 px-3">Season / Context</th>
@@ -392,13 +409,13 @@ export default function App() {
                       <th className="py-2.5 px-3">Quality Note</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
+                  <tbody className="divide-y divide-white/5">
                     {resHistory.map(obs => (
-                      <tr key={obs.observation_id} className="hover:bg-slate-900/50">
+                      <tr key={obs.observation_id} className="hover:bg-white/5">
                         <td className="py-2.5 px-3 font-mono">{obs.date}</td>
                         <td className="py-2.5 px-3">{obs.season}</td>
                         <td className="py-2.5 px-3 font-mono font-bold text-cyan-400">{obs.water_spread_area_km2} km²</td>
-                        <td className="py-2.5 px-3 text-slate-400">{obs.quality_flag}</td>
+                        <td className="py-2.5 px-3 text-slate-400 font-mono">{obs.quality_flag}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -410,22 +427,25 @@ export default function App() {
 
         {/* TAB 4: EXPOSURE SCREENING */}
         {activeTab === 'exposure' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-800">
+          <div className="bg-[#12141b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6 shadow-2xl">
+            <div className="flex justify-between items-center pb-4 border-b border-white/10">
               <div>
-                <h2 className="text-xl font-bold text-white">Downstream Exposure Screening</h2>
-                <p className="text-xs text-slate-400">112.4 km corridor from South Lhonak (5,200m) to Rangpo (280m)</p>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                  Downstream Exposure Screening
+                </h2>
+                <p className="text-xs text-slate-400 font-mono mt-1">112.4 km corridor from South Lhonak (5,200m) to Rangpo (280m)</p>
               </div>
-              <span className="px-3 py-1 bg-rose-950 border border-rose-800 text-rose-300 text-xs rounded-lg font-mono font-bold">
-                Elevation Drop: 4,920 m
+              <span className="px-3.5 py-1.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-full font-mono font-bold">
+                Elevation Drop: 4,920 m (Avg Slope 4.4%)
               </span>
             </div>
 
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div className="bg-[#161a24]/90 border border-white/10 rounded-xl p-5 space-y-3">
               <h3 className="text-sm font-bold text-white">Valley DEM Elevation Profile (5,200m &rarr; 280m)</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                  <thead className="bg-white/5 text-slate-300 border-b border-white/10 font-mono text-[11px] uppercase">
                     <tr>
                       <th className="py-2.5 px-3">Distance (km)</th>
                       <th className="py-2.5 px-3">Elevation (m ASL)</th>
@@ -434,11 +454,11 @@ export default function App() {
                       <th className="py-2.5 px-3">Zone Classification</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
+                  <tbody className="divide-y divide-white/5">
                     {elevationProfile.map((pt, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/50">
+                      <tr key={idx} className="hover:bg-white/5">
                         <td className="py-2.5 px-3 font-mono">{pt.distance_km} km</td>
-                        <td className="py-2.5 px-3 font-mono text-sky-400 font-bold">{pt.elevation_m} m</td>
+                        <td className="py-2.5 px-3 font-mono text-cyan-400 font-bold">{pt.elevation_m} m</td>
                         <td className="py-2.5 px-3 font-mono">{pt.slope_deg}°</td>
                         <td className="py-2.5 px-3 font-semibold text-slate-100">{pt.landmark}</td>
                         <td className="py-2.5 px-3 text-slate-400">{pt.zone}</td>
@@ -449,11 +469,11 @@ export default function App() {
               </div>
             </div>
 
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div className="bg-[#161a24]/90 border border-white/10 rounded-xl p-5 space-y-3">
               <h3 className="text-sm font-bold text-white">Screened Assets & Settlements</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                  <thead className="bg-white/5 text-slate-300 border-b border-white/10 font-mono text-[11px] uppercase">
                     <tr>
                       <th className="py-2.5 px-3">Asset</th>
                       <th className="py-2.5 px-3">Category</th>
@@ -462,20 +482,20 @@ export default function App() {
                       <th className="py-2.5 px-3">Vulnerability Context</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
+                  <tbody className="divide-y divide-white/5">
                     {assets.map(a => (
-                      <tr key={a.id} className="hover:bg-slate-900/50">
+                      <tr key={a.id} className="hover:bg-white/5">
                         <td className="py-2.5 px-3 font-semibold text-slate-100">{a.name}</td>
                         <td className="py-2.5 px-3 text-slate-400">{a.category}</td>
-                        <td className="py-2.5 px-3 font-mono">{a.distance_from_lake_km} km</td>
+                        <td className="py-2.5 px-3 font-mono text-cyan-300">{a.distance_from_lake_km} km</td>
                         <td className="py-2.5 px-3">
-                          <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${
-                            a.exposure_rating === 'Critical' ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-amber-950 text-amber-300 border-amber-800'
+                          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                            a.exposure_rating === 'Critical' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                           }`}>
                             {a.exposure_rating}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-slate-400">{a.key_vulnerability}</td>
+                        <td className="py-2.5 px-3 text-slate-400 font-mono text-[11px]">{a.key_vulnerability}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -487,12 +507,15 @@ export default function App() {
 
         {/* TAB 5: INTERACTIVE GIS MAP */}
         {activeTab === 'gis-map' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-800">
-              <h2 className="text-xl font-bold text-white">Interactive GIS Map & Geospatial Layers</h2>
-              <span className="text-xs text-sky-400 font-mono">Teesta Basin GIS</span>
+          <div className="bg-[#12141b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center pb-3 border-b border-white/10">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>
+                Interactive Tactical GIS Map Explorer
+              </h2>
+              <span className="text-xs text-cyan-400 font-mono">Teesta Basin GIS &bull; 112.4 km Corridor</span>
             </div>
-            <div className="w-full h-[600px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+            <div className="w-full h-[640px] rounded-xl overflow-hidden border border-white/10 bg-[#090a0d]">
               <iframe src="/#gis-map" className="w-full h-full border-0" title="Undercurrent GIS Map" />
             </div>
           </div>
@@ -500,18 +523,21 @@ export default function App() {
 
         {/* TAB 6: DATA & PROVENANCE */}
         {activeTab === 'methodology' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-            <h2 className="text-xl font-bold text-white">Scientific Methodology & Data Sources</h2>
+          <div className="bg-[#12141b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>
+              Scientific Methodology & Space Data Provenance
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-                <div className="text-xs font-bold text-sky-400">NDWI Formula</div>
-                <div className="p-3 bg-slate-900 rounded font-mono text-sm text-sky-200">NDWI = (Green - NIR) / (Green + NIR)</div>
-                <p className="text-xs text-slate-400">Sentinel-2 Band 3 (560nm) and Band 8 (842nm) at 10m spatial resolution.</p>
+              <div className="p-5 bg-[#161a24]/90 border border-white/10 rounded-xl space-y-2">
+                <div className="text-xs font-bold text-cyan-400 uppercase tracking-wider font-mono">Formula 1: NDWI Water Index</div>
+                <div className="p-3 bg-black/50 rounded-lg font-mono text-sm text-cyan-300 border border-white/10 shadow-inner">NDWI = (Green - NIR) / (Green + NIR)</div>
+                <p className="text-xs text-slate-400 font-mono">Sentinel-2 Band 3 (560nm) and Band 8 (842nm) at 10m spatial resolution.</p>
               </div>
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-                <div className="text-xs font-bold text-sky-400">Percentage Area Change</div>
-                <div className="p-3 bg-slate-900 rounded font-mono text-sm text-sky-200">% Change = ((A_later - A_earlier) / A_earlier) &times; 100</div>
-                <p className="text-xs text-slate-400">Projected in UTM Zone 45N (EPSG:32645) planar coordinate system.</p>
+              <div className="p-5 bg-[#161a24]/90 border border-white/10 rounded-xl space-y-2">
+                <div className="text-xs font-bold text-cyan-400 uppercase tracking-wider font-mono">Formula 2: Percentage Area Change</div>
+                <div className="p-3 bg-black/50 rounded-lg font-mono text-sm text-cyan-300 border border-white/10 shadow-inner">% Change = ((A_later - A_earlier) / A_earlier) &times; 100</div>
+                <p className="text-xs text-slate-400 font-mono">Projected in UTM Zone 45N (EPSG:32645) planar coordinate system.</p>
               </div>
             </div>
           </div>
