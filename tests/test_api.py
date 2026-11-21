@@ -46,9 +46,13 @@ def test_undercurrent():
     prof = exposure.get_corridor_profile("SA-TEESTA-01")
     assert prof["profile_points_count"] >= 5
 
-    print("Testing /api/exposure/SA-TEESTA-01/assets...")
+    print("Testing /api/exposure/SA-TEESTA-01/assets (Location-specific DEM slopes)...")
     asts = exposure.get_corridor_assets("SA-TEESTA-01")
     assert asts["total_assets"] >= 5
+    # Verify location-specific slope varies along corridor (not static 25.0)
+    slopes = [a["location_slope_deg"] for a in asts["assets"]]
+    assert len(set(slopes)) > 1, "Expected location-specific slopes derived from DEM elevation profile"
+    assert asts["assets"][0]["location_slope_deg"] != asts["assets"][-1]["location_slope_deg"]
 
     print("Testing /api/map/layers...")
     layers = maps.get_map_layers()
@@ -69,13 +73,41 @@ def test_undercurrent():
     assert adv.downstream_corridor["elevation_drop_m"] == 4920
     assert adv.screened_assets["critical_count"] == 3
 
-    print("Testing /api/analysis/ndwi...")
+    print("Testing /api/analysis/ndwi (Interactive Simulator)...")
     ndwi_req = NDWICalculationRequest(lake_id="south-lhonak-post", threshold=0.14, grid_size=24)
     ndwi_res = analysis.calculate_ndwi(ndwi_req)
     assert ndwi_res.water_pixel_count > 0
     assert ndwi_res.calculated_area_km2 > 0
 
-    print("ALL 12 TESTS PASSED SUCCESSFULLY!")
+    print("Testing /api/analysis/raster/south-lhonak (Physical 10m Sentinel-2 Rasters)...")
+    raster_pre = analysis.get_physical_raster_analysis(date="2023-09-26")
+    assert raster_pre["lake_isolated_water_pixels"] == 16661
+    assert abs(raster_pre["physical_area_km2"] - 1.666) < 0.01
+    assert raster_pre["crs"] == "EPSG:32645"
+
+    raster_post = analysis.get_physical_raster_analysis(date="2023-10-09")
+    assert raster_post["lake_isolated_water_pixels"] == 10023
+    assert abs(raster_post["physical_area_km2"] - 1.003) < 0.01
+
+    print("Testing input validation and error handling...")
+    from fastapi import HTTPException
+    from pydantic import ValidationError
+
+    # Invalid compare date
+    try:
+        lakes.compare_lake_dates("GL-SK-01", "1990-01-01", "2023-10-04")
+        assert False, "Should raise HTTPException for unknown earlier date"
+    except HTTPException as e:
+        assert e.status_code == 400
+
+    # Invalid NDWI threshold (> 1.0)
+    try:
+        NDWICalculationRequest(lake_id="GL-SK-01", threshold=2.5)
+        assert False, "Should raise ValidationError for threshold > 1.0"
+    except ValidationError:
+        pass
+
+    print("ALL API & VALIDATION TESTS PASSED SUCCESSFULLY!")
 
 if __name__ == "__main__":
     test_undercurrent()

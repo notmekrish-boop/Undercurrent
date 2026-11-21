@@ -54,23 +54,52 @@ def get_corridor_profile(study_area_id: str):
         "profile": profile
     }
 
+def interpolate_corridor_slope(distance_km: float, profile: List[Dict[str, Any]]) -> float:
+    """Derive location-specific valley slope from DEM elevation profile."""
+    if not profile:
+        return 22.0
+    if distance_km <= profile[0]["distance_km"]:
+        return profile[0]["slope_deg"]
+    if distance_km >= profile[-1]["distance_km"]:
+        return profile[-1]["slope_deg"]
+    for i in range(len(profile) - 1):
+        d0, d1 = profile[i]["distance_km"], profile[i+1]["distance_km"]
+        if d0 <= distance_km <= d1:
+            ratio = (distance_km - d0) / (d1 - d0) if d1 > d0 else 0
+            s0, s1 = profile[i]["slope_deg"], profile[i+1]["slope_deg"]
+            return round(s0 + ratio * (s1 - s0), 1)
+    return profile[-1]["slope_deg"]
+
 @router.get("/{study_area_id}/assets", summary="Get list of downstream assets with transparent exposure breakdown")
 def get_corridor_assets(study_area_id: str):
     raw_assets = data_service.get_assets()
+    profile = data_service.get_elevation_profile()
     scored_assets = []
     for a in raw_assets:
+        dist = a.get("distance_from_lake_km", 50.0)
+        elev = a.get("elevation_m", 1000)
+        elev_drop = 5200 - elev
+        local_slope = interpolate_corridor_slope(dist, profile)
+
         score_data = evaluate_exposure_score(
-            distance_km=a.get("distance_from_lake_km", 50.0),
-            elevation_drop_m=5200 - a.get("elevation_m", 1000),
-            slope_deg=25.0,
+            distance_km=dist,
+            elevation_drop_m=elev_drop,
+            slope_deg=local_slope,
             asset_type=a.get("type", "Settlement"),
             population=a.get("population_approx", 1000)
         )
+        score_data["location_slope_deg"] = local_slope
+        score_data["elevation_drop_m"] = elev_drop
+        score_data["slope_source"] = "DEM-derived corridor elevation profile"
+
         item = dict(a)
+        item["location_slope_deg"] = local_slope
+        item["elevation_drop_m"] = elev_drop
         item["scoring_breakdown"] = score_data
         scored_assets.append(item)
     return {
         "study_area_id": study_area_id,
         "total_assets": len(scored_assets),
-        "assets": scored_assets
+        "assets": scored_assets,
+        "methodology": "Weighted multi-factor heuristic screening index using location-specific DEM slope. Not a calibrated hydraulic flood probability."
     }

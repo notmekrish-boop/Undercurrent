@@ -1,24 +1,49 @@
 from fastapi import APIRouter
 from typing import List, Dict, Any
 from ..schemas.models import AlertFlag, EvidenceAdvisory
+from ..services.data_service import data_service
 
 router = APIRouter(prefix="/alerts", tags=["Rule-Based Anomaly & Screening Flags"])
 
 @router.get("/advisory", response_model=EvidenceAdvisory, summary="Get structured evidence-based stakeholder advisory")
 def get_advisory():
+    lake_history = data_service.get_lake_history("GL-SK-01")
+    obs_map = {o["date"]: o for o in lake_history}
+    
+    # Validated Sentinel-2 Level-2A empirical observations
+    latest_obs = obs_map.get("2023-10-09", lake_history[-1] if lake_history else {})
+    baseline_obs = obs_map.get("2023-09-26", lake_history[0] if lake_history else {})
+    
+    area_latest = latest_obs.get("area_km2", 1.003)
+    area_base = baseline_obs.get("area_km2", 1.666)
+    delta_km2 = round(area_latest - area_base, 3)
+    pct_change = round((delta_km2 / area_base) * 100.0, 1) if area_base > 0 else 0.0
+
+    raw_assets = data_service.get_assets()
+    critical_assets = [
+        {
+            "name": a.get("name"),
+            "chainage_km": a.get("distance_from_lake_km"),
+            "elevation_m": a.get("elevation_m"),
+            "type": a.get("type"),
+            "status": a.get("status_notes", "Screened")
+        }
+        for a in raw_assets if a.get("exposure_rating") == "Critical"
+    ]
+
     return EvidenceAdvisory(
         advisory_id="ADV-2023-SK-TEESTA-01",
         timestamp_utc="2023-10-09T04:58:31Z",
         basin="Teesta River Basin (Upper & Middle Reach)",
         target_lake="South Lhonak Glacial Lake",
         latest_observation={
-            "observation_date": "2023-10-09",
-            "sensor": "Sentinel-2 MSI Level-2A (ESA Copernicus)",
-            "water_area_km2": 1.003,
-            "baseline_date": "2023-09-26",
-            "baseline_water_area_km2": 1.666,
-            "net_area_change_km2": -0.663,
-            "net_percentage_change": -39.8,
+            "observation_date": latest_obs.get("date", "2023-10-09"),
+            "sensor": latest_obs.get("sensor", "Sentinel-2 MSI Level-2A (ESA Copernicus)"),
+            "water_area_km2": area_latest,
+            "baseline_date": baseline_obs.get("date", "2023-09-26"),
+            "baseline_water_area_km2": area_base,
+            "net_area_change_km2": delta_km2,
+            "net_percentage_change": pct_change,
             "interpretation": "Catastrophic moraine breach and glacial lake drainage event confirmed by Sentinel-2 MSI multi-spectral surface tracking."
         },
         downstream_corridor={
@@ -27,34 +52,12 @@ def get_advisory():
             "elevation_start_m": 5200,
             "elevation_end_m": 280,
             "flow_path": "South Lhonak Lake -> Lhonak River -> Zemu Chu -> Lachen Chu -> Chungthang (Confluence) -> Teesta River Gorge -> Dikchu -> Singtam -> Rangpo",
-            "terrain_screening": "D8 DEM flow accumulation through steep V-shaped Himalayan canyon (confinement ratio > 85%, mean valley slope 28.4°)."
+            "terrain_screening": "D8 DEM flow accumulation through steep V-shaped Himalayan canyon (confinement ratio > 85%, mean valley slope 22.4°)."
         },
         screened_assets={
-            "total_screened": 8,
-            "critical_count": 3,
-            "critical_assets": [
-                {
-                    "name": "Teesta-III Chungthang Hydroelectric Project (Dam)",
-                    "chainage_km": 68.5,
-                    "elevation_m": 1560,
-                    "type": "Hydroelectric Infrastructure",
-                    "status": "Overtopped / Breached (Oct 2023)"
-                },
-                {
-                    "name": "Singtam Urban Settlement & Suspension Bridge",
-                    "chainage_km": 96.2,
-                    "elevation_m": 350,
-                    "type": "Township & River Crossing",
-                    "status": "Low-lying riverbank inundation screening"
-                },
-                {
-                    "name": "Rangpo Border Transit Hub & Checkpost",
-                    "chainage_km": 112.4,
-                    "elevation_m": 280,
-                    "type": "Transport & Trade Node",
-                    "status": "Corridor terminus screening"
-                }
-            ]
+            "total_screened": len(raw_assets),
+            "critical_count": len(critical_assets),
+            "critical_assets": critical_assets
         },
         independent_reservoir_track={
             "track_description": "Track B: Independent Downstream Reservoir Water-Spread Surveillance",

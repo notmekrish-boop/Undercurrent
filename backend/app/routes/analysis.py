@@ -1,10 +1,29 @@
 import os
 import json
-from fastapi import APIRouter
+from typing import Optional
+from fastapi import APIRouter, Query, HTTPException
 from ..schemas.models import NDWICalculationRequest, NDWICalculationResult
-from ..services.ndwi_engine import generate_lake_ndwi_matrix, classify_water_pixels
+from ..services.ndwi_engine import (
+    generate_lake_ndwi_matrix,
+    classify_water_pixels,
+    process_real_satellite_raster
+)
 
 router = APIRouter(prefix="/analysis", tags=["Scientific Geospatial Analysis"])
+
+@router.get("/raster/south-lhonak", summary="Process physical Sentinel-2 MSI Level-2A GeoTIFFs with exact pixel ground area")
+def get_physical_raster_analysis(
+    date: str = Query("2023-10-09", description="Observation date (2023-09-26 or 2023-10-09)"),
+    threshold: Optional[float] = Query(None, description="Optional custom NDWI threshold (default: 0.0 pre-flood, 0.265 post-flood)")
+):
+    try:
+        th = float(threshold) if (threshold is not None and isinstance(threshold, (int, float))) else None
+        d_str = str(date) if isinstance(date, str) else "2023-10-09"
+        return process_real_satellite_raster(date=d_str, threshold=th)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Raster processing error: {e}")
 
 @router.get("/ndwi/grids", summary="Get real Sentinel-2 MSI level-2A NDWI grids for pre and post outburst")
 def get_real_ndwi_grids():
