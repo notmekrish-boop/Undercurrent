@@ -140,15 +140,47 @@ export default function App() {
       <header className="border-b border-white/10 bg-[#0c0e14]/95 backdrop-blur-2xl sticky top-0 z-50 w-full shadow-2xl">
         <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-3">
           
-          {/* Left: Logo + Title + Integrated Navigation Pills */}
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center font-bold text-white text-base shadow-inner flex-shrink-0">
-              U
+          {/* Left: Negative-Space Mountain Logo & Wordmark (Inspired by Gorilla Logo Style) */}
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Mountain Emblem Badge */}
+            <div 
+              onClick={() => setActiveTab('overview')} 
+              className="w-10 h-10 rounded-xl bg-gradient-to-b from-white/15 to-white/5 border border-white/20 hover:border-cyan-400/60 hover:shadow-[0_0_20px_rgba(56,189,248,0.35)] flex items-center justify-center text-white shadow-inner flex-shrink-0 transition-all cursor-pointer select-none relative overflow-hidden" 
+              title="Undercurrent Home"
+            >
+              <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="14,26 23,10 32,26" fill="#0284c7" opacity="0.65" />
+                <polygon points="23,10 32,26 23,26" fill="#0369a1" opacity="0.85" />
+                <polygon points="4,26 15,6 25,26" fill="#ffffff" />
+                <polygon points="15,6 25,26 15,26" fill="#475569" />
+                <polygon points="15,6 12,12 15,14 18,12" fill="#38bdf8" />
+                <polygon points="23,10 21,14 23,15.5 25,14" fill="#7dd3fc" />
+                <path d="M2 26 C 7 24, 12 28, 18 26 C 24 24, 28 27, 34 25" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" fill="none" />
+                <path d="M5 30 C 10 28, 15 31, 20 29 C 25 28, 29 30, 32 29" stroke="#0ea5e9" strokeWidth="1.4" strokeLinecap="round" fill="none" opacity="0.8" />
+              </svg>
             </div>
-            <div className="hidden sm:flex items-center space-x-2 flex-shrink-0">
-              <span className="text-base lg:text-lg font-black tracking-tight text-white">UNDERCURRENT</span>
-              <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Track
+
+            {/* Wordmark with Integrated Mountain Silhouette */}
+            <div onClick={() => setActiveTab('overview')} className="hidden sm:flex flex-col justify-center cursor-pointer select-none">
+              <div className="flex items-center gap-2 leading-none">
+                <span className="text-base lg:text-lg font-black tracking-tight text-white flex items-center font-sans">
+                  <span>UNDER</span>
+                  <span className="inline-flex items-center justify-center mx-0.5 px-0.5">
+                    <svg className="w-4 h-4 text-cyan-400 inline-block -mt-0.5 drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2 L2 20 L22 20 Z" fill="#ffffff" />
+                      <path d="M12 2 L22 20 L12 20 Z" fill="#0284c7" />
+                      <path d="M12 2 L9 9 L12 11 L15 9 Z" fill="#38bdf8" />
+                      <path d="M2 22 Q 7 20 12 22 T 22 22" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  <span className="text-cyan-400">CURRENT</span>
+                </span>
+                <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center gap-1 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Track
+                </span>
+              </div>
+              <span className="text-[9px] font-mono tracking-widest text-slate-400 uppercase mt-0.5 hidden lg:block">
+                Himalayan Water Intelligence
               </span>
             </div>
 
