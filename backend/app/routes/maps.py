@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+import json
+from fastapi import APIRouter, HTTPException, Response
 from ..services.data_service import data_service
 
 router = APIRouter(prefix="/map", tags=["Geospatial Map Layers"])
@@ -64,3 +65,14 @@ def get_layer_geojson(layer_name: str):
     if not data:
         raise HTTPException(status_code=404, detail=f"Layer GeoJSON '{layer_name}' not found.")
     return data
+
+@router.get("/download/{layer_name}", summary="Download layer GeoJSON directly for GIS desktop tools like QGIS")
+def download_layer_geojson(layer_name: str):
+    data = data_service.get_geojson(layer_name)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"Layer GeoJSON '{layer_name}' not found.")
+    return Response(
+        content=json.dumps(data, indent=2),
+        media_type="application/geo+json",
+        headers={"Content-Disposition": f'attachment; filename="undercurrent_{layer_name}.geojson"'}
+    )

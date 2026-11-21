@@ -11,6 +11,17 @@ from ..services.ndwi_engine import (
 
 router = APIRouter(prefix="/analysis", tags=["Scientific Geospatial Analysis"])
 
+@router.get("/validation", summary="Get scientific validation record conforming to Phase 1 of development roadmap")
+def get_scientific_validation():
+    val_file = os.path.normpath(os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "..", "data", "metadata", "scientific_validation.json"
+    ))
+    if os.path.exists(val_file):
+        with open(val_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    raise HTTPException(status_code=404, detail="Scientific validation record not found.")
+
 @router.get("/raster/south-lhonak", summary="Process physical Sentinel-2 MSI Level-2A GeoTIFFs with exact pixel ground area")
 def get_physical_raster_analysis(
     date: str = Query("2023-10-09", description="Observation date (2023-09-26 or 2023-10-09)"),

@@ -134,6 +134,15 @@ class EvidenceAdvisory(BaseModel):
     imagery_quality_and_confidence: Dict[str, Any]
     recommended_response: str
     scientific_safeguards: str
+    review_status: str = "Awaiting Human Expert Review"
+    review_authority: str = "Sikkim SDMA / NDMA Glacial Risk Cell"
+    can_elevate_to_public: bool = False
+
+class HumanReviewSubmission(BaseModel):
+    reviewer_name: str
+    organization: str
+    review_decision: str # "ENDORSED_FOR_INTERNAL_ACTION", "REQUEST_GROUND_CONFIRMATION", "REJECTED_FALSE_ALARM"
+    technical_comments: str
 
 class NDWICalculationRequest(BaseModel):
     lake_id: str

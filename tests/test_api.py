@@ -8,8 +8,8 @@ import os
 # Add project root to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.app.routes import health, lakes, reservoirs, exposure, maps, alerts, analysis
-from backend.app.schemas.models import NDWICalculationRequest
+from backend.app.routes import health, lakes, reservoirs, exposure, maps, alerts, analysis, pipeline
+from backend.app.schemas.models import NDWICalculationRequest, HumanReviewSubmission
 
 def test_undercurrent():
     print("Testing /api/health...")
@@ -88,6 +88,41 @@ def test_undercurrent():
     raster_post = analysis.get_physical_raster_analysis(date="2023-10-09")
     assert raster_post["lake_isolated_water_pixels"] == 10023
     assert abs(raster_post["physical_area_km2"] - 1.003) < 0.01
+
+    print("Testing /api/exposure/SA-TEESTA-01/sensitivity (Weight sensitivity testing)...")
+    sens = exposure.get_exposure_sensitivity("SA-TEESTA-01")
+    assert sens["assets_evaluated"] >= 5
+    assert len(sens["scenarios_tested"]) == 4
+
+    print("Testing /api/alerts/ALT-2023-SK-01/review (Human Expert Review gate)...")
+    sub = HumanReviewSubmission(
+        reviewer_name="Dr. P. Sharma",
+        organization="Sikkim State Disaster Management Authority",
+        review_decision="ENDORSED_FOR_INTERNAL_ACTION",
+        technical_comments="Validated against Sentinel-2 MSI 10m Ground Sampling Distance. Drainage footprint confirmed."
+    )
+    rev_res = alerts.submit_human_review("ALT-2023-SK-01", sub)
+    assert rev_res["status"] == "success"
+    assert rev_res["review_record"]["elevation_authorized"] is True
+
+    print("Testing /api/analysis/validation (Phase 1 Scientific Validation Record)...")
+    val_rec = analysis.get_scientific_validation()
+    assert val_rec["pre_outburst_baseline"]["isolated_lake_pixels"] == 16661
+    assert val_rec["post_outburst_state"]["isolated_lake_pixels"] == 10023
+    assert val_rec["cross_sensor_benchmark_comparison"]["isro_nrsc_published_pre_burst"]["percentage_agreement_pct"] > 95.0
+
+    print("Testing /api/map/download/south_lhonak (Downloadable GeoJSON)...")
+    dl = maps.download_layer_geojson("south_lhonak")
+    assert dl.headers["Content-Disposition"] == 'attachment; filename="undercurrent_south_lhonak.geojson"'
+
+    print("Testing /api/pipeline/end-to-end (Phase 3 Unified Workflow MVP)...")
+    pipe = pipeline.get_end_to_end_pipeline()
+    assert pipe["pipeline_version"].startswith("1.0.0")
+    assert "step_1_lake_only_change" in pipe["workflow_steps"]
+    assert "step_2_drainage_corridor" in pipe["workflow_steps"]
+    assert "step_3_screened_asset_overlays" in pipe["workflow_steps"]
+    assert "step_4_independent_reservoir_track" in pipe["workflow_steps"]
+    assert "step_5_evidence_advisory" in pipe["workflow_steps"]
 
     print("Testing input validation and error handling...")
     from fastapi import HTTPException

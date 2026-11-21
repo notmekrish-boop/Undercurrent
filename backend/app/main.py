@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from .routes import health, lakes, reservoirs, exposure, maps, alerts, analysis
+from .routes import health, lakes, reservoirs, exposure, maps, alerts, analysis, pipeline
 from .services.data_service import data_service
 
 app = FastAPI(
@@ -47,6 +47,7 @@ app.include_router(exposure.router, prefix="/api")
 app.include_router(maps.router, prefix="/api")
 app.include_router(alerts.router, prefix="/api")
 app.include_router(analysis.router, prefix="/api")
+app.include_router(pipeline.router, prefix="/api")
 
 @app.get("/api/study-area", tags=["Study Area"])
 def get_study_area():

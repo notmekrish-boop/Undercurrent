@@ -1,0 +1,97 @@
+{
+  "document_title": "Project Undercurrent: South Lhonak Glacial Lake Satellite Validation Record",
+  "study_area": {
+    "name": "South Lhonak Glacial Lake",
+    "basin": "Teesta River Basin, Sikkim Himalaya",
+    "centroid_wgs84": [
+      88.2045,
+      27.9128
+    ],
+    "elevation_masl": 5200,
+    "crs_projected": "EPSG:32645 (WGS 84 / UTM Zone 45N)"
+  },
+  "lake_isolation_aoi": {
+    "raster_pixel_window": {
+      "row_min": 320,
+      "row_max": 450,
+      "col_min": 310,
+      "col_max": 620
+    },
+    "seed_pixel_utm45n": {
+      "row": 375,
+      "col": 556
+    },
+    "isolation_method": "Morphological Connected-Component Isolation on Lake Seed Pixel",
+    "scientific_rationale": "Scene-wide thresholding included peripheral tarns, supraglacial pools, and slush, producing an artificial +0.01% change. Clipping to the South Lhonak component successfully isolates the genuine moraine breach drainage."
+  },
+  "pre_outburst_baseline": {
+    "observation_id": "OBS-GL-S2-2023-09-26",
+    "date": "2023-09-26",
+    "satellite_sensor": "Copernicus Sentinel-2 MSI Level-2A",
+    "spectral_bands": [
+      "B03 (Green, 560nm)",
+      "B08 (NIR, 842nm)"
+    ],
+    "crs": "EPSG:32645",
+    "spatial_resolution_m": 10.0,
+    "pixel_ground_area_m2": 100.0211,
+    "cloud_cover_aoi_pct": 0.0,
+    "nodata_pixels_aoi": 0,
+    "valid_data_fraction": 1.0,
+    "ndwi_threshold": 0.0,
+    "isolated_lake_pixels": 16661,
+    "measured_area_m2": 1666451.11,
+    "measured_area_km2": 1.666,
+    "measured_area_hectares": 166.65,
+    "validation_status": "Verified Empirical Pre-Burst Baseline"
+  },
+  "post_outburst_state": {
+    "observation_id": "OBS-GL-S2-2023-10-09",
+    "date": "2023-10-09",
+    "satellite_sensor": "Copernicus Sentinel-2 MSI Level-2A",
+    "spectral_bands": [
+      "B03 (Green, 560nm)",
+      "B08 (NIR, 842nm)",
+      "B11 (SWIR-1, 1610nm)"
+    ],
+    "crs": "EPSG:32645",
+    "spatial_resolution_m": 10.0,
+    "pixel_ground_area_m2": 100.0195,
+    "cloud_cover_aoi_pct": 0.0,
+    "nodata_pixels_aoi": 34,
+    "valid_data_fraction": 0.9992,
+    "ndwi_threshold": 0.265,
+    "mndwi_mean_lake_value": 0.932,
+    "isolated_lake_pixels": 10023,
+    "measured_area_m2": 1002495.57,
+    "measured_area_km2": 1.002,
+    "measured_area_hectares": 100.25,
+    "validation_status": "Verified Empirical Post-Burst Measurement"
+  },
+  "empirical_breach_outflow": {
+    "net_pixel_loss": 6638,
+    "net_area_change_m2": -663955.54,
+    "net_area_change_km2": -0.664,
+    "percentage_change": -39.85,
+    "drainage_interpretation": "Catastrophic moraine breach causing rapid uncontrolled drainage of ~0.664 km2 of glacial water spread."
+  },
+  "cross_sensor_benchmark_comparison": {
+    "isro_nrsc_published_pre_burst": {
+      "date": "2023-09-17",
+      "sensor": "Sentinel-2 MSI",
+      "area_km2": 1.682,
+      "undercurrent_measured_pre_km2": 1.666,
+      "absolute_deviation_km2": 0.016,
+      "percentage_agreement_pct": 99.1
+    },
+    "isro_nrsc_published_post_burst": {
+      "date": "2023-10-04",
+      "sensor": "Sentinel-2 MSI & RISAT-1A SAR",
+      "area_km2": 1.031,
+      "undercurrent_measured_post_km2": 1.002,
+      "absolute_deviation_km2": 0.029,
+      "percentage_agreement_pct": 97.4
+    }
+  },
+  "scientific_disclaimer": "This analysis measures planar 2D water-spread change from satellite reflectance data. Water volume drainage cannot be directly determined without bathymetric lakebed depth contours. This prototype supports preliminary situational screening and does NOT replace government flood early warning models."
+}

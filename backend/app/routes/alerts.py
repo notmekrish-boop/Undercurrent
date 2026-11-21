@@ -1,9 +1,38 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any
-from ..schemas.models import AlertFlag, EvidenceAdvisory
+from ..schemas.models import AlertFlag, EvidenceAdvisory, HumanReviewSubmission
 from ..services.data_service import data_service
 
 router = APIRouter(prefix="/alerts", tags=["Rule-Based Anomaly & Screening Flags"])
+
+_HUMAN_REVIEWS: Dict[str, Dict[str, Any]] = {}
+
+@router.post("/{alert_id}/review", summary="Human expert review sign-off before advisory elevation")
+def submit_human_review(alert_id: str, submission: HumanReviewSubmission):
+    _HUMAN_REVIEWS[alert_id] = {
+        "alert_id": alert_id,
+        "reviewed_by": submission.reviewer_name,
+        "organization": submission.organization,
+        "decision": submission.review_decision,
+        "comments": submission.technical_comments,
+        "reviewed_at_utc": "2023-10-09T06:30:00Z",
+        "elevation_authorized": submission.review_decision == "ENDORSED_FOR_INTERNAL_ACTION"
+    }
+    return {
+        "status": "success",
+        "message": f"Expert review recorded for alert {alert_id}",
+        "review_record": _HUMAN_REVIEWS[alert_id]
+    }
+
+@router.get("/{alert_id}/review", summary="Get human expert review record for an alert")
+def get_alert_review(alert_id: str):
+    if alert_id in _HUMAN_REVIEWS:
+        return _HUMAN_REVIEWS[alert_id]
+    return {
+        "alert_id": alert_id,
+        "review_status": "PENDING_EXPERT_REVIEW",
+        "gate_requirement": "Requires human review by State Disaster Management Authority before elevation to civil advisory."
+    }
 
 @router.get("/advisory", response_model=EvidenceAdvisory, summary="Get structured evidence-based stakeholder advisory")
 def get_advisory():

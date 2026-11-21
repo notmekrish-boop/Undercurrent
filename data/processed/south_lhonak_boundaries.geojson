@@ -71,7 +71,10 @@
         "stroke": "#94a3b8",
         "stroke-width": 1.5,
         "fill": "#64748b",
-        "fill-opacity": 0.2
+        "fill-opacity": 0.2,
+        "data_tier": "HISTORICAL_BASELINE_ARCHIVE",
+        "provenance_label": "Decadal USGS/ESA Baseline Archive (Precomputed)",
+        "is_measured": false
       },
       "geometry": {
         "type": "Polygon",
@@ -1652,7 +1655,10 @@
         "stroke": "#38bdf8",
         "stroke-width": 1.8,
         "fill": "#0284c7",
-        "fill-opacity": 0.25
+        "fill-opacity": 0.25,
+        "data_tier": "HISTORICAL_BASELINE_ARCHIVE",
+        "provenance_label": "Decadal USGS/ESA Baseline Archive (Precomputed)",
+        "is_measured": false
       },
       "geometry": {
         "type": "Polygon",
@@ -3233,7 +3239,10 @@
         "stroke": "#0ea5e9",
         "stroke-width": 2.0,
         "fill": "#0369a1",
-        "fill-opacity": 0.3
+        "fill-opacity": 0.3,
+        "data_tier": "HISTORICAL_BASELINE_ARCHIVE",
+        "provenance_label": "Decadal USGS/ESA Baseline Archive (Precomputed)",
+        "is_measured": false
       },
       "geometry": {
         "type": "Polygon",
@@ -4814,7 +4823,10 @@
         "stroke": "#38bdf8",
         "stroke-width": 2.5,
         "fill": "#0284c7",
-        "fill-opacity": 0.35
+        "fill-opacity": 0.35,
+        "data_tier": "PUBLISHED_NRSC_ASSESSMENT",
+        "provenance_label": "ISRO NRSC Rapid Disaster Management Support Report",
+        "is_measured": false
       },
       "geometry": {
         "type": "Polygon",
@@ -6397,7 +6409,10 @@
         "stroke": "#38bdf8",
         "stroke-width": 2.5,
         "fill": "#0284c7",
-        "fill-opacity": 0.35
+        "fill-opacity": 0.35,
+        "data_tier": "EMPIRICAL_MEASURED_SATELLITE",
+        "provenance_label": "Direct Sentinel-2 Level-2A Ingested & Processed Scene",
+        "is_measured": true
       },
       "geometry": {
         "type": "Polygon",
@@ -7980,7 +7995,10 @@
         "stroke": "#f43f5e",
         "stroke-width": 2.5,
         "fill": "#e11d48",
-        "fill-opacity": 0.45
+        "fill-opacity": 0.45,
+        "data_tier": "PUBLISHED_NRSC_ASSESSMENT",
+        "provenance_label": "ISRO NRSC Rapid Disaster Management Support Report",
+        "is_measured": false
       },
       "geometry": {
         "type": "Polygon",
@@ -17547,7 +17565,10 @@
         "stroke": "#f43f5e",
         "stroke-width": 2.5,
         "fill": "#e11d48",
-        "fill-opacity": 0.45
+        "fill-opacity": 0.45,
+        "data_tier": "EMPIRICAL_MEASURED_SATELLITE",
+        "provenance_label": "Direct Sentinel-2 Level-2A Ingested & Processed Scene",
+        "is_measured": true
       },
       "geometry": {
         "type": "Polygon",
