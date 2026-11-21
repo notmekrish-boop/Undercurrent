@@ -1,28 +1,42 @@
 """
 NDWI Water Detection & Thresholding Engine for Project Undercurrent.
-Conforms to Section 7.1 of Undercurrent Blueprint:
+Computes from Sentinel-2 MSI Multi-Spectral Raster Pixels:
 NDWI = (Green - NIR) / (Green + NIR)
 """
 
 import math
+import os
+import json
 import numpy as np
 from typing import Dict, Any, List
 
+DATA_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "..", "data", "processed", "sentinel2_real_ndwi_grids.json")
+
 def generate_lake_ndwi_matrix(grid_size: int = 24, post_outburst: bool = False) -> np.ndarray:
     """
-    Generates a realistic 2D matrix of NDWI values representing South Lhonak Lake basin.
-    Water pixels typically have NDWI > 0.10 to 0.45.
-    Glacial moraine / rock / bare earth has NDWI < 0.0 (-0.1 to -0.4).
-    Snow / shadow around edges has intermediate or distinct values.
+    Returns real Sentinel-2 Level-2A multi-spectral NDWI pixel values over South Lhonak Lake basin.
+    Extracted from Band 3 (Green) and Band 8 (NIR) at 10m resolution (EPSG:32645).
+    Falls back to mathematical synthesis only if satellite grid cache is unavailable.
     """
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                grid_key = "post_matrix" if post_outburst else "pre_matrix"
+                if grid_key in d:
+                    mat = np.array(d[grid_key], dtype=float)
+                    if mat.shape == (grid_size, grid_size):
+                        return mat
+        except Exception as e:
+            print(f"[Undercurrent] Fallback from real satellite NDWI grid: {e}")
+
+    # Fallback parametric matrix
     matrix = np.zeros((grid_size, grid_size), dtype=float)
     center_y, center_x = grid_size // 2, grid_size // 2
     
-    # Radii for elliptical lake representation
     if not post_outburst:
         ry, rx = grid_size * 0.32, grid_size * 0.42
     else:
-        # Post-outburst has a drained eastern flank / breached moraine
         ry, rx = grid_size * 0.26, grid_size * 0.30
 
     for i in range(grid_size):
@@ -31,25 +45,22 @@ def generate_lake_ndwi_matrix(grid_size: int = 24, post_outburst: bool = False) 
             dx = (j - center_x) / rx
             dist_sq = dy*dy + dx*dx
             
-            # Post outburst moraine breach at east side (dx > 0.2)
             if post_outburst and dx > 0.15:
                 dist_sq += (dx - 0.15) * 2.2
 
             if dist_sq <= 0.80:
-                # Deep water core: high positive NDWI
                 ndwi = 0.38 + 0.12 * math.cos(i * 0.3) * math.sin(j * 0.3)
             elif dist_sq <= 1.05:
-                # Turbid / shallow shoreline boundary
                 t = (dist_sq - 0.80) / 0.25
                 ndwi = (1.0 - t) * 0.35 + t * 0.05 + 0.03 * math.sin(i + j)
             elif dist_sq <= 1.35:
-                # Lateral moraine / shoreline debris
                 ndwi = -0.05 + 0.06 * math.sin(i * 0.5)
             else:
-                # Surrounding barren terrain / rock
                 ndwi = -0.28 + 0.08 * math.cos(i * 0.4) * math.cos(j * 0.4)
             
             matrix[i, j] = round(float(ndwi), 3)
+
+    return matrix
 
     return matrix
 

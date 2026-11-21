@@ -1,8 +1,19 @@
+import os
+import json
 from fastapi import APIRouter
 from ..schemas.models import NDWICalculationRequest, NDWICalculationResult
 from ..services.ndwi_engine import generate_lake_ndwi_matrix, classify_water_pixels
 
 router = APIRouter(prefix="/analysis", tags=["Scientific Geospatial Analysis"])
+
+@router.get("/ndwi/grids", summary="Get real Sentinel-2 MSI level-2A NDWI grids for pre and post outburst")
+def get_real_ndwi_grids():
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    grid_path = os.path.normpath(os.path.join(base_dir, "..", "data", "processed", "sentinel2_real_ndwi_grids.json"))
+    if os.path.exists(grid_path):
+        with open(grid_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
 
 @router.post("/ndwi", response_model=NDWICalculationResult, summary="Perform NDWI threshold water extraction calculation")
 def calculate_ndwi(req: NDWICalculationRequest):

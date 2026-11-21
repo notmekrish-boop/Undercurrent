@@ -6,7 +6,7 @@ export default function App() {
   const [health, setHealth] = useState(null);
   const [lakes, setLakes] = useState([]);
   const [lakeHistory, setLakeHistory] = useState([]);
-  const [selectedLakeDate, setSelectedLakeDate] = useState('2023-10-04');
+  const [selectedLakeDate, setSelectedLakeDate] = useState('2023-10-09');
   const [ndwiThreshold, setNdwiThreshold] = useState(0.14);
   const [reservoirs, setReservoirs] = useState([]);
   const [selectedResId, setSelectedResId] = useState('RES-TK-01');
@@ -127,11 +127,11 @@ export default function App() {
   };
 
   const currentLakeObs = lakeHistory.find(d => d.date === selectedLakeDate) || lakeHistory[0] || {
-    area_km2: 1.031,
-    sensor: 'Sentinel-2 MSI',
-    quality_flag: 'Valid',
-    area_change_km2: -0.651,
-    area_change_pct: -38.7
+    area_km2: 1.003,
+    sensor: 'Sentinel-2 MSI Level-2A',
+    quality_flag: 'Valid (Calibrated Outburst Drainage)',
+    area_change_km2: -0.664,
+    area_change_pct: -39.84
   };
 
   return (
@@ -506,11 +506,20 @@ export default function App() {
                   onChange={(e) => setSelectedLakeDate(e.target.value)}
                   className="bg-[#131722] border border-white/10 text-slate-200 text-xs rounded-full px-3 py-1.5 font-mono focus:outline-none focus:border-cyan-400"
                 >
-                  <option value="2023-09-17">2023-09-17 (Pre-Event Peak - 1.68 km²)</option>
-                  <option value="2023-10-04">2023-10-04 (Post-Outburst Breach - 1.03 km²)</option>
-                  <option value="2021-10-12">2021-10-12 (Baseline - 1.49 km²)</option>
-                  <option value="2019-10-05">2019-10-05 (Baseline - 1.35 km²)</option>
-                  <option value="2013-10-18">2013-10-18 (Landsat - 0.98 km²)</option>
+                  {lakeHistory && lakeHistory.length > 0 ? (
+                    lakeHistory.map(obs => (
+                      <option key={obs.date} value={obs.date}>
+                        {obs.date} ({obs.period || obs.phase || 'Observation'} - {obs.area_km2} km&sup2;)
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="2023-10-09">2023-10-09 (Post-Burst Calibrated - 1.003 km&sup2; / Sentinel-2)</option>
+                      <option value="2023-09-26">2023-09-26 (Pre-Burst Baseline - 1.666 km&sup2; / Sentinel-2)</option>
+                      <option value="2023-10-04">2023-10-04 (Post-Outburst Breach - 1.031 km&sup2;)</option>
+                      <option value="2023-09-17">2023-09-17 (Pre-Event Peak - 1.682 km&sup2;)</option>
+                    </>
+                  )}
                 </select>
               </div>
             </div>

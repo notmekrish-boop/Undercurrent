@@ -62,6 +62,13 @@ def test_undercurrent():
     al = alerts.get_alert_flags()
     assert len(al) >= 2
 
+    print("Testing /api/alerts/advisory...")
+    adv = alerts.get_advisory()
+    assert adv.advisory_id == "ADV-2023-SK-TEESTA-01"
+    assert adv.latest_observation["water_area_km2"] == 1.003
+    assert adv.downstream_corridor["elevation_drop_m"] == 4920
+    assert adv.screened_assets["critical_count"] == 3
+
     print("Testing /api/analysis/ndwi...")
     ndwi_req = NDWICalculationRequest(lake_id="south-lhonak-post", threshold=0.14, grid_size=24)
     ndwi_res = analysis.calculate_ndwi(ndwi_req)

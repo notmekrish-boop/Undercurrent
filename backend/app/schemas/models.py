@@ -122,6 +122,19 @@ class AlertFlag(BaseModel):
     confidence_level: str
     disclaimer: str
 
+class EvidenceAdvisory(BaseModel):
+    advisory_id: str
+    timestamp_utc: str
+    basin: str
+    target_lake: str
+    latest_observation: Dict[str, Any]
+    downstream_corridor: Dict[str, Any]
+    screened_assets: Dict[str, Any]
+    independent_reservoir_track: Dict[str, Any]
+    imagery_quality_and_confidence: Dict[str, Any]
+    recommended_response: str
+    scientific_safeguards: str
+
 class NDWICalculationRequest(BaseModel):
     lake_id: str
     threshold: float = Field(0.14, ge=-1.0, le=1.0)
