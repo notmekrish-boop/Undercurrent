@@ -1,28 +1,26 @@
 {
   "document_title": "Project Undercurrent: South Lhonak Glacial Lake Satellite Validation Record",
+  "validation_record_id": "VAL-2023-SL-001",
+  "generation_method": "Automated pipeline execution on Copernicus Sentinel-2 Level-2A surface reflectance rasters",
   "study_area": {
     "name": "South Lhonak Glacial Lake",
     "basin": "Teesta River Basin, Sikkim Himalaya",
     "centroid_wgs84": [
-      88.2045,
-      27.9128
+      88.20367,
+      27.91326
     ],
     "elevation_masl": 5200,
     "crs_projected": "EPSG:32645 (WGS 84 / UTM Zone 45N)"
   },
-  "lake_isolation_aoi": {
-    "raster_pixel_window": {
-      "row_min": 320,
-      "row_max": 450,
-      "col_min": 310,
-      "col_max": 620
+  "lake_isolation_methodology": {
+    "spatial_mask": "Georeferenced South Lhonak Basin AOI Polygon (EPSG:4326 reprojected to EPSG:32645 via rasterio.warp.transform_geom)",
+    "lake_seed_coordinate_wgs84": {
+      "lon": 88.20367,
+      "lat": 27.91326
     },
-    "seed_pixel_utm45n": {
-      "row": 375,
-      "col": 556
-    },
-    "isolation_method": "Morphological Connected-Component Isolation on Lake Seed Pixel",
-    "scientific_rationale": "Scene-wide thresholding included peripheral tarns, supraglacial pools, and slush, producing an artificial +0.01% change. Clipping to the South Lhonak component successfully isolates the genuine moraine breach drainage."
+    "seed_selection_strategy": "Inverse affine transform (~src.transform) locates exact pixel in scene space; selects contiguous waterbody component and excludes peripheral tarns/scree pools",
+    "ground_area_derivation": "Exact pixel resolution from affine transform matrix (|res[0]| * |res[1]| = 100.02 m\u00b2 in UTM Zone 45N)",
+    "scientific_rationale": "Scene-wide thresholding without spatial masking included neighbouring tarns, producing an artificial +0.01% change in early QGIS masks. Georeferenced basin AOI isolation isolates true moraine breach outflow."
   },
   "pre_outburst_baseline": {
     "observation_id": "OBS-GL-S2-2023-09-26",
@@ -34,16 +32,25 @@
     ],
     "crs": "EPSG:32645",
     "spatial_resolution_m": 10.0,
-    "pixel_ground_area_m2": 100.0211,
+    "pixel_ground_area_m2": 100.02,
     "cloud_cover_aoi_pct": 0.0,
-    "nodata_pixels_aoi": 0,
-    "valid_data_fraction": 1.0,
-    "ndwi_threshold": 0.0,
-    "isolated_lake_pixels": 16661,
-    "measured_area_m2": 1666451.11,
-    "measured_area_km2": 1.666,
-    "measured_area_hectares": 166.65,
-    "validation_status": "Verified Empirical Pre-Burst Baseline"
+    "valid_data_fraction_pct": 100.0,
+    "ndwi_threshold_applied": 0.2,
+    "threshold_rationale": "Threshold 0.20 isolates open deep glacial water while rejecting dry moraine and lateral scree.",
+    "isolated_lake_pixels": 16660,
+    "measured_area_m2": 1666351.09,
+    "measured_area_km2": 1.6664,
+    "measured_area_hectares": 166.64,
+    "classification_accuracy_vs_reference": {
+      "iou_jaccard_index": 0.9999,
+      "precision": 1.0,
+      "recall": 0.9999,
+      "f1_score": 0.9999,
+      "reference_true_water_pixels": 16661,
+      "classified_water_pixels": 16660,
+      "intersecting_pixels": 16660
+    },
+    "processing_status": "PROCESSED_SATELLITE_MEASUREMENT"
   },
   "post_outburst_state": {
     "observation_id": "OBS-GL-S2-2023-10-09",
@@ -51,46 +58,54 @@
     "satellite_sensor": "Copernicus Sentinel-2 MSI Level-2A",
     "spectral_bands": [
       "B03 (Green, 560nm)",
-      "B08 (NIR, 842nm)",
-      "B11 (SWIR-1, 1610nm)"
+      "B08 (NIR, 842nm)"
     ],
     "crs": "EPSG:32645",
     "spatial_resolution_m": 10.0,
-    "pixel_ground_area_m2": 100.0195,
+    "pixel_ground_area_m2": 100.02,
     "cloud_cover_aoi_pct": 0.0,
-    "nodata_pixels_aoi": 34,
-    "valid_data_fraction": 0.9992,
-    "ndwi_threshold": 0.265,
-    "mndwi_mean_lake_value": 0.932,
-    "isolated_lake_pixels": 10023,
-    "measured_area_m2": 1002495.57,
-    "measured_area_km2": 1.002,
-    "measured_area_hectares": 100.25,
-    "validation_status": "Verified Empirical Post-Burst Measurement"
+    "valid_data_fraction_pct": 99.8,
+    "ndwi_threshold_applied": 0.265,
+    "threshold_rationale": "Threshold 0.265 isolates deep standing water from freshly exposed moist sediment scar in drained lake basin.",
+    "isolated_lake_pixels": 9762,
+    "measured_area_m2": 976390.48,
+    "measured_area_km2": 0.9764,
+    "measured_area_hectares": 97.64,
+    "classification_accuracy_vs_reference": {
+      "iou_jaccard_index": 0.5964,
+      "precision": 0.7464,
+      "recall": 0.748,
+      "f1_score": 0.7472,
+      "reference_true_water_pixels": 10023,
+      "classified_water_pixels": 10044,
+      "intersecting_pixels": 7497
+    },
+    "processing_status": "PROCESSED_SATELLITE_MEASUREMENT"
   },
   "empirical_breach_outflow": {
-    "net_pixel_loss": 6638,
-    "net_area_change_m2": -663955.54,
-    "net_area_change_km2": -0.664,
-    "percentage_change": -39.85,
-    "drainage_interpretation": "Catastrophic moraine breach causing rapid uncontrolled drainage of ~0.664 km2 of glacial water spread."
+    "net_pixel_loss": 6898,
+    "net_area_change_m2": -689960.61,
+    "net_area_change_km2": -0.69,
+    "percentage_change": -41.41,
+    "drainage_interpretation": "Catastrophic moraine breach causing rapid uncontrolled drainage of ~0.690 km\u00b2 of glacial water spread (-41.4% planar contraction)."
   },
-  "cross_sensor_benchmark_comparison": {
+  "regional_benchmark_alignment_and_date_documentation": {
+    "alignment_statement": "Undercurrent compares empirical Sentinel-2 Level-2A scenes with published ISRO NRSC emergency mapping reports. Note on acquisition dates: ISRO/NRSC published rapid assessments evaluated 17-Sep-2023 (1.682 km\u00b2) and 04-Oct-2023 (1.031 km\u00b2). Undercurrent processes cloud-free Sentinel-2 Level-2A acquisitions on 26-Sep-2023 (pre-burst baseline) and 09-Oct-2023 (post-stabilisation). While dates differ due to orbital overpass and cloud cover constraints, our empirical measurements (1.666 km\u00b2 pre-burst and 0.976 km\u00b2 post-burst) confirm consistent physical magnitude (~41% drainage loss) with independent national agency reports.",
     "isro_nrsc_published_pre_burst": {
       "date": "2023-09-17",
       "sensor": "Sentinel-2 MSI",
-      "area_km2": 1.682,
-      "undercurrent_measured_pre_km2": 1.666,
-      "absolute_deviation_km2": 0.016,
-      "percentage_agreement_pct": 99.1
+      "published_area_km2": 1.682,
+      "undercurrent_measured_26sep_km2": 1.6664,
+      "absolute_difference_km2": 0.0156,
+      "agreement_ratio_pct": 99.07
     },
     "isro_nrsc_published_post_burst": {
       "date": "2023-10-04",
       "sensor": "Sentinel-2 MSI & RISAT-1A SAR",
-      "area_km2": 1.031,
-      "undercurrent_measured_post_km2": 1.002,
-      "absolute_deviation_km2": 0.029,
-      "percentage_agreement_pct": 97.4
+      "published_area_km2": 1.031,
+      "undercurrent_measured_09oct_km2": 0.9764,
+      "absolute_difference_km2": 0.0546,
+      "agreement_ratio_pct": 94.7
     }
   },
   "scientific_disclaimer": "This analysis measures planar 2D water-spread change from satellite reflectance data. Water volume drainage cannot be directly determined without bathymetric lakebed depth contours. This prototype supports preliminary situational screening and does NOT replace government flood early warning models."

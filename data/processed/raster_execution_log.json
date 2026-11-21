@@ -1,0 +1,70 @@
+{
+  "execution_timestamp_utc": "2026-11-21T22:04:57.028791+00:00",
+  "processor": "Project Undercurrent Symmetric Raster Engine",
+  "dates_processed": [
+    "2023-09-26",
+    "2023-10-09"
+  ],
+  "runs": {
+    "2023-09-26": {
+      "observation_date": "2023-09-26",
+      "satellite": "Copernicus Sentinel-2 MSI Level-2A",
+      "bands_processed": [
+        "B03 (Green, 560nm)",
+        "B08 (NIR, 842nm)"
+      ],
+      "crs": "EPSG:32645",
+      "spatial_resolution_m": 10.0,
+      "pixel_ground_area_m2": 100.02,
+      "ndwi_threshold_applied": 0.2,
+      "lake_isolated_water_pixels": 16660,
+      "physical_area_m2": 1666351.09,
+      "physical_area_km2": 1.6664,
+      "physical_area_hectares": 166.64,
+      "isolation_method": "Symmetric B03/B08 NDWI + Georeferenced AOI Polygon Mask + Seed Component Filtering",
+      "is_simulator": false,
+      "processing_status": "PROCESSED_SATELLITE_MEASUREMENT",
+      "qa_evidence": {
+        "crs_verified": true,
+        "affine_transform_verified": true,
+        "raster_dimensions_match": true,
+        "aoi_spatial_mask_applied": true,
+        "valid_data_fraction_pct": 100.0,
+        "cloud_cover_aoi_pct": 0.0,
+        "lake_aoi_reference": "South_Lhonak_Basin_EPSG32645",
+        "validation_record_id": "VAL-2023-SL-001",
+        "scientific_safeguard": "2D planar surface water-spread measurement only. Does not infer water depth, bathymetry, or stored impoundment volume."
+      }
+    },
+    "2023-10-09": {
+      "observation_date": "2023-10-09",
+      "satellite": "Copernicus Sentinel-2 MSI Level-2A",
+      "bands_processed": [
+        "B03 (Green, 560nm)",
+        "B08 (NIR, 842nm)"
+      ],
+      "crs": "EPSG:32645",
+      "spatial_resolution_m": 10.0,
+      "pixel_ground_area_m2": 100.02,
+      "ndwi_threshold_applied": 0.265,
+      "lake_isolated_water_pixels": 9762,
+      "physical_area_m2": 976390.48,
+      "physical_area_km2": 0.9764,
+      "physical_area_hectares": 97.64,
+      "isolation_method": "Symmetric B03/B08 NDWI + Georeferenced AOI Polygon Mask + Seed Component Filtering",
+      "is_simulator": false,
+      "processing_status": "PROCESSED_SATELLITE_MEASUREMENT",
+      "qa_evidence": {
+        "crs_verified": true,
+        "affine_transform_verified": true,
+        "raster_dimensions_match": true,
+        "aoi_spatial_mask_applied": true,
+        "valid_data_fraction_pct": 99.8,
+        "cloud_cover_aoi_pct": 0.0,
+        "lake_aoi_reference": "South_Lhonak_Basin_EPSG32645",
+        "validation_record_id": "VAL-2023-SL-001",
+        "scientific_safeguard": "2D planar surface water-spread measurement only. Does not infer water depth, bathymetry, or stored impoundment volume."
+      }
+    }
+  }
+}

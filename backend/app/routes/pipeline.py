@@ -1,10 +1,14 @@
 """
 Unified End-to-End Pipeline Route for Project Undercurrent.
-Conforms strictly to Phase 3 of the Development Roadmap:
+Conforms strictly to Phase 3 of the Development Roadmap and Page 6/7 Action Plan:
 Lake-only change -> Downstream drainage corridor -> 8 Screened asset overlays -> Independent reservoir tracking -> Evidence advisory.
+
+Zero Silent Fallback Policy:
+If raster inputs or dependencies fail, the pipeline explicitly returns a structured error state
+with failed_stage='step_1_lake_only_change' rather than substituting plausible numeric values.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 from ..services.data_service import data_service
 from ..services.ndwi_engine import process_real_satellite_raster
@@ -13,50 +17,71 @@ from ..routes.alerts import get_advisory
 
 router = APIRouter(prefix="/pipeline", tags=["End-to-End Integrated Workflow"])
 
+
 @router.get("/end-to-end", summary="Execute and demonstrate the complete end-to-end geospatial intelligence workflow")
 def get_end_to_end_pipeline() -> Dict[str, Any]:
-    # Step 1: Upstream Lake-Only Sentinel-2 Analysis
+    # Step 1: Upstream Lake-Only Sentinel-2 Analysis (Strictly Measured - Zero Silent Fallback)
     try:
         raster_pre = process_real_satellite_raster(date="2023-09-26")
         raster_post = process_real_satellite_raster(date="2023-10-09")
-        area_pre = raster_pre.get("physical_area_km2", 1.6664)
-        area_post = raster_post.get("physical_area_km2", 0.9764)
-        pixels_pre = raster_pre.get("lake_isolated_water_pixels", 16660)
-        pixels_post = raster_post.get("lake_isolated_water_pixels", 9762)
-    except Exception:
-        area_pre = 1.6664
-        area_post = 0.9764
-        pixels_pre = 16660
-        pixels_post = 9762
+    except Exception as e:
+        return {
+            "pipeline_status": "FAILED",
+            "failed_stage": "step_1_lake_only_change",
+            "error_detail": f"Physical satellite raster processing failed: {str(e)}",
+            "remediation": "Verify Sentinel-2 Level-2A GeoTIFFs exist in data/raw/satellite/ and Rasterio/SciPy dependencies are functional.",
+            "pipeline_version": "1.0.0",
+            "basin": "Teesta River Basin, Sikkim Himalaya",
+            "is_measured": False,
+            "scientific_safeguard": "Per Section 5 of Technical Review, pipeline halts on raster failure rather than silently presenting simulated numbers as measured observations."
+        }
+
+    area_pre = raster_pre["physical_area_km2"]
+    area_post = raster_post["physical_area_km2"]
+    pixels_pre = raster_pre["lake_isolated_water_pixels"]
+    pixels_post = raster_post["lake_isolated_water_pixels"]
 
     net_loss = round(area_post - area_pre, 4)
     pct_loss = round((net_loss / area_pre) * 100.0, 2) if area_pre > 0 else 0.0
 
     lake_change = {
+        "stage_status": "COMPLETED",
         "lake_id": "GL-SK-01",
         "name": "South Lhonak Glacial Lake",
         "pre_burst_baseline": {
-            "date": "2023-09-26",
-            "sensor": "Copernicus Sentinel-2 MSI Level-2A",
+            "date": raster_pre["observation_date"],
+            "sensor": raster_pre["satellite"],
+            "bands": raster_pre["bands_processed"],
+            "crs": raster_pre["crs"],
+            "pixel_ground_area_m2": raster_pre["pixel_ground_area_m2"],
             "water_pixels_10m": pixels_pre,
-            "physical_area_km2": area_pre
+            "physical_area_km2": area_pre,
+            "threshold_applied": raster_pre["ndwi_threshold_applied"],
+            "qa_evidence": raster_pre["qa_evidence"]
         },
         "post_burst_state": {
-            "date": "2023-10-09",
-            "sensor": "Copernicus Sentinel-2 MSI Level-2A",
+            "date": raster_post["observation_date"],
+            "sensor": raster_post["satellite"],
+            "bands": raster_post["bands_processed"],
+            "crs": raster_post["crs"],
+            "pixel_ground_area_m2": raster_post["pixel_ground_area_m2"],
             "water_pixels_10m": pixels_post,
-            "physical_area_km2": area_post
+            "physical_area_km2": area_post,
+            "threshold_applied": raster_post["ndwi_threshold_applied"],
+            "qa_evidence": raster_post["qa_evidence"]
         },
         "empirical_drainage": {
             "net_area_loss_km2": net_loss,
             "drainage_percentage": pct_loss,
-            "isolation_method": "Symmetric B03/B08 NDWI + Georeferenced AOI Polygon Mask + Seed Component Filtering (10m ground resolution)"
+            "isolation_method": raster_post["isolation_method"],
+            "processing_status": raster_post["processing_status"]
         }
     }
 
     # Step 2: D8 DEM Terrain Drainage Corridor
     corridor_profile = data_service.get_elevation_profile()
     corridor = {
+        "stage_status": "COMPLETED",
         "corridor_id": "EXP-TEESTA-MAIN",
         "origin": "South Lhonak Lake (5,200m ASL)",
         "terminus": "Rangpo Border Checkpost (280m ASL)",
@@ -64,6 +89,7 @@ def get_end_to_end_pipeline() -> Dict[str, Any]:
         "hydraulic_drop_m": 4920,
         "mean_gradient_pct": 4.38,
         "terrain_confinement": "Steep V-shaped Himalayan gorge (confinement ratio > 85%)",
+        "elevation_source": "ISRO Bhuvan CartoDEM 30m Digital Elevation Model",
         "profile_milestones_count": len(corridor_profile)
     }
 
@@ -80,6 +106,7 @@ def get_end_to_end_pipeline() -> Dict[str, Any]:
             "chainage_km": dist,
             "elevation_m": a.get("elevation_m"),
             "location_slope_deg": local_slope,
+            "slope_source": "ISRO CartoDEM 30m Valley Elevation Profile",
             "exposure_rating": a.get("exposure_rating"),
             "key_vulnerability": a.get("key_vulnerability")
         })
@@ -87,6 +114,7 @@ def get_end_to_end_pipeline() -> Dict[str, Any]:
     # Step 4: Independent Reservoir Surveillance Track
     reservoirs = data_service.get_reservoirs()
     reservoir_track = {
+        "stage_status": "COMPLETED",
         "track": "Track B: Independent Downstream Reservoir Water-Spread",
         "monitored_reservoirs": reservoirs,
         "hydrological_safeguard": "Reservoir water-spread area is an independent empirical observation track; storage volume is NOT inferred from 2D surface spread."
@@ -96,8 +124,11 @@ def get_end_to_end_pipeline() -> Dict[str, Any]:
     advisory = get_advisory()
 
     return {
-        "pipeline_version": "1.0.0 (Roadmap MVP)",
+        "pipeline_status": "SUCCESS",
+        "pipeline_version": "1.0.0",
         "basin": "Teesta River Basin, Sikkim Himalaya",
+        "is_measured": True,
+        "is_fallback": False,
         "workflow_steps": {
             "step_1_lake_only_change": lake_change,
             "step_2_drainage_corridor": corridor,
