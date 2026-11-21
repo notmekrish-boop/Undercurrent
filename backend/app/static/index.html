@@ -93,7 +93,7 @@
           <div>
             <div class="flex items-center space-x-2">
               <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-200 bg-clip-text text-transparent">UNDERCURRENT</span>
-              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-950/80 border border-sky-800/80 text-sky-400">ASTRA 2026</span>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-950/80 border border-sky-800/80 text-sky-400">Geospatial Intelligence</span>
               <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-950/80 border border-indigo-800/80 text-indigo-300 font-mono">16:9 Widescreen</span>
               <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span> Active Basin
@@ -157,9 +157,6 @@
       </button>
       <button type="button" onclick="window.switchTab('methodology')" id="tab-btn-methodology" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
         <i data-lucide="file-text" class="w-4 h-4"></i> Data & Provenance
-      </button>
-      <button type="button" onclick="window.switchTab('hackathon')" id="tab-btn-hackathon" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
-        <i data-lucide="award" class="w-4 h-4"></i> ASTRA 2026 Blueprint
       </button>
     </div>
   </header>
@@ -232,7 +229,7 @@
             <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
               <i data-lucide="workflow" class="w-5 h-5 text-sky-400"></i> Core User Journeys
             </h2>
-            <p class="text-sm text-slate-400 mb-6">Explore the three linked analytical modules designed for the ASTRA 2026 Space Hackathon evaluation.</p>
+            <p class="text-sm text-slate-400 mb-6">Explore the three linked analytical modules for Himalayan water and glacial hazard evaluation.</p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Journey A -->
@@ -336,13 +333,13 @@
             </div>
           </div>
 
-          <!-- Indian Space Missions Focus Box (ASTRA Domain 01) -->
+          <!-- Indian Space Missions Focus Box -->
           <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-indigo-900/50 rounded-2xl p-6">
             <h3 class="text-sm font-bold text-indigo-300 mb-2 flex items-center gap-2">
               <i data-lucide="satellite" class="w-4 h-4 text-indigo-400"></i> Indian Space Missions Priority
             </h3>
             <p class="text-xs text-slate-300 leading-relaxed mb-4">
-              ASTRA's briefing emphasizes meaningful use of Indian satellite missions. Undercurrent incorporates datasets and portals from:
+              Undercurrent prioritizes meaningful use of Indian satellite missions and national geospatial portals:
             </p>
             <ul class="text-xs space-y-2 text-slate-400">
               <li class="flex items-start gap-2">
@@ -440,7 +437,7 @@
               </div>
             </div>
             <p class="text-xs text-slate-400 leading-normal">
-              Adjusting the threshold demonstrates Section 7.1 and 15 of the Blueprint: water extraction sensitivity varies with shoreline debris and turbid meltwater; a single universal threshold should never be assumed blindly.
+              Adjusting the threshold demonstrates water extraction sensitivity: optimal boundaries vary with shoreline debris and turbid meltwater; a single universal threshold should never be assumed blindly.
             </p>
           </div>
 
@@ -484,10 +481,10 @@
         <div class="mt-4 p-4 rounded-xl bg-cyan-950/40 border border-cyan-800/50 flex items-start gap-3">
           <i data-lucide="info" class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5"></i>
           <div class="text-xs text-cyan-200 space-y-1">
-            <strong>Mandatory Scientific Distinction (Blueprint Section 7.4):</strong>
+            <strong>Scientific Distinction: Water-Spread vs Storage Volume:</strong>
             <p class="text-slate-300">
               Satellite optical imagery measures <strong>water-spread surface area</strong>, which varies seasonally with monsoon inflows. It is <strong>NOT a direct measurement of storage volume</strong>.
-              Converting surface area to storage volume requires bathymetric surveys and elevation-area-capacity (EAC) curves. Undercurrent intentionally reports water-spread only to maintain scientific defensibility before judges.
+              Converting surface area to storage volume requires bathymetric surveys and elevation-area-capacity (EAC) curves. Undercurrent intentionally reports water-spread only to maintain rigorous scientific defensibility.
             </p>
           </div>
         </div>
@@ -666,7 +663,7 @@
           <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <i data-lucide="file-text" class="w-6 h-6 text-sky-400"></i> Scientific Methodology & Data Provenance
           </h2>
-          <p class="text-xs text-slate-400 mt-1">Traceable data lineage and mathematical formulation per Section 5.3 & Section 7 of the Blueprint</p>
+          <p class="text-xs text-slate-400 mt-1">Traceable data lineage, remote sensing indexes, and mathematical formulations</p>
         </div>
 
         <!-- Formulas Section -->
@@ -692,18 +689,18 @@
           </div>
         </div>
 
-        <!-- ASTRA Domain Alignment Table -->
+        <!-- Remote Sensing Domain Alignment Table -->
         <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i> ASTRA Hackathon Domain Alignment
+            <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i> Space Data & Remote Sensing Domain Focus
           </h3>
           <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
                 <tr>
-                  <th class="py-2.5 px-3">ASTRA Domain</th>
+                  <th class="py-2.5 px-3">Domain Focus</th>
                   <th class="py-2.5 px-3">Undercurrent Contribution</th>
-                  <th class="py-2.5 px-3">Evidence in Prototype</th>
+                  <th class="py-2.5 px-3">Evidence in System</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-800/60">
@@ -756,137 +753,13 @@
       </div>
     </div>
 
-    <!-- 7. HACKATHON & PRESENTATION BLUEPRINT -->
-    <div id="tab-hackathon" class="tab-content hidden space-y-6">
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-        <div>
-          <h2 class="text-xl font-bold text-white flex items-center gap-2">
-            <i data-lucide="award" class="w-6 h-6 text-amber-400"></i> ASTRA 2026 Evaluation & Defense Blueprint
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">100-Point Scoring Strategy, Team Roles, and Live Demo Rehearsal Guide</p>
-        </div>
-
-        <!-- 100-Point Rubric Table -->
-        <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="target" class="w-4 h-4 text-amber-400"></i> ASTRA 100-Point Scoring Rubric Alignment
-          </h3>
-          <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left text-xs text-slate-300">
-              <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
-                <tr>
-                  <th class="py-2.5 px-3">Criterion</th>
-                  <th class="py-2.5 px-3">Marks</th>
-                  <th class="py-2.5 px-3">Undercurrent Evidence to Present to Judges</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800/60">
-                <tr>
-                  <td class="py-2.5 px-3 font-semibold text-slate-200">Technical Implementation</td>
-                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">25</td>
-                  <td class="py-2.5 px-3">FastAPI backend, clean modular routes, NumPy NDWI matrix classification, pure GeoJSON spatial pipeline, and zero black-box calculations.</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 px-3 font-semibold text-slate-200">Working Prototype & Demo</td>
-                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">20</td>
-                  <td class="py-2.5 px-3">End-to-end working system linking South Lhonak lake &rarr; Teesta River &rarr; Chungthang Dam &rarr; Downstream settlements in a live browser session.</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 px-3 font-semibold text-slate-200">Presentation & Defense</td>
-                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">15</td>
-                  <td class="py-2.5 px-3">Clear speaking split between Aerospace (Remote Sensing/Science Lead) and CS members (Pipeline, Backend, Frontend).</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 px-3 font-semibold text-slate-200">Innovation & Creativity</td>
-                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
-                  <td class="py-2.5 px-3">Unified basin-oriented upstream/downstream water intelligence, connecting glacial lake risk to reservoir infrastructure.</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 px-3 font-semibold text-slate-200">Problem Relevance</td>
-                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
-                  <td class="py-2.5 px-3">Real-world Teesta Sikkim context (Oct 2023 disaster), supporting disaster management planners and water resource departments.</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 px-3 font-semibold text-slate-200">UI/UX & Experience</td>
-                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
-                  <td class="py-2.5 px-3">Interactive Leaflet GIS map, NDWI threshold slider, elevation profile chart, transparent alert indicators, and responsive 16:9 widescreen dark aerospace UI.</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 px-3 font-semibold text-slate-200">Scalability & Feasibility</td>
-                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
-                  <td class="py-2.5 px-3">Modular JSON schema; new Himalayan river basins (Satluj, Chamoli, Bhagirathi) can be added via configuration without rebuilding code.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- 4-Member Team Role Distribution (Section 9 Compliance) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <span class="text-xs px-2 py-0.5 rounded bg-purple-950 border border-purple-800 text-purple-300 font-semibold">Aerospace Member</span>
-            <div class="text-sm font-bold text-white">Remote Sensing & Science Lead</div>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Owns satellite image selection (Bhuvan/Copernicus), QGIS project setup, GLOF physical mechanisms, and scientific validation notes.
-            </p>
-          </div>
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <span class="text-xs px-2 py-0.5 rounded bg-sky-950 border border-sky-800 text-sky-300 font-semibold">CS Member 1</span>
-            <div class="text-sm font-bold text-white">Geospatial Processing Lead</div>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Automates NDWI band calculation, water mask extraction, area change detection, and spatial intersection routines.
-            </p>
-          </div>
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800 text-cyan-300 font-semibold">CS Member 2</span>
-            <div class="text-sm font-bold text-white">Backend & Data Engineer</div>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Builds FastAPI endpoints, schemas, CORS middleware, metadata catalogue, and data caching services.
-            </p>
-          </div>
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-300 font-semibold">CS Member 3</span>
-            <div class="text-sm font-bold text-white">Frontend & UI/UX Engineer</div>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Builds responsive web dashboard, Leaflet GIS map, Chart.js graphs, and demo rehearsal flow.
-            </p>
-          </div>
-        </div>
-
-        <!-- Anticipated Judge Q&A Defense Cards -->
-        <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-4">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="help-circle" class="w-4 h-4 text-sky-400"></i> Judge Defense Cheat Sheet (Section 14.4)
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
-              <strong class="text-slate-200">Q: Does lake expansion mean a GLOF is imminent?</strong>
-              <p class="text-slate-400"><strong>A:</strong> No. Surface expansion indicates meltwater accumulation or moraine impoundment. An outburst requires moraine failure triggers (avalanches, earthquakes, piping). It flags the lake for field inspection.</p>
-            </div>
-            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
-              <strong class="text-slate-200">Q: Can you predict flood arrival time or depth?</strong>
-              <p class="text-slate-400"><strong>A:</strong> Not in this prototype. That requires calibrated 2D hydrodynamic modeling (e.g., HEC-RAS or FLO-2D) and breach bathymetry. Undercurrent strictly provides preliminary exposure screening.</p>
-            </div>
-            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
-              <strong class="text-slate-200">Q: Does reservoir area tell you storage volume?</strong>
-              <p class="text-slate-400"><strong>A:</strong> No. Optical imagery detects water-spread area only. Converting this to storage volume requires bathymetry or validated elevation-capacity tables.</p>
-            </div>
-            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
-              <strong class="text-slate-200">Q: What is the Indian space-data contribution?</strong>
-              <p class="text-slate-400"><strong>A:</strong> ISRO CartoDEM from Bhuvan for elevation/slope profiling and ISRO Bhoonidhi RISAT-1A SAR coherence for penetrating cloud cover during the Oct 2023 monsoon event.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </main>
 
   <!-- FOOTER (FULL WIDTH) -->
   <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500 w-full">
     <div class="w-full px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <span class="font-bold text-slate-400">Project Undercurrent</span> &bull; ASTRA 2026 Space Hackathon &bull; 16:9 Widescreen Station
+        <span class="font-bold text-slate-400">Project Undercurrent</span> &bull; Himalayan Water & Glacial Monitoring Station &bull; 16:9 Widescreen
       </div>
       <div>
         Sikkim Teesta River Basin &bull; ISRO Bhuvan & Copernicus Space Data
@@ -1553,7 +1426,7 @@
 
     // Attach Event Listeners to Tabs directly as a secondary safety layer
     function setupTabClickListeners() {
-      const tabIds = ['overview', 'lakes', 'reservoirs', 'exposure', 'gis-map', 'methodology', 'hackathon'];
+      const tabIds = ['overview', 'lakes', 'reservoirs', 'exposure', 'gis-map', 'methodology'];
       tabIds.forEach(id => {
         const btn = document.getElementById('tab-btn-' + id);
         if (btn) {

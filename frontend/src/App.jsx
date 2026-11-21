@@ -123,7 +123,7 @@ export default function App() {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-200 bg-clip-text text-transparent">UNDERCURRENT</span>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-950 border border-sky-800 text-sky-400">ASTRA 2026</span>
+                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-950 border border-sky-800 text-sky-400">Geospatial Intelligence</span>
                 <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-950 border border-indigo-800 text-indigo-300 font-mono">16:9 Fullscreen</span>
               </div>
               <p className="text-xs text-slate-400">Himalayan Water Intelligence & Glacial Risk Monitoring System</p>
@@ -158,8 +158,7 @@ export default function App() {
             { id: 'reservoirs', label: 'Reservoir Water Spread' },
             { id: 'exposure', label: 'Downstream Exposure' },
             { id: 'gis-map', label: 'Interactive GIS Map' },
-            { id: 'methodology', label: 'Data & Provenance' },
-            { id: 'hackathon', label: 'ASTRA 2026 Blueprint' }
+            { id: 'methodology', label: 'Data & Provenance' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -378,7 +377,7 @@ export default function App() {
             </div>
 
             <div className="p-4 rounded-xl bg-cyan-950/40 border border-cyan-800/50 text-xs text-slate-300">
-              <strong>Mandatory Scientific Distinction (Blueprint Section 7.4):</strong> Optical imagery measures water-spread surface area, which is <strong>NOT direct storage volume</strong>. Undercurrent reports water-spread to remain defensible.
+              <strong>Scientific Distinction: Water-Spread vs Storage Volume:</strong> Optical imagery measures water-spread surface area, which is <strong>NOT direct storage volume</strong>. Undercurrent reports water-spread to maintain scientific defensibility.
             </div>
 
             <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
@@ -518,41 +517,12 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 7: ASTRA BLUEPRINT */}
-        {activeTab === 'hackathon' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
-            <h2 className="text-xl font-bold text-white">ASTRA 2026 Evaluation & Hackathon Blueprint</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
-                <div className="text-xs text-purple-400 font-bold">Aerospace Lead</div>
-                <div className="text-sm font-bold text-white mt-1">Remote Sensing & Science</div>
-                <p className="text-xs text-slate-400 mt-1">Image selection, QGIS validation, GLOF physical mechanisms.</p>
-              </div>
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
-                <div className="text-xs text-sky-400 font-bold">CS Member 1</div>
-                <div className="text-sm font-bold text-white mt-1">Geospatial Processing</div>
-                <p className="text-xs text-slate-400 mt-1">NDWI calculation pipeline, water mask and area calculation.</p>
-              </div>
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
-                <div className="text-xs text-cyan-400 font-bold">CS Member 2</div>
-                <div className="text-sm font-bold text-white mt-1">Backend & Data Engineer</div>
-                <p className="text-xs text-slate-400 mt-1">FastAPI REST service, schemas, data cache, and CORS.</p>
-              </div>
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
-                <div className="text-xs text-emerald-400 font-bold">CS Member 3</div>
-                <div className="text-sm font-bold text-white mt-1">Frontend & Product Engineer</div>
-                <p className="text-xs text-slate-400 mt-1">16:9 widescreen dashboard, interactive maps and demo flow.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
       </main>
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Project Undercurrent &bull; ASTRA 2026 Space Hackathon</span>
+          <span>Project Undercurrent &bull; Himalayan Water Intelligence & Glacial Risk Monitoring</span>
           <span>Teesta River Basin (Sikkim) &bull; ISRO Bhuvan & Copernicus Space Data</span>
         </div>
       </footer>

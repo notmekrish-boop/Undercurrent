@@ -1,7 +1,6 @@
 """
 Main application entry point for Project Undercurrent.
 Undercurrent: Himalayan Water Intelligence & Glacial Risk Monitoring System
-ASTRA 2026 Space Hackathon Prototype
 """
 
 import os

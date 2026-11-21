@@ -1,6 +1,6 @@
 # UNDERCURRENT 🌊
 ### Himalayan Water Intelligence & Glacial Risk Monitoring System
-**ASTRA 2026 Space Hackathon Prototype**
+**Satellite-Data-Driven Geospatial Intelligence Platform**
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com/)
@@ -30,9 +30,9 @@ Historically, satellite imagery, digital elevation models, and reservoir water r
 
 ---
 
-## 🛰️ ASTRA 2026 Hackathon Domain Alignment
+## 🛰️ Space Data & Remote Sensing Domain Focus
 
-| ASTRA Domain | Undercurrent Contribution | Prototype Implementation |
+| Domain Focus | Undercurrent Contribution | System Implementation |
 | :--- | :--- | :--- |
 | **01 \| Indian Space Missions & Space Data** | Uses Indian satellite missions and portals for elevation and radar verification. | Integrated **ISRO CartoDEM (30m)** via Bhuvan for elevation/slope profiling and **ISRO Bhoonidhi RISAT-1A SAR** coherence data. |
 | **02 \| Earth Observation & Satellite Applications** | Extracts multi-date water boundaries, computes NDWI, and visualizes decadal expansion. | Automated **Sentinel-2 MSI (10m)** and **Landsat-8/9 (30m)** analysis pipeline with interactive threshold simulator. |
@@ -205,4 +205,4 @@ All geometries projected into **UTM Zone 45N (EPSG:32645)** to calculate true pl
 ---
 
 ## 📜 License
-Developed for the **ASTRA 2026 Space Hackathon**. Open-source under the MIT License. Geospatial data attributed to ISRO Bhuvan, Copernicus Data Space Ecosystem, USGS EarthExplorer, and OpenStreetMap.
+Open-source under the MIT License. Geospatial data attributed to ISRO Bhuvan, Copernicus Data Space Ecosystem, USGS EarthExplorer, and OpenStreetMap.
