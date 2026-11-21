@@ -1,6 +1,6 @@
 import math
 from fastapi import APIRouter, HTTPException
-from typing import List
+from typing import List, Dict, Any, Optional
 from ..services.data_service import data_service
 from ..services.geospatial import evaluate_exposure_score
 

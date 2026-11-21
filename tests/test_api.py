@@ -34,6 +34,71 @@ def test_undercurrent():
     res = reservoirs.get_reservoirs()
     assert len(res) >= 2
 
+    print("Testing /api/reservoirs/presets...")
+    presets_res = reservoirs.get_reservoir_presets()
+    assert "RES-TK-01" in presets_res["presets"]
+    assert "RES-TK-02" in presets_res["presets"]
+
+    print("Testing /api/reservoirs/capacity-check (Reservoir GLOF Holding Capacity & Pre-Release Engine)...")
+    from backend.app.schemas.models import ReservoirCapacityCheckRequest
+
+    # Scenario 1: Actual Oct 2023 South Lhonak GLOF vs Chungthang Dam (45 MCM surge vs 6.3 MCM gross storage)
+    req_chungthang_glof = ReservoirCapacityCheckRequest(
+        reservoir_id="RES-TK-01",
+        reservoir_name="Teesta-III Chungthang Dam",
+        max_capacity_mcm=6.30,
+        dead_storage_mcm=1.22,
+        current_storage_mcm=5.08,
+        spillway_capacity_cumecs=7000.0,
+        estimated_glof_volume_mcm=45.0,
+        lead_time_hours=3.5
+    )
+    cap_res1 = reservoirs.check_reservoir_capacity(req_chungthang_glof)
+    assert cap_res1.has_sufficient_holding_capacity is False
+    assert cap_res1.capacity_status == "CAPACITY_EXCEEDED"
+    assert cap_res1.can_fully_contain_if_drawn_down is False
+    assert cap_res1.uncontainable_excess_volume_mcm > 35.0
+    assert cap_res1.water_release_required_mcm == 3.86 # 5.08 - 1.22
+    assert cap_res1.required_discharge_rate_cumecs > 0.0
+    assert "MANDATORY OPERATIONAL PROTOCOL" in cap_res1.operational_recommendation
+
+    # Scenario 2: Moderate surge where controlled pre-release drawdown achieves full containment
+    req_moderate = ReservoirCapacityCheckRequest(
+        reservoir_id="RES-TK-01",
+        reservoir_name="Teesta-III Chungthang Dam",
+        max_capacity_mcm=6.30,
+        dead_storage_mcm=1.22,
+        current_storage_mcm=5.08,
+        spillway_capacity_cumecs=7000.0,
+        estimated_glof_volume_mcm=3.5, # Less than live storage 5.08 MCM
+        lead_time_hours=3.5
+    )
+    cap_res2 = reservoirs.check_reservoir_capacity(req_moderate)
+    assert cap_res2.has_sufficient_holding_capacity is False
+    assert cap_res2.capacity_status == "DRAWDOWN_REQUIRED"
+    assert cap_res2.can_fully_contain_if_drawn_down is True
+    assert cap_res2.uncontainable_excess_volume_mcm == 0.0
+    assert cap_res2.water_release_required_mcm == 2.28 # (6.30 - 5.08 = 1.22 buffer; 3.5 - 1.22 = 2.28 release)
+    assert cap_res2.target_storage_mcm == 2.80 # 6.30 - 3.50
+    assert cap_res2.is_discharge_rate_feasible is True
+
+    # Scenario 3: Minor surge where current available freeboard buffer is already sufficient
+    req_minor = ReservoirCapacityCheckRequest(
+        reservoir_id="RES-TK-01",
+        reservoir_name="Teesta-III Chungthang Dam",
+        max_capacity_mcm=6.30,
+        dead_storage_mcm=1.22,
+        current_storage_mcm=3.00, # 3.30 MCM buffer
+        spillway_capacity_cumecs=7000.0,
+        estimated_glof_volume_mcm=1.5,
+        lead_time_hours=3.5
+    )
+    cap_res3 = reservoirs.check_reservoir_capacity(req_minor)
+    assert cap_res3.has_sufficient_holding_capacity is True
+    assert cap_res3.capacity_status == "SUFFICIENT_BUFFER"
+    assert cap_res3.water_release_required_mcm == 0.0
+    assert cap_res3.required_discharge_rate_cumecs == 0.0
+
     print("Testing /api/reservoirs/RES-TK-01/history...")
     res_hist = reservoirs.get_reservoir_history("RES-TK-01")
     assert res_hist["observations_count"] >= 2

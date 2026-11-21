@@ -48,8 +48,10 @@ def calculate_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest) -> Glacie
         )
         base_hazard_score = min(100.0, 85.0 + (abs(pct_change) - 20.0) * 0.75)
         recommended_action = (
-            "EMERGENCY PROTOCOL: Immediately verify breach scar with SAR/optical imagery; "
-            "alert downstream hydropower authorities (dam spillway gates) and civil defense (NDMA/SDMA) for valley corridor inspection."
+            "TECHNICAL EXPERT REVIEW REQUIRED: Rapid multi-temporal contraction detected (>20%). "
+            "Requires immediate glaciological specialist verification, cross-referencing with SAR/optical imagery, "
+            "and CWC river stage telemetry before any operational decisions. Research prototype only; "
+            "does not issue autonomous dam gate, evacuation, or civil defense directives."
         )
 
     # Case B: Significant drainage over longer time or moderate drainage
@@ -58,11 +60,12 @@ def calculate_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest) -> Glacie
         hazard_label = "SIGNIFICANT DRAINAGE / BREACH WARNING"
         primary_trigger = (
             f"Substantial lake contraction: {abs(pct_change):.1f}% loss over {elapsed_days} days. "
-            "Requires immediate investigation for subsurface seepage or moraine piping."
+            "Requires technical investigation for subsurface seepage or moraine piping."
         )
         base_hazard_score = min(84.0, 70.0 + (abs(pct_change) - 10.0) * 1.4)
         recommended_action = (
-            "HIGH PRIORITY: Dispatch ground/aerial reconnaissance to inspect terminal moraine stability and monitor river stage gauges downstream."
+            "TECHNICAL INVESTIGATION RECOMMENDED: Substantial lake contraction detected (>10%). "
+            "Recommended for technical field inspection and moraine stability evaluation by authorized geological/hydrological agencies."
         )
 
     # Case C: Accelerated Glacial Melt Expansion
@@ -76,8 +79,8 @@ def calculate_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest) -> Glacie
             )
             base_hazard_score = min(85.0, 70.0 + min(15.0, annualized_rate_pct * 0.5))
             recommended_action = (
-                "ACTIONABLE SURVEILLANCE: Place lake on high-priority Sentinel-2/Landsat monitoring cadence; "
-                "conduct bathymetric depth survey and assess moraine freeboard margin."
+                "TECHNICAL SURVEILLANCE RECOMMENDED: Accelerated meltwater expansion observed. "
+                "Recommended for inclusion on high-priority satellite tracking schedules and bathymetric assessment by authorized agencies."
             )
         elif annualized_rate_pct >= 5.0 or pct_change >= 10.0:
             risk_tier = "MODERATE"
@@ -88,7 +91,8 @@ def calculate_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest) -> Glacie
             )
             base_hazard_score = min(69.0, 45.0 + min(24.0, annualized_rate_pct * 1.5))
             recommended_action = (
-                "ROUTINE MONITORING: Re-assess lake perimeter post-monsoon and maintain seasonal satellite tracking records."
+                "ROUTINE TECHNICAL SCREENING: Steady post-monsoon expansion observed. "
+                "Maintain seasonal satellite catalogue records and boundary comparisons."
             )
         else:
             risk_tier = "LOW"
@@ -97,7 +101,7 @@ def calculate_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest) -> Glacie
                 f"Minimal area variance (+{pct_change:.1f}%): Lake surface extent is within normal seasonal equilibrium."
             )
             base_hazard_score = max(10.0, 20.0 + annualized_rate_pct * 2.0)
-            recommended_action = "Standard baseline surveillance; no immediate intervention required."
+            recommended_action = "Standard baseline surveillance; maintain regular satellite catalogue records."
 
     # Case D: Slight fluctuation (-10% to 0%)
     else:
@@ -107,7 +111,7 @@ def calculate_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest) -> Glacie
             f"Minor surface contraction ({pct_change:.1f}%): Attributable to seasonal evaporation, winter freezing, or sediment settling."
         )
         base_hazard_score = max(10.0, 25.0 + abs(pct_change))
-        recommended_action = "Maintain regular satellite catalogue records."
+        recommended_action = "Standard baseline surveillance; maintain regular satellite catalogue records."
 
     # 3. Downstream Terrain & Confinement Exposure Calculation
     slope_val = req.channel_slope_deg or 20.0

@@ -1256,6 +1256,15 @@
                 </div>
               </div>
 
+              <!-- Post-Event Classification Quality Metrics (P0 Review Acceptance Criterion) -->
+              <div class="flex items-center justify-between text-[10px] font-mono text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2.5 py-1 rounded-lg">
+                <span class="flex items-center gap-1.5">
+                  <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>Post-Event Quality: <strong>IoU 0.5964 | F1 0.7472</strong></span>
+                </span>
+                <span class="text-slate-400 text-[9px]">(Moderate agreement: wet sediment vs standing water)</span>
+              </div>
+
               <!-- Historical Distribution Bars matching reference photo -->
               <div class="grid grid-cols-5 gap-1.5 items-end h-12 pt-1 font-mono text-center">
                 <div>
@@ -1540,7 +1549,7 @@
           <div class="lg:col-span-5 hud-panel-subtle p-5 space-y-4">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                <i data-lucide="scan" class="w-4 h-4 text-cyan-400"></i> Interactive NDWI Water Classification
+                <i data-lucide="scan" class="w-4 h-4 text-cyan-400"></i> NDWI Spectral Simulator (Calibrated Schematic)
               </h3>
               <span id="ndwi-threshold-display" class="hud-pill px-2.5 py-0.5 text-xs font-mono text-cyan-300 border-cyan-500/30 bg-cyan-950/40">Threshold: 0.14</span>
             </div>
@@ -1777,6 +1786,150 @@
           </div>
         </div>
       </div>
+
+      <!-- Interactive Reservoir GLOF Holding Capacity & Controlled Drawdown Calculator -->
+      <div class="hud-panel p-6 space-y-5 border border-cyan-500/20 shadow-2xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between pb-4 border-b border-white/10 gap-4">
+          <div>
+            <div class="flex items-center space-x-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 pulse-dot"></span>
+              <h2 class="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i> Reservoir GLOF Holding Capacity & Controlled Drawdown Calculator
+              </h2>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 font-mono">
+              Hydrodynamic flood retention screening: Computes available freeboard buffer, capacity sufficiency, required controlled drawdown release, and required spillway discharge rate.
+            </p>
+          </div>
+          <!-- Preset Scenario Pills -->
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[11px] font-mono text-slate-400 mr-1 uppercase">Presets:</span>
+            <button type="button" onclick="window.setReservoirPreset('oct2023-chungthang')" class="hud-pill px-2.5 py-1 text-[11px] font-mono text-rose-300 hover:text-white border border-rose-500/30 hover:border-rose-400 bg-rose-950/40 cursor-pointer">
+              🚨 Oct 2023 Outburst (45 MCM vs Chungthang)
+            </button>
+            <button type="button" onclick="window.setReservoirPreset('moderate-chungthang')" class="hud-pill px-2.5 py-1 text-[11px] font-mono text-amber-300 hover:text-white border border-amber-500/30 hover:border-amber-400 bg-amber-950/40 cursor-pointer">
+              ⚠️ Moderate Surge (3.5 MCM • Drawdown Feasible)
+            </button>
+            <button type="button" onclick="window.setReservoirPreset('minor-chungthang')" class="hud-pill px-2.5 py-1 text-[11px] font-mono text-emerald-300 hover:text-white border border-emerald-500/30 hover:border-emerald-400 bg-emerald-950/40 cursor-pointer">
+              ✅ Minor Surge (1.5 MCM • Sufficient Buffer)
+            </button>
+            <button type="button" onclick="window.setReservoirPreset('dikchu-cascade')" class="hud-pill px-2.5 py-1 text-[11px] font-mono text-cyan-300 hover:text-white border border-cyan-500/30 hover:border-cyan-400 bg-cyan-950/40 cursor-pointer">
+              🌊 Dikchu Dam Cascade (20 MCM)
+            </button>
+          </div>
+        </div>
+
+        <!-- Calculator Form Inputs Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Dam / Reservoir Selection -->
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-mono uppercase tracking-wider text-slate-300 flex items-center justify-between">
+              <span>Target Dam / Reservoir</span>
+              <span class="text-cyan-400 text-[10px]">ID</span>
+            </label>
+            <div class="hud-pill px-3 py-1.5 flex items-center bg-[#131722] border border-white/10">
+              <select id="res-calc-id" onchange="window.onResCalcTargetChange(this.value)" class="w-full bg-transparent text-slate-100 text-xs focus:outline-none cursor-pointer font-mono font-medium">
+                <option value="RES-TK-01" selected>Teesta-III Chungthang Dam (CFRD)</option>
+                <option value="RES-TK-02">Teesta-V Dikchu Dam (NHPC)</option>
+                <option value="RES-CUSTOM">Custom Reservoir Configuration</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Incoming GLOF Outburst Surge Volume (MCM) -->
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-mono uppercase tracking-wider text-rose-300 flex items-center justify-between">
+              <span>Incoming GLOF Volume (MCM)</span>
+              <span class="text-rose-400 text-[10px] font-bold">V_surge</span>
+            </label>
+            <div class="hud-pill px-3 py-1.5 flex items-center bg-[#131722] border border-rose-500/30 focus-within:border-rose-400">
+              <input type="number" id="res-calc-glof-vol" value="45.0" step="0.5" min="0.1" max="500.0" class="w-full bg-transparent text-rose-300 text-xs font-mono font-bold focus:outline-none" />
+              <span class="text-[10px] font-mono text-slate-400 ml-1">M m³</span>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">South Lhonak Oct 2023: ~45 MCM</div>
+          </div>
+
+          <!-- Current Stored Volume (MCM) -->
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-mono uppercase tracking-wider text-slate-300 flex items-center justify-between">
+              <span>Current Stored Water (MCM)</span>
+              <span class="text-sky-400 text-[10px]">V_current</span>
+            </label>
+            <div class="hud-pill px-3 py-1.5 flex items-center bg-[#131722] border border-white/10 focus-within:border-sky-400">
+              <input type="number" id="res-calc-curr-storage" value="5.08" step="0.1" min="0.0" max="500.0" class="w-full bg-transparent text-slate-100 text-xs font-mono focus:outline-none" />
+              <span class="text-[10px] font-mono text-slate-400 ml-1">M m³</span>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">Chungthang pre-event: ~5.08 MCM</div>
+          </div>
+
+          <!-- Lead Time from Lake Breach to Dam (hours) -->
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-mono uppercase tracking-wider text-slate-300 flex items-center justify-between">
+              <span>Surge Lead Time (Hours)</span>
+              <span class="text-amber-400 text-[10px]">t_lead</span>
+            </label>
+            <div class="hud-pill px-3 py-1.5 flex items-center bg-[#131722] border border-white/10 focus-within:border-amber-400">
+              <input type="number" id="res-calc-lead-time" value="3.5" step="0.25" min="0.25" max="48.0" class="w-full bg-transparent text-slate-100 text-xs font-mono focus:outline-none" />
+              <span class="text-[10px] font-mono text-slate-400 ml-1">hrs</span>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">68 km travel time: ~3.5 hrs</div>
+          </div>
+
+          <!-- Max Gross Storage Capacity (FRL) -->
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-mono uppercase tracking-wider text-slate-300 flex items-center justify-between">
+              <span>Gross Storage Capacity (MCM)</span>
+              <span class="text-slate-400 text-[10px]">V_max (FRL)</span>
+            </label>
+            <div class="hud-pill px-3 py-1.5 flex items-center bg-[#131722] border border-white/10">
+              <input type="number" id="res-calc-max-cap" value="6.30" step="0.1" min="0.1" class="w-full bg-transparent text-slate-100 text-xs font-mono focus:outline-none" />
+              <span class="text-[10px] font-mono text-slate-400 ml-1">M m³</span>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">Chungthang Gross: 6.30 MCM @ 1560m</div>
+          </div>
+
+          <!-- Dead Storage / MDDL (MCM) -->
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-mono uppercase tracking-wider text-slate-300 flex items-center justify-between">
+              <span>Dead Storage Level (MCM)</span>
+              <span class="text-slate-400 text-[10px]">V_dead (MDDL)</span>
+            </label>
+            <div class="hud-pill px-3 py-1.5 flex items-center bg-[#131722] border border-white/10">
+              <input type="number" id="res-calc-dead-storage" value="1.22" step="0.05" min="0.0" class="w-full bg-transparent text-slate-100 text-xs font-mono focus:outline-none" />
+              <span class="text-[10px] font-mono text-slate-400 ml-1">M m³</span>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">Minimum Drawdown Level: 1.22 MCM</div>
+          </div>
+
+          <!-- Spillway Discharge Capacity (cumecs) -->
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-mono uppercase tracking-wider text-slate-300 flex items-center justify-between">
+              <span>Spillway Capacity (m³/s)</span>
+              <span class="text-slate-400 text-[10px]">Q_max</span>
+            </label>
+            <div class="hud-pill px-3 py-1.5 flex items-center bg-[#131722] border border-white/10">
+              <input type="number" id="res-calc-spillway" value="7000" step="100" min="100" class="w-full bg-transparent text-slate-100 text-xs font-mono focus:outline-none" />
+              <span class="text-[10px] font-mono text-slate-400 ml-1">m³/s</span>
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">Radial gated spillway capacity</div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="flex items-end">
+            <button type="button" id="btn-calc-res-capacity" onclick="window.calculateReservoirHoldingCapacity()" class="w-full hud-pill px-4 py-2 bg-gradient-to-r from-cyan-600 to-sky-700 hover:from-cyan-500 hover:to-sky-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition select-none cursor-pointer">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-cyan-200"></i> Evaluate Capacity & Drawdown
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Results Container -->
+        <div id="res-calc-results" class="space-y-4 pt-2">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+    </div>
+
     </div>
 
     <!-- 4. DOWNSTREAM EXPOSURE SCREENING (JOURNEY C - 16:9 PANORAMA HUD) -->
@@ -3026,6 +3179,7 @@
           window.reservoirData = data.history || [];
           renderReservoirTable(window.reservoirData);
           renderReservoirChart(window.reservoirData);
+          window.calculateReservoirHoldingCapacity();
         }
       } catch (e) {
         console.error('Failed to load reservoir history:', e);
@@ -3101,6 +3255,266 @@
           }
         })
         .catch(err => console.error(err));
+    };
+
+    
+    // Reservoir GLOF Holding Capacity & Controlled Drawdown Engine
+    window.setReservoirPreset = function(presetKey) {
+      const presets = {
+        'oct2023-chungthang': {
+          id: 'RES-TK-01',
+          glofVol: 45.0,
+          currStorage: 5.08,
+          leadTime: 3.5,
+          maxCap: 6.30,
+          deadStorage: 1.22,
+          spillway: 7000
+        },
+        'moderate-chungthang': {
+          id: 'RES-TK-01',
+          glofVol: 3.5,
+          currStorage: 5.08,
+          leadTime: 3.5,
+          maxCap: 6.30,
+          deadStorage: 1.22,
+          spillway: 7000
+        },
+        'minor-chungthang': {
+          id: 'RES-TK-01',
+          glofVol: 1.5,
+          currStorage: 3.00,
+          leadTime: 3.5,
+          maxCap: 6.30,
+          deadStorage: 1.22,
+          spillway: 7000
+        },
+        'dikchu-cascade': {
+          id: 'RES-TK-02',
+          glofVol: 20.0,
+          currStorage: 11.20,
+          leadTime: 5.5,
+          maxCap: 13.25,
+          deadStorage: 8.15,
+          spillway: 9500
+        }
+      };
+
+      const p = presets[presetKey];
+      if (!p) return;
+
+      const selId = document.getElementById('res-calc-id');
+      if (selId) selId.value = p.id;
+      const gVol = document.getElementById('res-calc-glof-vol');
+      if (gVol) gVol.value = p.glofVol;
+      const cStor = document.getElementById('res-calc-curr-storage');
+      if (cStor) cStor.value = p.currStorage;
+      const lTime = document.getElementById('res-calc-lead-time');
+      if (lTime) lTime.value = p.leadTime;
+      const mCap = document.getElementById('res-calc-max-cap');
+      if (mCap) mCap.value = p.maxCap;
+      const dStor = document.getElementById('res-calc-dead-storage');
+      if (dStor) dStor.value = p.deadStorage;
+      const spw = document.getElementById('res-calc-spillway');
+      if (spw) spw.value = p.spillway;
+
+      window.calculateReservoirHoldingCapacity();
+    };
+
+    window.onResCalcTargetChange = function(val) {
+      if (val === 'RES-TK-01') {
+        document.getElementById('res-calc-max-cap').value = 6.30;
+        document.getElementById('res-calc-dead-storage').value = 1.22;
+        document.getElementById('res-calc-curr-storage').value = 5.08;
+        document.getElementById('res-calc-spillway').value = 7000;
+        document.getElementById('res-calc-lead-time').value = 3.5;
+      } else if (val === 'RES-TK-02') {
+        document.getElementById('res-calc-max-cap').value = 13.25;
+        document.getElementById('res-calc-dead-storage').value = 8.15;
+        document.getElementById('res-calc-curr-storage').value = 11.20;
+        document.getElementById('res-calc-spillway').value = 9500;
+        document.getElementById('res-calc-lead-time').value = 5.5;
+      }
+      window.calculateReservoirHoldingCapacity();
+    };
+
+    window.calculateReservoirHoldingCapacity = async function() {
+      const resultsDiv = document.getElementById('res-calc-results');
+      const btn = document.getElementById('btn-calc-res-capacity');
+      if (!resultsDiv) return;
+
+      if (btn) btn.disabled = true;
+
+      const payload = {
+        reservoir_id: document.getElementById('res-calc-id') ? document.getElementById('res-calc-id').value : 'RES-TK-01',
+        estimated_glof_volume_mcm: parseFloat(document.getElementById('res-calc-glof-vol') ? document.getElementById('res-calc-glof-vol').value : 45.0),
+        current_storage_mcm: parseFloat(document.getElementById('res-calc-curr-storage') ? document.getElementById('res-calc-curr-storage').value : 5.08),
+        max_capacity_mcm: parseFloat(document.getElementById('res-calc-max-cap') ? document.getElementById('res-calc-max-cap').value : 6.30),
+        dead_storage_mcm: parseFloat(document.getElementById('res-calc-dead-storage') ? document.getElementById('res-calc-dead-storage').value : 1.22),
+        spillway_capacity_cumecs: parseFloat(document.getElementById('res-calc-spillway') ? document.getElementById('res-calc-spillway').value : 7000),
+        lead_time_hours: parseFloat(document.getElementById('res-calc-lead-time') ? document.getElementById('res-calc-lead-time').value : 3.5)
+      };
+
+      try {
+        const res = await fetch('/api/reservoirs/capacity-check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          resultsDiv.innerHTML = `
+            <div class="hud-panel-warning p-4 rounded-xl text-rose-300 font-mono text-xs">
+              <strong>Calculation Error:</strong> ${data.detail || 'Failed to compute reservoir capacity.'}
+            </div>
+          `;
+          return;
+        }
+
+        let bannerBg = '';
+        let bannerBorder = '';
+        let bannerText = '';
+        let statusBadge = '';
+        let statusSub = '';
+
+        if (data.capacity_status === 'SUFFICIENT_BUFFER') {
+          bannerBg = 'bg-emerald-950/40';
+          bannerBorder = 'border-emerald-500/40';
+          bannerText = 'text-emerald-300';
+          statusBadge = '<span class="px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">YES • SUFFICIENT BUFFER</span>';
+          statusSub = `Available free buffer (${data.current_buffer_mcm.toFixed(2)} MCM) absorbs the surge (${data.estimated_glof_volume_mcm.toFixed(2)} MCM).`;
+        } else if (data.capacity_status === 'DRAWDOWN_REQUIRED') {
+          bannerBg = 'bg-amber-950/40';
+          bannerBorder = 'border-amber-500/40';
+          bannerText = 'text-amber-300';
+          statusBadge = '<span class="px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">NO • CONTROLLED DRAWDOWN REQUIRED</span>';
+          statusSub = `Immediate deficit: ${data.holding_deficit_mcm.toFixed(2)} MCM. Must release ${data.water_release_required_mcm.toFixed(2)} MCM before wave arrival.`;
+        } else {
+          bannerBg = 'bg-rose-950/40';
+          bannerBorder = 'border-rose-500/40';
+          bannerText = 'text-rose-300';
+          statusBadge = '<span class="px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40">NO • SURGE EXCEEDS CAPACITY (SPILLWAY PASS-THROUGH)</span>';
+          statusSub = `Surge exceeds entire dam live retention volume by ${data.uncontainable_excess_volume_mcm.toFixed(2)} MCM! Cannot contain surge even if drawn down to empty.`;
+        }
+
+        const dischargeFeasBadge = data.is_discharge_rate_feasible ?
+          `<span class="text-emerald-400 font-mono text-[10px] font-bold">Within Spillway Limit (≤ ${data.spillway_capacity_cumecs} m³/s)</span>` :
+          `<span class="text-rose-400 font-mono text-[10px] font-bold">Exceeds Spillway Gate Limit!</span>`;
+
+        resultsDiv.innerHTML = `
+          <!-- Status Banner -->
+          <div class="p-4 rounded-xl border ${bannerBorder} ${bannerBg} space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <i data-lucide="${data.capacity_status === 'SUFFICIENT_BUFFER' ? 'check-circle' : 'alert-triangle'}" class="w-5 h-5 ${bannerText}"></i>
+                <span class="font-mono font-bold text-sm text-white uppercase tracking-wider">${data.reservoir_name} Assessment</span>
+              </div>
+              <div>${statusBadge}</div>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed">${data.operational_recommendation}</p>
+          </div>
+
+          <!-- 4 Critical Metrics Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <!-- Metric 1: Sufficient Capacity? -->
+            <div class="hud-panel-subtle p-3.5 space-y-1">
+              <div class="text-[10px] font-mono uppercase text-slate-400">Sufficient Holding Buffer?</div>
+              <div class="text-lg font-black font-mono ${data.has_sufficient_holding_capacity ? 'text-emerald-400' : (data.can_fully_contain_if_drawn_down ? 'text-amber-400' : 'text-rose-400')}">
+                ${data.has_sufficient_holding_capacity ? 'YES (Buffer Available)' : (data.can_fully_contain_if_drawn_down ? 'NO (Release Needed)' : 'NO (Surge Exceeds Max)')}
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono">${statusSub}</div>
+            </div>
+
+            <!-- Metric 2: Water Release Required -->
+            <div class="hud-panel-subtle p-3.5 space-y-1 border border-cyan-500/20">
+              <div class="text-[10px] font-mono uppercase text-cyan-300 flex items-center justify-between">
+                <span>Water Release Required</span>
+                <span class="text-cyan-400 font-bold">ΔV_release</span>
+              </div>
+              <div class="text-2xl font-black font-mono text-white flex items-baseline gap-1">
+                <span class="${data.water_release_required_mcm > 0 ? 'text-amber-400' : 'text-emerald-400'}">${data.water_release_required_mcm.toFixed(2)}</span>
+                <span class="text-xs text-slate-400">Million m³</span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono">
+                ${data.water_release_required_mcm > 0 ? `Target storage: ${data.target_storage_mcm.toFixed(2)} MCM` : 'Freeboard currently sufficient'}
+              </div>
+            </div>
+
+            <!-- Metric 3: Required Pre-Release Discharge Rate -->
+            <div class="hud-panel-subtle p-3.5 space-y-1">
+              <div class="text-[10px] font-mono uppercase text-slate-400 flex items-center justify-between">
+                <span>Pre-Release Spillway Rate</span>
+                <span class="text-amber-400 font-bold">Q_discharge</span>
+              </div>
+              <div class="text-2xl font-black font-mono text-white flex items-baseline gap-1">
+                <span class="${data.required_discharge_rate_cumecs > 0 ? 'text-cyan-400' : 'text-slate-400'}">${data.required_discharge_rate_cumecs.toFixed(1)}</span>
+                <span class="text-xs text-slate-400">m³/s (cumecs)</span>
+              </div>
+              <div class="text-[10px] font-mono">${dischargeFeasBadge}</div>
+            </div>
+
+            <!-- Metric 4: Free Buffer vs Incoming Surge -->
+            <div class="hud-panel-subtle p-3.5 space-y-1">
+              <div class="text-[10px] font-mono uppercase text-slate-400 flex items-center justify-between">
+                <span>Current Free Buffer / Surge</span>
+                <span class="text-rose-400 font-bold">Ratio</span>
+              </div>
+              <div class="text-2xl font-black font-mono text-white flex items-baseline gap-1">
+                <span>${data.current_buffer_mcm.toFixed(2)}</span>
+                <span class="text-xs text-slate-400">/ ${data.estimated_glof_volume_mcm.toFixed(2)} MCM</span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono">
+                ${data.holding_deficit_mcm > 0 ? `<span class="text-rose-400">Deficit: -${data.holding_deficit_mcm.toFixed(2)} MCM</span>` : '<span class="text-emerald-400">Surplus: +' + (data.current_buffer_mcm - data.estimated_glof_volume_mcm).toFixed(2) + ' MCM</span>'}
+              </div>
+            </div>
+          </div>
+
+          <!-- Capacity Retention Breakdown Meter -->
+          <div class="hud-panel-subtle p-4 space-y-2.5">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-cyan-400"></i> Reservoir Storage vs Surge Capacity Meter
+              </span>
+              <span class="text-slate-400 text-[11px]">Gross Capacity: ${data.max_capacity_mcm.toFixed(2)} MCM @ FRL</span>
+            </div>
+
+            <!-- Multi-segment visual bar -->
+            <div class="h-6 w-full bg-slate-900 rounded-lg overflow-hidden flex border border-white/10 relative">
+              <div style="width: ${(data.dead_storage_mcm / data.max_capacity_mcm * 100).toFixed(1)}%" class="h-full bg-slate-700/80 flex items-center justify-center text-[9px] font-mono text-slate-300" title="Dead Storage (MDDL): ${data.dead_storage_mcm} MCM">
+                Dead: ${data.dead_storage_mcm.toFixed(1)}M
+              </div>
+              <div style="width: ${((data.current_storage_mcm - data.dead_storage_mcm) / data.max_capacity_mcm * 100).toFixed(1)}%" class="h-full bg-sky-600/80 flex items-center justify-center text-[9px] font-mono text-white font-bold" title="Current Active Storage: ${(data.current_storage_mcm - data.dead_storage_mcm).toFixed(2)} MCM">
+                Active: ${(data.current_storage_mcm - data.dead_storage_mcm).toFixed(1)}M
+              </div>
+              <div style="width: ${(data.current_buffer_mcm / data.max_capacity_mcm * 100).toFixed(1)}%" class="h-full bg-emerald-600/50 border-l border-emerald-400/40 flex items-center justify-center text-[9px] font-mono text-emerald-200" title="Freeboard Retention Buffer: ${data.current_buffer_mcm.toFixed(2)} MCM">
+                Buffer: ${data.current_buffer_mcm.toFixed(1)}M
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
+              <div class="text-slate-300 text-[11px] leading-relaxed">
+                <strong class="text-white">Hydrological Assessment:</strong> ${data.risk_narrative}
+              </div>
+              <div class="text-slate-400 text-[10px] leading-relaxed border-t md:border-t-0 md:border-l border-white/10 md:pl-4">
+                <strong class="text-slate-300">Decision-Support Safeguards:</strong> ${data.scientific_safeguards}
+              </div>
+            </div>
+          </div>
+        `;
+
+        if (window.lucide && window.lucide.createIcons) {
+          window.lucide.createIcons();
+        }
+
+      } catch (err) {
+        resultsDiv.innerHTML = `
+          <div class="hud-panel-warning p-4 rounded-xl text-rose-300 font-mono text-xs">
+            <strong>Network/Execution Error:</strong> ${err.message || 'Failed to communicate with reservoir API.'}
+          </div>
+        `;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     };
 
     // Downstream Exposure & Profile

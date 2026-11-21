@@ -176,7 +176,7 @@ export default function App() {
                   <span className="text-cyan-400">CURRENT</span>
                 </span>
                 <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center gap-1 font-mono">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Track
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span> Research Prototype
                 </span>
               </div>
               <span className="text-[9px] font-mono tracking-widest text-slate-400 uppercase mt-0.5 hidden lg:block">
@@ -275,7 +275,7 @@ export default function App() {
                 >
                   <div className="flex items-center justify-between pb-3 border-b border-white/10">
                     <div className="text-xs font-bold text-emerald-300 uppercase tracking-wider font-mono">Earth Observation Feeds</div>
-                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">All Synced</span>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300">S2 MSI + CartoDEM</span>
                   </div>
                   <div className="py-3 space-y-2 text-xs">
                     <div className="p-2 rounded-xl border border-white/10 flex justify-between" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
@@ -326,7 +326,7 @@ export default function App() {
                       <div className="font-bold text-white flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> South Lhonak Moraine Breach
                       </div>
-                      <div className="text-[11px] text-slate-300">~45.2M m³ drained in under 4 hours. Lake surface area plunged by -38.7%.</div>
+                      <div className="text-[11px] text-slate-300">-0.690 km² (-41.4%) planar surface contraction detected between 26 Sep and 09 Oct 2023. Optical screening; bathymetry required for volume calculation.</div>
                     </div>
                   </div>
                   <div className="pt-2 border-t border-white/10 flex justify-between">
@@ -547,7 +547,7 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-5 bg-[#161a24]/90 border border-white/10 rounded-xl p-5 space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-white">NDWI Water Classification Grid</h3>
+                  <h3 className="text-sm font-bold text-white">NDWI Spectral Simulator (Calibrated Schematic)</h3>
                   <span className="text-xs font-mono bg-cyan-950/80 border border-cyan-800/80 text-cyan-300 px-2.5 py-0.5 rounded-full">
                     Cutoff: {ndwiThreshold.toFixed(2)}
                   </span>

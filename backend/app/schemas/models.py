@@ -191,3 +191,37 @@ class GlacierLakeRiskAssessmentResult(BaseModel):
     downstream_screening: Dict[str, Any]
     recommended_response: str
     scientific_safeguards: str
+
+class ReservoirCapacityCheckRequest(BaseModel):
+    reservoir_id: str = Field("RES-TK-01", description="Reservoir identifier or preset")
+    reservoir_name: Optional[str] = Field("Teesta-III Chungthang Dam", description="Name of dam or reservoir")
+    max_capacity_mcm: float = Field(6.30, gt=0.0, description="Gross storage capacity at Full Reservoir Level (FRL) in Million m³ (MCM)")
+    dead_storage_mcm: float = Field(1.22, ge=0.0, description="Dead storage capacity at Minimum Drawdown Level (MDDL) in Million m³ (MCM)")
+    current_storage_mcm: float = Field(5.08, ge=0.0, description="Current impounded water storage in Million m³ (MCM)")
+    spillway_capacity_cumecs: float = Field(7000.0, gt=0.0, description="Design spillway discharge capacity in m³/s (cumecs)")
+    estimated_glof_volume_mcm: float = Field(45.0, gt=0.0, description="Estimated incoming GLOF outburst surge volume in Million m³ (MCM)")
+    lead_time_hours: float = Field(3.5, gt=0.05, le=72.0, description="Flood wave travel time from lake breach to reservoir arrival in hours")
+
+class ReservoirCapacityCheckResult(BaseModel):
+    reservoir_id: str
+    reservoir_name: str
+    max_capacity_mcm: float
+    dead_storage_mcm: float
+    current_storage_mcm: float
+    current_buffer_mcm: float
+    max_possible_buffer_mcm: float
+    estimated_glof_volume_mcm: float
+    lead_time_hours: float
+    has_sufficient_holding_capacity: bool
+    capacity_status: str
+    holding_deficit_mcm: float
+    water_release_required_mcm: float
+    can_fully_contain_if_drawn_down: bool
+    uncontainable_excess_volume_mcm: float
+    target_storage_mcm: float
+    required_discharge_rate_cumecs: float
+    spillway_capacity_cumecs: float
+    is_discharge_rate_feasible: bool
+    operational_recommendation: str
+    risk_narrative: str
+    scientific_safeguards: str
