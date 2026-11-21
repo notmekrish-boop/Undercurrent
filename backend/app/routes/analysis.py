@@ -1,8 +1,10 @@
 import os
+import base64
 import json
 from typing import Optional
 from fastapi import APIRouter, Query, HTTPException
-from ..schemas.models import NDWICalculationRequest, NDWICalculationResult
+from ..schemas.models import NDWICalculationRequest, NDWICalculationResult, LakePhotoAnalysisRequest, LakePhotoAnalysisResult
+from ..services.image_analysis import analyze_uploaded_lake_photo
 from ..services.ndwi_engine import (
     generate_lake_ndwi_matrix,
     classify_water_pixels,
@@ -63,3 +65,49 @@ def calculate_ndwi(req: NDWICalculationRequest):
         matrix_grid=res["matrix_grid"],
         classification_grid=res["classification_grid"]
     )
+
+@router.post("/upload-photo", response_model=LakePhotoAnalysisResult, summary="Upload a photo or satellite image to calculate lake water area and pixel segmentation")
+def upload_and_calculate_photo_area(req: LakePhotoAnalysisRequest):
+    try:
+        return analyze_uploaded_lake_photo(req)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image processing error: {e}")
+
+
+
+@router.get("/sample-photo", summary="Get a pre-loaded sample photo or satellite band for demonstration")
+def get_sample_photo(preset: str = Query("oct09_b11", description="Preset key: oct09_b11, sep26_truecolor, oct09_truecolor, sep26_b03")):
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sat_dir = os.path.normpath(os.path.join(base_dir, "..", "data", "raw", "satellite"))
+
+    presets = {
+        "oct09_b11": ("2023-10-09_B11.tiff.tiff", "2023-10-09", "South Lhonak Glacial Lake (Post-Breach SWIR Band 11)"),
+        "sep26_truecolor": ("2023-09-26_TrueColor.tiff.tiff", "2023-09-26", "South Lhonak Glacial Lake (Pre-Breach TrueColor)"),
+        "oct09_truecolor": ("2023-10-09_TrueColor.tiff.tiff", "2023-10-09", "South Lhonak Glacial Lake (Post-Breach TrueColor)"),
+        "sep26_b03": ("2023-09-26_B03.tiff.tiff", "2023-09-26", "South Lhonak Glacial Lake (Pre-Breach Green Band 3)")
+    }
+
+    if preset not in presets:
+        raise HTTPException(status_code=400, detail=f"Unknown preset '{preset}'. Available: {list(presets.keys())}")
+
+    filename, obs_date, desc = presets[preset]
+    file_path = os.path.join(sat_dir, filename)
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail=f"Sample file {filename} not found.")
+
+    with open(file_path, "rb") as f:
+        file_bytes = f.read()
+
+    b64_data = base64.b64encode(file_bytes).decode("utf-8")
+    data_uri = f"data:image/tiff;base64,{b64_data}"
+
+    return {
+        "preset": preset,
+        "file_name": filename,
+        "observation_date": obs_date,
+        "lake_name": "South Lhonak Glacial Lake",
+        "description": desc,
+        "photo_base64": data_uri,
+        "pixel_resolution_m": 10.0,
+        "file_size_kb": round(len(file_bytes) / 1024, 1)
+    }

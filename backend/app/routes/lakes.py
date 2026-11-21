@@ -93,6 +93,15 @@ def compare_lake_dates(
     }
 
 
+def normalize_date_string(date_str: str) -> str:
+    date_str = str(date_str).strip()
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(date_str, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    raise ValueError(f"Invalid date format '{date_str}'. Expected YYYY-MM-DD or DD/MM/YYYY.")
+
 @router.post("/assess-risk", response_model=GlacierLakeRiskAssessmentResult, summary="Calculate multi-temporal glacial outburst risk from arbitrary lake dates and areas")
 def assess_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest):
     """
@@ -105,16 +114,33 @@ def assess_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest):
     if len(req.observations) < 2:
         raise HTTPException(status_code=400, detail="At least two dated observations are required for multi-temporal velocity analysis.")
 
-    # Validate dates format
+    # Validate and normalize dates and areas
+    normalized_obs = []
+    seen_dates = set()
     for o in req.observations:
         if o.area_km2 <= 0:
             raise HTTPException(status_code=400, detail=f"Observation area must be greater than 0. Received: {o.area_km2}")
         try:
-            datetime.strptime(o.date, "%Y-%m-%d")
-        except ValueError:
-            raise HTTPException(status_code=400, detail=f"Invalid date format '{o.date}'. Expected YYYY-MM-DD.")
+            norm_date = normalize_date_string(o.date)
+        except ValueError as ve:
+            raise HTTPException(status_code=400, detail=str(ve))
+        
+        if norm_date in seen_dates:
+            raise HTTPException(status_code=400, detail=f"Duplicate observation date '{norm_date}'. Multi-temporal analysis requires distinct observation dates.")
+        seen_dates.add(norm_date)
 
-    return calculate_glacier_lake_risk(req)
+        o_dict = o.model_dump()
+        o_dict["date"] = norm_date
+        normalized_obs.append(GlacierLakeObservationInput(**o_dict))
+
+    req_copy = req.model_dump()
+    req_copy["observations"] = normalized_obs
+    updated_req = GlacierLakeRiskAssessmentRequest(**req_copy)
+
+    try:
+        return calculate_glacier_lake_risk(updated_req)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
 
 
 @router.post("/ingest-observation", summary="Ingest a new multi-temporal observation record for a glacial lake")

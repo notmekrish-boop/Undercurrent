@@ -143,6 +143,49 @@ def test_undercurrent():
     ndwi_res = analysis.calculate_ndwi(ndwi_req)
     assert ndwi_res.water_pixel_count > 0
     assert ndwi_res.calculated_area_km2 > 0
+    print("Testing /api/analysis/upload-photo (Lake Photo/Satellite Area Calculation)...")
+    import io, base64
+    from PIL import Image
+    from backend.app.schemas.models import LakePhotoAnalysisRequest
+
+    sample_img = Image.new("RGB", (120, 120), color=(140, 120, 100))
+    for y in range(120):
+        for x in range(120):
+            if ((x - 60) ** 2) / 30 ** 2 + ((y - 60) ** 2) / 20 ** 2 <= 1.0:
+                sample_img.putpixel((x, y), (20, 50, 95))
+    s_buf = io.BytesIO()
+    sample_img.save(s_buf, format="PNG")
+    sample_b64 = "data:image/png;base64," + base64.b64encode(s_buf.getvalue()).decode()
+
+    p_req = LakePhotoAnalysisRequest(
+        photo_base64=sample_b64,
+        lake_name="South Lhonak Glacial Lake",
+        observation_date="2024-10-15",
+        pixel_resolution_m=10.0
+    )
+    p_res = analysis.upload_and_calculate_photo_area(p_req)
+    assert p_res.water_pixels > 500
+    assert p_res.calculated_area_km2 > 0.0
+    assert p_res.segmented_preview_base64.startswith("data:image/png;base64,")
+    assert p_res.risk_input_ready["area_km2"] == p_res.calculated_area_km2
+
+    # Test uploading single-band B11 satellite raster
+    with open("data/raw/satellite/2023-10-09_B11.tiff.tiff", "rb") as bf:
+        b11_b64 = "data:image/tiff;base64," + base64.b64encode(bf.read()).decode()
+    b11_req = LakePhotoAnalysisRequest(
+        photo_base64=b11_b64,
+        file_name="2023-10-09_B11.tiff.tif",
+        lake_name="South Lhonak Glacial Lake"
+    )
+    b11_res = analysis.upload_and_calculate_photo_area(b11_req)
+    assert b11_res.water_pixels > 9000
+    assert abs(b11_res.calculated_area_km2 - 0.9764) < 0.05
+    assert b11_res.segmented_preview_base64.startswith("data:image/png;base64,")
+
+    # Test sample-photo preset endpoint
+    sample_p = analysis.get_sample_photo(preset="oct09_b11")
+    assert sample_p["file_name"] == "2023-10-09_B11.tiff.tiff"
+    assert sample_p["observation_date"] == "2023-10-09"
 
     print("Testing /api/analysis/raster/south-lhonak (Physical 10m Sentinel-2 Rasters)...")
     raster_pre = analysis.get_physical_raster_analysis(date="2023-09-26")

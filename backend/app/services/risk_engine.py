@@ -49,9 +49,9 @@ def calculate_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest) -> Glacie
         base_hazard_score = min(100.0, 85.0 + (abs(pct_change) - 20.0) * 0.75)
         recommended_action = (
             "TECHNICAL EXPERT REVIEW REQUIRED: Rapid multi-temporal contraction detected (>20%). "
-            "Requires immediate glaciological specialist verification, cross-referencing with SAR/optical imagery, "
-            "and CWC river stage telemetry before any operational decisions. Research prototype only; "
-            "does not issue autonomous dam gate, evacuation, or civil defense directives."
+            "Requires immediate glaciological specialist verification, cross-referencing with SAR/optical evidence, "
+            "and CWC river stage telemetry before any operational action. This research prototype provides screening "
+            "analysis only and does not issue early warning alarms, operational directives, or civil evacuation orders."
         )
 
     # Case B: Significant drainage over longer time or moderate drainage

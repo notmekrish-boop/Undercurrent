@@ -225,3 +225,28 @@ class ReservoirCapacityCheckResult(BaseModel):
     operational_recommendation: str
     risk_narrative: str
     scientific_safeguards: str
+
+class LakePhotoAnalysisRequest(BaseModel):
+    photo_base64: str = Field(..., description="Base64 encoded image string (JPEG, PNG, WebP, or TIFF)")
+    file_name: Optional[str] = Field(None, description="Original filename if available")
+    lake_name: Optional[str] = Field("South Lhonak Lake", description="Name of glacial lake")
+    observation_date: Optional[str] = Field("2024-10-15", description="Observation date (YYYY-MM-DD)")
+    pixel_resolution_m: Optional[float] = Field(10.0, gt=0.1, le=1000.0, description="Ground sampling distance in meters/pixel (e.g., 10m Sentinel-2, 3m PlanetScope)")
+    sensitivity_threshold: Optional[float] = Field(0.04, ge=-1.0, le=1.0, description="Threshold for water classification")
+    known_reference_area_km2: Optional[float] = Field(None, gt=0.0, description="Optional known calibration area to auto-calibrate resolution")
+
+class LakePhotoAnalysisResult(BaseModel):
+    lake_name: str
+    observation_date: str
+    image_width: int
+    image_height: int
+    total_pixels: int
+    water_pixels: int
+    water_ratio_pct: float
+    pixel_resolution_m: float
+    calculated_area_sqm: float
+    calculated_area_km2: float
+    method_used: str
+    segmented_preview_base64: str
+    risk_input_ready: Dict[str, Any]
+    scientific_disclaimer: str
