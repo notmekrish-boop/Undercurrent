@@ -16,6 +16,9 @@ export default function App() {
   const [assets, setAssets] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activePopover, setActivePopover] = useState(null);
+  const [showPalette, setShowPalette] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState('');
 
   const canvasRef = useRef(null);
 
@@ -33,8 +36,28 @@ export default function App() {
     const handleFsChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(prev => !prev);
+      }
+      if (e.key === 'Escape') {
+        setActivePopover(null);
+        setShowPalette(false);
+      }
+    };
+    const handleClickOutside = () => {
+      setActivePopover(null);
+    };
+
     document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('click', handleClickOutside);
+    };
   }, []);
 
   // Update reservoir history when selector changes
@@ -156,12 +179,137 @@ export default function App() {
             </nav>
           </div>
 
-          {/* Right: System Info & Icons */}
-          <div className="flex items-center gap-2.5 flex-shrink-0 text-xs">
-            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/30 border border-amber-500/20 text-[11px] font-mono text-amber-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Prototype
-            </span>
+          {/* Right: System Info & Interactive Popovers (Zero Browser Subtitles) */}
+          <div className="relative flex items-center gap-2.5 flex-shrink-0 text-xs" onClick={(e) => e.stopPropagation()}>
+            {/* Search Input / Command Palette Trigger */}
+            <div 
+              onClick={() => setShowPalette(true)}
+              className="hidden xl:flex items-center gap-2 bg-white/5 border border-white/10 hover:border-cyan-400/40 hover:bg-white/10 rounded-full px-3 py-1.5 text-xs text-slate-400 transition cursor-pointer select-none"
+            >
+              <span className="text-slate-300 w-36 font-normal text-xs">Search target (Ctrl+K)...</span>
+            </div>
 
+            {/* Prototype Popover Trigger */}
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setActivePopover(activePopover === 'prototype' ? null : 'prototype'); }}
+                className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/40 border border-amber-500/30 hover:border-amber-400 text-[11px] font-mono text-amber-300 transition cursor-pointer select-none"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Prototype
+              </button>
+
+              {activePopover === 'prototype' && (
+                <div 
+                  style={{ background: 'linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%)', backdropFilter: 'blur(28px) saturate(200%)', WebkitBackdropFilter: 'blur(28px) saturate(200%)' }}
+                  className="absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-2xl p-4 border border-amber-500/40 shadow-2xl text-left"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <div className="text-xs font-bold text-amber-300 uppercase tracking-wider font-mono">Research Prototype Notice</div>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300">V1.0</span>
+                  </div>
+                  <div className="py-3 text-xs text-slate-300 space-y-2">
+                    <p>
+                      <strong className="text-white">Project Undercurrent</strong> is an academic geospatial intelligence prototype engineered to demonstrate satellite multi-spectral monitoring of glacial lake area dynamics and downstream preliminary exposure screening.
+                    </p>
+                    <div className="p-2.5 rounded-xl border border-amber-500/30 text-[11px] text-amber-200 leading-normal" style={{ backgroundColor: 'rgba(69, 26, 3, 0.5)' }}>
+                      This is a research prototype. It is <strong>not</strong> an operational government GLOF early warning system (EWS) or hydrodynamic flood dispatch model.
+                    </div>
+                  </div>
+                  <div className="pt-2.5 border-t border-white/10 flex items-center justify-between">
+                    <button onClick={() => { setActiveTab('methodology'); setActivePopover(null); }} className="text-[11px] text-cyan-400 hover:text-cyan-300 font-mono">
+                      Read Methodology &rarr;
+                    </button>
+                    <button onClick={() => setActivePopover(null)} className="px-2.5 py-1 rounded-lg hover:bg-white/15 text-slate-300 text-[11px]" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Sensors Popover Trigger */}
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setActivePopover(activePopover === 'sensors' ? null : 'sensors'); }}
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 hover:border-emerald-400 text-[10px] font-mono text-emerald-300 transition cursor-pointer select-none"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sensors
+              </button>
+
+              {activePopover === 'sensors' && (
+                <div 
+                  style={{ background: 'linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%)', backdropFilter: 'blur(28px) saturate(200%)', WebkitBackdropFilter: 'blur(28px) saturate(200%)' }}
+                  className="absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-2xl p-4 border border-emerald-500/40 shadow-2xl text-left"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <div className="text-xs font-bold text-emerald-300 uppercase tracking-wider font-mono">Earth Observation Feeds</div>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">All Synced</span>
+                  </div>
+                  <div className="py-3 space-y-2 text-xs">
+                    <div className="p-2 rounded-xl border border-white/10 flex justify-between" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
+                      <div>
+                        <div className="font-bold text-white text-[11px]">ISRO CartoDEM / Bhuvan</div>
+                        <div className="text-[10px] text-slate-400">30m DEM • EPSG:32645</div>
+                      </div>
+                      <span className="text-emerald-400 font-mono text-[10px] font-bold">Online</span>
+                    </div>
+                    <div className="p-2 rounded-xl border border-white/10 flex justify-between" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
+                      <div>
+                        <div className="font-bold text-white text-[11px]">ESA Copernicus Sentinel-2</div>
+                        <div className="text-[10px] text-slate-400">10m MSI • Green/NIR</div>
+                      </div>
+                      <span className="text-emerald-400 font-mono text-[10px] font-bold">Active</span>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-white/10 flex justify-end">
+                    <button onClick={() => setActivePopover(null)} className="px-2.5 py-1 rounded-lg hover:bg-white/15 text-slate-300 text-[11px]" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Notification Bell with Badge */}
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setActivePopover(activePopover === 'alerts' ? null : 'alerts'); }}
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:border-rose-500/50 flex items-center justify-center text-slate-300 relative transition cursor-pointer"
+              >
+                <span>🔔</span>
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white font-mono text-[9px] font-black flex items-center justify-center">1</span>
+              </button>
+
+              {activePopover === 'alerts' && (
+                <div 
+                  style={{ background: 'linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%)', backdropFilter: 'blur(28px) saturate(200%)', WebkitBackdropFilter: 'blur(28px) saturate(200%)' }}
+                  className="absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-2xl p-4 border border-rose-500/40 shadow-2xl text-left"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <div className="text-xs font-bold text-rose-300 uppercase tracking-wider font-mono">Basin Alerts Feed</div>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold uppercase">Critical</span>
+                  </div>
+                  <div className="py-3 text-xs space-y-2">
+                    <div className="p-3 rounded-xl border border-rose-500/30 space-y-1" style={{ backgroundColor: 'rgba(76, 5, 25, 0.45)' }}>
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> South Lhonak Moraine Breach
+                      </div>
+                      <div className="text-[11px] text-slate-300">~45.2M m³ drained in under 4 hours. Lake surface area plunged by -38.7%.</div>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-white/10 flex justify-between">
+                    <button onClick={() => { setActiveTab('exposure'); setActivePopover(null); }} className="text-[11px] text-cyan-400 hover:text-cyan-300 font-mono">
+                      Corridor Exposure &rarr;
+                    </button>
+                    <button onClick={() => setActivePopover(null)} className="px-2.5 py-1 rounded-lg hover:bg-white/15 text-slate-300 text-[11px]" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+                      Acknowledge
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 16:9 Toggle */}
             <button
               onClick={toggleFullscreen}
               className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-200 hover:text-white transition flex items-center gap-1.5"
@@ -169,12 +317,46 @@ export default function App() {
               <span>{isFullscreen ? 'Exit' : '16:9'}</span>
             </button>
 
-            <a href="/api/docs" target="_blank" className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white transition">
-              API Docs
-            </a>
+            {/* Operator Avatar Popover Trigger */}
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setActivePopover(activePopover === 'operator' ? null : 'operator'); }}
+                className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-sky-400 border border-white/20 hover:border-cyan-400 flex items-center justify-center text-white font-mono font-bold text-[11px] shadow-sm flex-shrink-0 cursor-pointer transition select-none"
+              >
+                OP
+              </button>
 
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-sky-400 border border-white/20 flex items-center justify-center text-white font-mono font-bold text-[11px] shadow-sm flex-shrink-0">
-              OP
+              {activePopover === 'operator' && (
+                <div 
+                  style={{ background: 'linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%)', backdropFilter: 'blur(28px) saturate(200%)', WebkitBackdropFilter: 'blur(28px) saturate(200%)' }}
+                  className="absolute right-0 top-11 z-50 w-80 rounded-2xl p-4 border border-cyan-500/40 shadow-2xl text-left"
+                >
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-600 to-sky-400 border-2 border-cyan-400 flex items-center justify-center text-white font-mono font-bold text-sm">
+                      OP
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white">Teesta Basin Dispatcher</div>
+                      <div className="text-[10px] text-slate-400 font-mono">Analyst ID #OP-01</div>
+                    </div>
+                  </div>
+                  <div className="py-3 space-y-1.5 font-mono text-[11px]">
+                    <div className="flex justify-between py-1 border-b border-white/5 text-slate-400">
+                      <span>Station:</span>
+                      <span className="text-slate-200">Gangtok Operations</span>
+                    </div>
+                    <div className="flex justify-between py-1 text-slate-400">
+                      <span>State:</span>
+                      <span className="text-emerald-400 font-bold">100% Online</span>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-white/10">
+                    <a href="/api/docs" target="_blank" className="w-full block py-1.5 text-center rounded-lg hover:bg-white/10 text-cyan-300 text-xs transition" style={{ backgroundColor: 'rgba(255, 255, 255, 0.06)' }}>
+                      Open API Docs (/api/docs)
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -552,6 +734,56 @@ export default function App() {
           <span>Teesta River Basin (Sikkim) &bull; ISRO Bhuvan & Copernicus Space Data</span>
         </div>
       </footer>
+
+      {/* Command Palette Modal */}
+      {showPalette && (
+        <div 
+          onClick={() => setShowPalette(false)}
+          className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 bg-black/75 backdrop-blur-md"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xl rounded-2xl bg-[#0c0e14]/98 border border-white/20 shadow-2xl overflow-hidden"
+          >
+            <div className="flex items-center px-4 py-3.5 border-b border-white/10 gap-3 bg-white/5">
+              <span className="text-cyan-400 font-mono">🔍</span>
+              <input 
+                type="text" 
+                value={paletteQuery} 
+                onChange={(e) => setPaletteQuery(e.target.value)} 
+                placeholder="Search basin targets, dams, corridors..." 
+                className="flex-1 bg-transparent text-white placeholder-slate-500 focus:outline-none text-sm font-sans" 
+                autoFocus 
+              />
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-slate-400">ESC to exit</span>
+            </div>
+            <div className="max-h-80 overflow-y-auto p-2 space-y-1 text-xs">
+              {[
+                { title: 'South Lhonak Glacial Lake (GL-SK-01)', sub: 'Breached Moraine • Elev: 5,200m ASL', cat: 'Glacial Lake', tab: 'lakes' },
+                { title: 'Teesta-III Chungthang Dam (RES-TK-01)', sub: 'Dam Wall Lost • 1,200 MW Hydro Project', cat: 'Reservoir', tab: 'reservoirs' },
+                { title: 'Dikchu Dam / NHPC Teesta-V (RES-TK-02)', sub: 'Heavy Silt Influx & Turbidity Spike', cat: 'Reservoir', tab: 'reservoirs' },
+                { title: 'Teesta River 112km Downstream Exposure Reach', sub: 'Elevation Drop 5,200m → 280m', cat: 'Corridor', tab: 'exposure' },
+                { title: 'Interactive Multi-Layer Leaflet GIS Map', sub: 'Satellite + Topo + Contours', cat: 'GIS Map', tab: 'gis-map' },
+                { title: 'Scientific Methodology & Provenance', sub: 'Formulae & Space Lineage', cat: 'Methodology', tab: 'methodology' }
+              ]
+                .filter(item => !paletteQuery || item.title.toLowerCase().includes(paletteQuery.toLowerCase()) || item.cat.toLowerCase().includes(paletteQuery.toLowerCase()))
+                .map((item, i) => (
+                  <div 
+                    key={i} 
+                    onClick={() => { setActiveTab(item.tab); setShowPalette(false); }}
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-cyan-500/15 border border-white/5 hover:border-cyan-400/30 flex items-center justify-between cursor-pointer transition select-none"
+                  >
+                    <div>
+                      <div className="font-bold text-white text-xs">{item.title}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">{item.sub}</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-mono text-cyan-300">{item.cat}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

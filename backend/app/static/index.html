@@ -259,6 +259,76 @@
     .hud-data-pulse {
       animation: liveDataPulse 2.8s ease-in-out infinite;
     }
+
+    /* 7. HUD Popovers & Floating Tooltips (Translucent High-Contrast Glassmorphism) */
+    @keyframes hudPopIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.94) translateY(-8px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .hud-popover-open {
+      animation: hudPopIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .hud-popover-card {
+      background: linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%) !important;
+      background-color: rgba(12, 14, 20, 0.96) !important;
+      backdrop-filter: blur(28px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+      z-index: 100 !important;
+    }
+    #popover-prototype.hud-popover-card {
+      border: 1px solid rgba(245, 158, 11, 0.45) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 30px -4px rgba(245, 158, 11, 0.20), inset 0 1px 0 rgba(245, 158, 11, 0.30) !important;
+    }
+    #popover-sensors.hud-popover-card {
+      border: 1px solid rgba(16, 185, 129, 0.45) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 30px -4px rgba(16, 185, 129, 0.20), inset 0 1px 0 rgba(16, 185, 129, 0.30) !important;
+    }
+    #popover-alerts.hud-popover-card {
+      border: 1px solid rgba(244, 63, 94, 0.50) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 30px -4px rgba(244, 63, 94, 0.25), inset 0 1px 0 rgba(244, 63, 94, 0.35) !important;
+    }
+    #popover-operator.hud-popover-card {
+      border: 1px solid rgba(56, 189, 248, 0.45) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 30px -4px rgba(56, 189, 248, 0.20), inset 0 1px 0 rgba(56, 189, 248, 0.30) !important;
+    }
+    .hud-command-palette-card {
+      background: linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%) !important;
+      background-color: rgba(12, 14, 20, 0.96) !important;
+      backdrop-filter: blur(28px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    }
+    .hud-tooltip-trigger {
+      position: relative;
+    }
+    .hud-tooltip-trigger .hud-tooltip-bubble {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 60;
+      white-space: nowrap;
+      background-color: rgba(12, 14, 20, 0.96) !important;
+      backdrop-filter: blur(16px) !important;
+    }
+    .hud-tooltip-trigger:hover .hud-tooltip-bubble {
+      visibility: visible;
+      opacity: 1;
+      transform: translateX(-50%) translateY(8px);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#090a0d] text-[#f1f3f7] antialiased selection:bg-sky-500 selection:text-white">
@@ -313,40 +383,248 @@
           </nav>
         </div>
 
-        <!-- Right: Search + System Icons (matching reference image) -->
-        <div class="flex items-center gap-2.5 flex-shrink-0 text-xs">
-          <!-- Compact Search Input -->
-          <div class="hidden xl:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-xs text-slate-400 focus-within:border-white/30 transition">
-            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500"></i>
-            <input type="text" placeholder="Search target (Ctrl+K)..." class="bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none w-36 font-normal text-xs" />
+        <!-- Right: Search + System Icons (Interactive Popovers, Zero Browser Subtitles) -->
+        <div class="relative flex items-center gap-2.5 flex-shrink-0 text-xs">
+          <!-- Interactive Search Trigger (Ctrl+K Command Palette) -->
+          <div onclick="window.openCommandPalette()" class="hidden xl:flex items-center gap-2 bg-white/5 border border-white/10 hover:border-cyan-400/40 hover:bg-white/10 rounded-full px-3 py-1.5 text-xs text-slate-400 transition cursor-pointer select-none">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span class="text-slate-300 w-36 font-normal text-xs">Search target (Ctrl+K)...</span>
           </div>
 
-          <!-- Prototype Positioning Pill (Discrete, elegant) -->
-          <span class="hidden md:inline-flex items-center gap-1.5 hud-pill px-2.5 py-1 text-[11px] font-mono text-amber-300/90 border-amber-500/20 bg-amber-950/30" title="Undercurrent is a research prototype for monitoring and preliminary exposure screening.">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Prototype
-          </span>
+          <!-- Prototype Positioning Pill (Pop Trigger) -->
+          <div class="relative">
+            <button type="button" data-popover-trigger="popover-prototype" onclick="window.togglePopover('popover-prototype', event)" class="hidden md:inline-flex items-center gap-1.5 hud-pill px-2.5 py-1 text-[11px] font-mono text-amber-300 border-amber-500/30 bg-amber-950/40 hover:bg-amber-900/40 hover:border-amber-400 transition cursor-pointer select-none">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 pulse-dot"></span> Prototype
+              <i data-lucide="chevron-down" class="w-3 h-3 text-amber-400/70 ml-0.5"></i>
+            </button>
 
-          <!-- Connectivity Status Icon -->
-          <div class="hidden sm:flex items-center gap-1.5 text-slate-400 hud-pill px-2.5 py-1" title="ISRO Bhuvan + Sentinel-2 MSI Live Telemetry">
-            <i data-lucide="wifi" class="w-3.5 h-3.5 text-emerald-400"></i>
-            <span class="text-[10px] font-mono text-emerald-300">Sensors</span>
+            <!-- Prototype Popover Card (Translucent High Visibility Glassmorphism) -->
+            <div id="popover-prototype" class="hidden hud-popover-card absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-2xl p-4 text-left shadow-2xl" style="background: linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%); backdrop-filter: blur(28px) saturate(200%); -webkit-backdrop-filter: blur(28px) saturate(200%);" onclick="event.stopPropagation()">
+              <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-amber-300 uppercase tracking-wider font-mono">Prototype Notice</div>
+                    <div class="text-[10px] text-slate-400">Research & Feasibility Screening</div>
+                  </div>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300">V1.0 Scientific</span>
+              </div>
+              <div class="py-3 text-xs text-slate-300 leading-relaxed space-y-2">
+                <p>
+                  <strong class="text-white">Project Undercurrent</strong> is an academic geospatial intelligence prototype engineered to demonstrate satellite multi-spectral monitoring of glacial lake area dynamics and preliminary exposure screening across downstream river reaches.
+                </p>
+                <div class="p-2.5 rounded-xl border border-amber-500/30 text-[11px] text-amber-200/90 leading-normal flex items-start gap-2" style="background-color: rgba(69, 26, 3, 0.5);">
+                  <i data-lucide="info" class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5"></i>
+                  <span>This is a research prototype. It is <strong>not</strong> an operational government GLOF early warning system (EWS) or hydrodynamic flood dispatch model. Real-world civil response relies on official NDMA/SDMA directives.</span>
+                </div>
+              </div>
+              <div class="pt-2.5 border-t border-white/10 flex items-center justify-between">
+                <button type="button" onclick="window.switchTab('methodology'); window.closeAllPopovers();" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1 cursor-pointer">
+                  Read Full Methodology &rarr;
+                </button>
+                <button type="button" onclick="window.closeAllPopovers();" class="px-2.5 py-1 rounded-lg hover:bg-white/15 text-slate-300 hover:text-white text-[11px] font-medium transition cursor-pointer" style="background-color: rgba(255, 255, 255, 0.1);">
+                  Dismiss
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- Notification Bell with Red Badge -->
-          <button type="button" onclick="window.switchTab('overview')" class="hud-pill w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white relative" title="1 Critical Hazard Active: South Lhonak Moraine Outburst">
-            <i data-lucide="bell" class="w-4 h-4"></i>
-            <span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white font-mono text-[9px] font-black flex items-center justify-center border-2 border-[#0c0e14]">1</span>
-          </button>
+          <!-- Connectivity Status Icon (Pop Trigger) -->
+          <div class="relative">
+            <button type="button" data-popover-trigger="popover-sensors" onclick="window.togglePopover('popover-sensors', event)" class="hidden sm:inline-flex items-center gap-1.5 text-slate-400 hud-pill px-2.5 py-1 hover:text-white hover:border-emerald-500/40 transition cursor-pointer select-none">
+              <i data-lucide="wifi" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span class="text-[10px] font-mono text-emerald-300">Sensors</span>
+              <i data-lucide="chevron-down" class="w-3 h-3 text-emerald-400/60 ml-0.5"></i>
+            </button>
 
-          <!-- 16:9 Fullscreen Toggle Button -->
-          <button onclick="toggleFullscreen()" id="fs-btn" class="hud-pill px-3 py-1.5 text-xs font-medium text-slate-200 hover:text-white flex items-center gap-1.5 shadow-sm transition" title="Toggle 16:9 Fullscreen Mode">
-            <i data-lucide="maximize" class="w-3.5 h-3.5" id="fs-icon"></i>
-            <span id="fs-label" class="hidden sm:inline">16:9</span>
-          </button>
+            <!-- Sensors Popover Card (Translucent High Visibility Glassmorphism) -->
+            <div id="popover-sensors" class="hidden hud-popover-card absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-2xl p-4 text-left shadow-2xl" style="background: linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%); backdrop-filter: blur(28px) saturate(200%); -webkit-backdrop-filter: blur(28px) saturate(200%);" onclick="event.stopPropagation()">
+              <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <i data-lucide="satellite" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-emerald-300 uppercase tracking-wider font-mono">Sensors & Earth Feeds</div>
+                    <div class="text-[10px] text-slate-400">4 Active Ingestion Pipelines</div>
+                  </div>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span> All Synced
+                </span>
+              </div>
+              <div class="py-3 space-y-2 text-xs">
+                <div class="p-2.5 rounded-xl border border-white/10 flex items-center justify-between" style="background-color: rgba(255, 255, 255, 0.05);">
+                  <div>
+                    <div class="font-bold text-white text-[11px] flex items-center gap-1.5">
+                      <span>ISRO CartoDEM / Bhuvan</span>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-mono">30m DEM</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono">Stereo-pair Digital Elevation Model &bull; EPSG:32645</div>
+                  </div>
+                  <span class="text-[10px] font-mono text-emerald-400 font-bold">Online</span>
+                </div>
+                <div class="p-2.5 rounded-xl border border-white/10 flex items-center justify-between" style="background-color: rgba(255, 255, 255, 0.05);">
+                  <div>
+                    <div class="font-bold text-white text-[11px] flex items-center gap-1.5">
+                      <span>ESA Copernicus Sentinel-2 MSI</span>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">10m MSI</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono">Band 3 (Green) + Band 8 (NIR) &bull; CC: 6.8% Valid</div>
+                  </div>
+                  <span class="text-[10px] font-mono text-emerald-400 font-bold">Active</span>
+                </div>
+                <div class="p-2.5 rounded-xl border border-white/10 flex items-center justify-between" style="background-color: rgba(255, 255, 255, 0.05);">
+                  <div>
+                    <div class="font-bold text-white text-[11px] flex items-center gap-1.5">
+                      <span>USGS Landsat-8/9 OLI-2</span>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono">30m OLI</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono">Pre-2018 Historical Calibration Baseline</div>
+                  </div>
+                  <span class="text-[10px] font-mono text-amber-400 font-bold">Standby</span>
+                </div>
+                <div class="p-2.5 rounded-xl border border-white/10 flex items-center justify-between" style="background-color: rgba(255, 255, 255, 0.05);">
+                  <div>
+                    <div class="font-bold text-white text-[11px] flex items-center gap-1.5">
+                      <span>CWC & NHPC Telemetry</span>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-mono">Hydro</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono">Teesta-III to Teesta-V Stage Gauges</div>
+                  </div>
+                  <span class="text-[10px] font-mono text-purple-400 font-bold">Live 30s</span>
+                </div>
+              </div>
+              <div class="pt-2.5 border-t border-white/10 flex items-center justify-between">
+                <button type="button" onclick="window.switchTab('methodology'); window.closeAllPopovers();" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1 cursor-pointer">
+                  View Data Lineage &rarr;
+                </button>
+                <button type="button" onclick="window.closeAllPopovers();" class="px-2.5 py-1 rounded-lg hover:bg-white/15 text-slate-300 hover:text-white text-[11px] font-medium transition cursor-pointer" style="background-color: rgba(255, 255, 255, 0.1);">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <!-- Operator Avatar -->
-          <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-sky-400 border border-white/20 flex items-center justify-center text-white font-mono font-bold text-[11px] shadow-sm flex-shrink-0 cursor-pointer" title="Active Operator: Teesta Basin Dispatcher (OP-01)">
-            OP
+          <!-- Notification Bell with Red Badge (Pop Trigger) -->
+          <div class="relative">
+            <button type="button" data-popover-trigger="popover-alerts" onclick="window.togglePopover('popover-alerts', event)" class="hud-pill w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white relative hover:border-rose-500/50 transition cursor-pointer select-none">
+              <i data-lucide="bell" class="w-4 h-4"></i>
+              <span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white font-mono text-[9px] font-black flex items-center justify-center border-2 border-[#0c0e14]">1</span>
+            </button>
+
+            <!-- Alerts Popover Card (Translucent High Visibility Glassmorphism) -->
+            <div id="popover-alerts" class="hidden hud-popover-card absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-2xl p-4 text-left shadow-2xl" style="background: linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%); backdrop-filter: blur(28px) saturate(200%); -webkit-backdrop-filter: blur(28px) saturate(200%);" onclick="event.stopPropagation()">
+              <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-rose-300 uppercase tracking-wider font-mono">Basin Alerts Feed</div>
+                    <div class="text-[10px] text-slate-400">1 Critical Outburst Detected</div>
+                  </div>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold uppercase animate-pulse">Critical</span>
+              </div>
+              <div class="py-3 space-y-2.5">
+                <div class="p-3 rounded-xl border border-rose-500/30 space-y-2" style="background-color: rgba(76, 5, 25, 0.45);">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-white flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-rose-500 pulse-dot"></span> South Lhonak Moraine Breach
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-400">04 Oct 2023</span>
+                  </div>
+                  <p class="text-[11px] text-slate-300 leading-normal">
+                    Sudden moraine failure drained <strong class="text-rose-300">~45.2M m³</strong> of water in under 4 hours. Lake surface area plunged by <strong class="text-rose-300">-38.7%</strong> (1.68 km² &rarr; 1.03 km²).
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 pt-1">
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-black/50 text-amber-300 border border-amber-500/30">Teesta-III Dam: Breached</span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-black/50 text-cyan-300 border border-cyan-500/30">Corridor: 112 km</span>
+                  </div>
+                  <div class="flex items-center gap-2 pt-2 border-t border-rose-500/20">
+                    <button type="button" onclick="window.zoomToLake(); window.closeAllPopovers();" class="flex-1 py-1.5 px-2 rounded-lg hover:bg-rose-500/40 text-rose-200 border border-rose-500/40 text-[11px] font-medium transition text-center cursor-pointer" style="background-color: rgba(244, 63, 94, 0.25);">
+                      Zoom to Lake
+                    </button>
+                    <button type="button" onclick="window.zoomToDam(); window.closeAllPopovers();" class="flex-1 py-1.5 px-2 rounded-lg hover:bg-amber-500/40 text-amber-200 border border-amber-500/40 text-[11px] font-medium transition text-center cursor-pointer" style="background-color: rgba(245, 158, 11, 0.25);">
+                      Zoom to Dam
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="pt-2 border-t border-white/10 flex items-center justify-between">
+                <button type="button" onclick="window.switchTab('exposure'); window.closeAllPopovers();" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1 cursor-pointer">
+                  Open Exposure Corridor &rarr;
+                </button>
+                <button type="button" onclick="window.closeAllPopovers();" class="px-2.5 py-1 rounded-lg hover:bg-white/15 text-slate-300 hover:text-white text-[11px] font-medium transition cursor-pointer" style="background-color: rgba(255, 255, 255, 0.1);">
+                  Acknowledge
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 16:9 Fullscreen Toggle Button (with HUD tooltip bubble, no browser subtitle) -->
+          <div class="hud-tooltip-trigger relative">
+            <button onclick="toggleFullscreen()" id="fs-btn" class="hud-pill px-3 py-1.5 text-xs font-medium text-slate-200 hover:text-white flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="maximize" class="w-3.5 h-3.5" id="fs-icon"></i>
+              <span id="fs-label" class="hidden sm:inline">16:9</span>
+            </button>
+            <div class="hud-tooltip-bubble text-slate-200 text-[11px] font-mono px-2.5 py-1 rounded-lg shadow-xl" style="background-color: rgba(12, 14, 20, 0.96); border: 1px solid rgba(255, 255, 255, 0.2);">
+              Toggle 16:9 Widescreen Mode
+            </div>
+          </div>
+
+          <!-- Operator Avatar (Pop Trigger) -->
+          <div class="relative">
+            <button type="button" data-popover-trigger="popover-operator" onclick="window.togglePopover('popover-operator', event)" class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-sky-400 border border-white/20 hover:border-cyan-400 hover:scale-105 flex items-center justify-center text-white font-mono font-bold text-[11px] shadow-sm flex-shrink-0 cursor-pointer transition select-none">
+              OP
+            </button>
+
+            <!-- Operator Popover Card (Translucent High Visibility Glassmorphism) -->
+            <div id="popover-operator" class="hidden hud-popover-card absolute right-0 top-11 z-50 w-80 rounded-2xl p-4 text-left shadow-2xl" style="background: linear-gradient(165deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.97) 100%); backdrop-filter: blur(28px) saturate(200%); -webkit-backdrop-filter: blur(28px) saturate(200%);" onclick="event.stopPropagation()">
+              <div class="flex items-center gap-3 pb-3 border-b border-white/10">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-600 to-sky-400 border-2 border-cyan-400 flex items-center justify-center text-white font-mono font-bold text-sm shadow-lg">
+                  OP
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Teesta Basin Dispatcher</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 font-mono">Lead Hydrological Analyst &bull; ID #OP-01</div>
+                </div>
+              </div>
+              <div class="py-3 space-y-2 font-mono text-[11px]">
+                <div class="flex justify-between py-1 border-b border-white/5">
+                  <span class="text-slate-400">Duty Station:</span>
+                  <span class="text-slate-200">Gangtok Operations Hub</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-white/5">
+                  <span class="text-slate-400">Clearance:</span>
+                  <span class="text-cyan-300">Level 3 (Hydro-Geospatial)</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-white/5">
+                  <span class="text-slate-400">Session Mode:</span>
+                  <span class="text-emerald-300">Live Telemetry Monitoring</span>
+                </div>
+                <div class="flex justify-between py-1">
+                  <span class="text-slate-400">System State:</span>
+                  <span class="text-emerald-400 font-bold">100% Online (12/12 APIs)</span>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-white/10 space-y-1.5">
+                <a href="/api/docs" target="_blank" class="w-full py-1.5 px-3 rounded-lg hover:bg-white/10 text-cyan-300 flex items-center justify-between text-xs transition" style="background-color: rgba(255, 255, 255, 0.06);">
+                  <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> Open API Docs (/api/docs)</span>
+                  <i data-lucide="external-link" class="w-3 h-3 text-slate-500"></i>
+                </a>
+                <button type="button" onclick="window.resetMapView(); window.closeAllPopovers();" class="w-full py-1.5 px-3 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 text-xs transition cursor-pointer" style="background-color: rgba(255, 255, 255, 0.06);">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-400"></i> Reset Dashboard & Coordinates
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2545,6 +2823,129 @@
       });
     }
 
+    // ==========================================
+    // HUD POPOVER & COMMAND PALETTE CONTROLLER
+    // ==========================================
+    window.togglePopover = function(popoverId, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      const target = document.getElementById(popoverId);
+      if (!target) return;
+      const isCurrentlyOpen = !target.classList.contains('hidden');
+      
+      window.closeAllPopovers();
+
+      if (!isCurrentlyOpen) {
+        target.classList.remove('hidden');
+        target.classList.add('hud-popover-open');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+    };
+
+    window.closeAllPopovers = function() {
+      document.querySelectorAll('.hud-popover-card').forEach(el => {
+        el.classList.add('hidden');
+        el.classList.remove('hud-popover-open');
+      });
+    };
+
+    // Global click listener to close popovers on click outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.hud-popover-card') && !e.target.closest('[data-popover-trigger]')) {
+        window.closeAllPopovers();
+      }
+    });
+
+    // Command Palette Targets
+    window.paletteItems = [
+      { id: 'lhonak', title: 'South Lhonak Glacial Lake (GL-SK-01)', subtitle: 'Breached Moraine • Elev: 5,200m ASL • -38.7% Plunge', category: 'Glacial Lake', action: () => { window.switchTab('lakes'); window.zoomToLake(); } },
+      { id: 'chungthang', title: 'Teesta-III Chungthang Dam (RES-TK-01)', subtitle: 'Dam Wall Lost • 1,200 MW Hydro Project • 68 km Downstream', category: 'Reservoir', action: () => { window.switchTab('reservoirs'); window.zoomToDam(); } },
+      { id: 'dikchu', title: 'Dikchu Dam / NHPC Teesta-V (RES-TK-02)', subtitle: 'Heavy Silt Influx & Turbidity Spike • Stage Gauge Active', category: 'Reservoir', action: () => { window.switchTab('reservoirs'); } },
+      { id: 'corridor', title: 'Teesta River 112km Downstream Exposure Reach', subtitle: 'Elevation Drop 5,200m → 280m • 8 Critical Assets', category: 'Corridor', action: () => { window.switchTab('exposure'); } },
+      { id: 'nh10', title: 'NH-10 Transport Corridor (Sikkim Lifeline)', subtitle: 'Severed Highway Sections • 112km Vulnerability Analysis', category: 'Infrastructure', action: () => { window.switchTab('exposure'); } },
+      { id: 'gis', title: 'Interactive Multi-Layer Leaflet GIS Map', subtitle: 'Esri Satellite + Topo + Contours + GeoJSON Layers', category: 'GIS Map', action: () => { window.switchTab('gis-map'); } },
+      { id: 'ndwi', title: 'NDWI Spectral Simulator Matrix', subtitle: 'Multi-spectral Green-NIR Water Extraction Algorithm', category: 'Spectral', action: () => { window.switchTab('overview'); } },
+      { id: 'methodology', title: 'Scientific Methodology & Data Provenance', subtitle: 'ISRO CartoDEM + Sentinel-2 MSI Lineage Formulations', category: 'Methodology', action: () => { window.switchTab('methodology'); } }
+    ];
+
+    window.openCommandPalette = function() {
+      const modal = document.getElementById('hud-command-palette');
+      const input = document.getElementById('palette-search-input');
+      if (!modal || !input) return;
+      window.closeAllPopovers();
+      modal.classList.remove('hidden');
+      input.value = '';
+      window.renderPaletteResults(window.paletteItems);
+      setTimeout(() => input.focus(), 50);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
+    window.closeCommandPalette = function() {
+      const modal = document.getElementById('hud-command-palette');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.toggleCommandPalette = function() {
+      const modal = document.getElementById('hud-command-palette');
+      if (modal && !modal.classList.contains('hidden')) {
+        window.closeCommandPalette();
+      } else {
+        window.openCommandPalette();
+      }
+    };
+
+    window.filterCommandPalette = function(query) {
+      const q = (query || '').toLowerCase().trim();
+      if (!q) {
+        window.renderPaletteResults(window.paletteItems);
+        return;
+      }
+      const filtered = window.paletteItems.filter(item => 
+        item.title.toLowerCase().includes(q) || 
+        item.subtitle.toLowerCase().includes(q) || 
+        item.category.toLowerCase().includes(q)
+      );
+      window.renderPaletteResults(filtered);
+    };
+
+    window.renderPaletteResults = function(items) {
+      const container = document.getElementById('palette-results-list');
+      if (!container) return;
+      if (!items || items.length === 0) {
+        container.innerHTML = '<div class="p-6 text-center text-slate-500 font-mono text-xs">No matching basin targets found.</div>';
+        return;
+      }
+      container.innerHTML = items.map(item => `
+        <div onclick="window.paletteItems.find(p => p.id === '${item.id}').action(); window.closeCommandPalette();" class="p-2.5 rounded-xl bg-white/5 hover:bg-cyan-500/15 border border-white/5 hover:border-cyan-400/30 flex items-center justify-between cursor-pointer transition select-none group">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-black/40 border border-white/10 group-hover:border-cyan-400/40 flex items-center justify-center text-cyan-400">
+              <i data-lucide="crosshair" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="font-bold text-white group-hover:text-cyan-300 text-xs">${item.title}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${item.subtitle}</div>
+            </div>
+          </div>
+          <span class="hud-pill px-2 py-0.5 text-[10px] font-mono text-slate-400 group-hover:text-cyan-300">${item.category}</span>
+        </div>
+      `).join('');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
+    // Keyboard Shortcuts: Ctrl+K or Cmd+K, Escape
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        window.toggleCommandPalette();
+      }
+      if (e.key === 'Escape') {
+        window.closeAllPopovers();
+        window.closeCommandPalette();
+      }
+    });
+
     // Initialize all components safely
     window.addEventListener('DOMContentLoaded', () => {
       window.safeRenderIcons();
@@ -2558,5 +2959,28 @@
       if (typeof window.drawNDWICanvas === 'function') window.drawNDWICanvas(0.14, true);
     });
   </script>
+
+  <!-- COMMAND PALETTE MODAL (SPOTLIGHT SEARCH) -->
+  <div id="hud-command-palette" class="hidden fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 bg-black/75 backdrop-blur-md" onclick="window.closeCommandPalette()">
+    <div class="relative w-full max-w-xl rounded-2xl bg-[#0c0e14]/98 border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden hud-popover-open" onclick="event.stopPropagation()">
+      <!-- Search Input -->
+      <div class="flex items-center px-4 py-3.5 border-b border-white/10 gap-3 bg-white/5">
+        <i data-lucide="search" class="w-5 h-5 text-cyan-400"></i>
+        <input type="text" id="palette-search-input" oninput="window.filterCommandPalette(this.value)" placeholder="Search basin targets, dams, sensors, corridors..." class="flex-1 bg-transparent text-white placeholder-slate-500 focus:outline-none text-sm font-sans" autocomplete="off" />
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-slate-400">ESC to close</span>
+      </div>
+
+      <!-- Quick Categories / Results -->
+      <div id="palette-results-list" class="max-h-80 overflow-y-auto p-2 space-y-1 custom-scrollbar text-xs">
+        <!-- Rendered by window.renderPaletteResults -->
+      </div>
+
+      <!-- Footer Bar -->
+      <div class="px-4 py-2 bg-white/5 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 pulse-dot"></span> Undercurrent Quick Navigator</span>
+        <span>Use &uarr; &darr; &bull; Enter to select</span>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
