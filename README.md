@@ -4,7 +4,8 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
+[![Rasterio](https://img.shields.io/badge/Rasterio-1.3%2B-2E7D32.svg)](https://rasterio.readthedocs.io/)
+[![SciPy](https://img.shields.io/badge/SciPy-1.12%2B-0054A6.svg)](https://scipy.org/)
 [![Leaflet](https://img.shields.io/badge/Leaflet-1.9.4-199900.svg)](https://leafletjs.com/)
 [![ISRO Space Data](https://img.shields.io/badge/ISRO-Bhuvan%20%7C%20Bhoonidhi-FF9933.svg)](https://bhuvan.nrsc.gov.in/)
 [![Copernicus](https://img.shields.io/badge/Copernicus-Sentinel--2-003399.svg)](https://dataspace.copernicus.eu/)
@@ -15,7 +16,7 @@
 
 > [!IMPORTANT]
 > **Undercurrent** is a satellite-data-driven decision-support prototype for monitoring water-body changes and preliminary downstream exposure screening. 
-> It is **not** an operational GLOF early-warning system, a validated flood forecast, or a substitute for official disaster-management and hydrological authorities.
+> It is **not** an operational GLOF early-warning system, a validated hydrodynamic flood forecast, or an operational warning authority. Official emergency directives remain exclusively under state and national disaster management authorities (Sikkim SDMA / NDMA).
 
 ---
 
@@ -24,9 +25,9 @@
 Himalayan mountain basins house thousands of glacial lakes perched thousands of meters above populated valleys, hydropower reservoirs, and transport corridors. In October 2023, the catastrophic outburst of **South Lhonak Glacial Lake** in Sikkim swept through the Teesta River gorge, breaching the **1,200 MW Chungthang Dam (Teesta-III)** and destroying critical bridges and sections of National Highway 10.
 
 Historically, satellite imagery, digital elevation models, and reservoir water records exist in disconnected silos. **Undercurrent** solves this gap by integrating three interconnected analytical views into a single basin-oriented workflow:
-1. **Glacial Lake Change Monitoring:** Multi-date satellite boundary extraction, NDWI calculation, area change metrics, and breach detection.
-2. **Reservoir Water-Spread Monitoring:** Seasonal surface-area variation tracking with explicit distinction between water-spread area and storage volume.
-3. **Downstream Exposure Screening:** DEM-derived slope and drainage profiling, gorge confinement buffering, and vulnerable asset intersection mapping.
+1. **Glacial Lake Change Monitoring:** Multi-date satellite boundary extraction, symmetric Sentinel-2 B03/B08 NDWI calculation, exact affine transform ground area metrics, and breach detection.
+2. **Reservoir Water-Spread Monitoring:** Seasonal surface-area variation tracking with explicit distinction between 2D water-spread area and 3D storage volume.
+3. **Downstream Exposure Screening:** DEM-derived slope and drainage profiling, gorge confinement buffering, and vulnerable asset intersection mapping with weight sensitivity testing.
 
 ---
 
@@ -35,172 +36,147 @@ Historically, satellite imagery, digital elevation models, and reservoir water r
 | Domain Focus | Undercurrent Contribution | System Implementation |
 | :--- | :--- | :--- |
 | **01 \| Indian Space Missions & Space Data** | Uses Indian satellite missions and portals for elevation and radar verification. | Integrated **ISRO CartoDEM (30m)** via Bhuvan for elevation/slope profiling and **ISRO Bhoonidhi RISAT-1A SAR** coherence data. |
-| **02 \| Earth Observation & Satellite Applications** | Extracts multi-date water boundaries, computes NDWI, and visualizes decadal expansion. | Automated **Sentinel-2 MSI (10m)** and **Landsat-8/9 (30m)** analysis pipeline with interactive threshold simulator. |
-| **03 \| Space-Based Disaster Management** | Traces downstream river corridors, buffers gorge confinement, and screens infrastructure exposure. | 112 km drainage network overlay from South Lhonak to Rangpo, intersecting 8 critical settlements, dams, and highway links. |
+| **02 \| Earth Observation & Satellite Applications** | Extracts multi-date water boundaries, computes NDWI, and visualizes decadal expansion. | Symmetric **Sentinel-2 MSI Level-2A (10m)** raster pipeline with georeferenced AOI polygon spatial masking and interactive threshold simulator. |
+| **03 \| Space-Based Disaster Management** | Traces downstream river corridors, buffers gorge confinement, and screens infrastructure exposure. | 112.4 km drainage network overlay from South Lhonak to Rangpo, intersecting 8 critical settlements, dams, and highway links with location-specific DEM slopes. |
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ System Architecture & Unified Frontend
+
+Project Undercurrent utilizes a streamlined, highly optimized architecture where the **FastAPI backend directly serves the single production Operational Dashboard** at `http://localhost:8000/`.
 
 ```mermaid
 flowchart TD
     subgraph DataSources["Space Data & Input Layer"]
-        S2["Sentinel-2 MSI (Copernicus)"]
-        L8["Landsat 8/9 OLI (USGS)"]
+        S2["Sentinel-2 MSI Level-2A (10m)"]
+        L8["Landsat 8/9 OLI (USGS Archive)"]
         CDEM["ISRO CartoDEM 30m (Bhuvan)"]
-        SAR["RISAT-1A SAR (Bhoonidhi)"]
-        OSM["OpenStreetMap & SDMA Vectors"]
+        SAR["RISAT-1A SAR (Bhoonidhi Coherence)"]
+        OSM["OpenStreetMap & SDMA Infrastructure"]
     end
 
     subgraph Processing["Geospatial Processing Engine"]
-        PP["Preprocessing & Reprojection (UTM Zone 45N)"]
-        NDWI["NDWI Calculator: (Green - NIR)/(Green + NIR)"]
-        CHG["Change Detection & Polygon Extraction"]
-        DEM["DEM Slope & Hydrological Flow Routing"]
-        EXP["Exposure Corridors (500m & 1500m Buffers)"]
+        PP["Symmetric Level-2A Band Reader (Rasterio)"]
+        NDWI["NDWI: (B03 Green - B08 NIR) / (B03 + B08)"]
+        AOI["Georeferenced Lake AOI Polygon Spatial Mask"]
+        DEM["ISRO CartoDEM 30m Continuous Slope Interpolation"]
+        EXP["Corridor Confinement & Heuristic Asset Exposure"]
     end
 
     subgraph Backend["FastAPI REST Backend (/api)"]
-        API_Lakes["/api/lakes & /history & /compare"]
-        API_Res["/api/reservoirs & /history"]
-        API_Exp["/api/exposure/{id}/profile & /assets"]
-        API_Maps["/api/map/layers & /geojson"]
-        API_Alerts["/api/alerts (Rule-based Flags)"]
-        API_NDWI["/api/analysis/ndwi (Simulator)"]
+        API_Pipe["/api/pipeline/end-to-end"]
+        API_Raster["/api/analysis/raster/south-lhonak"]
+        API_Sens["/api/exposure/{id}/sensitivity"]
+        API_Review["/api/alerts/{id}/review (Human Gate)"]
+        API_Adv["/api/alerts/advisory (Dynamic Evidence)"]
+        API_Maps["/api/map/layers & /geojson & /download"]
     end
 
-    subgraph Frontend["Undercurrent Geospatial Dashboard"]
-        UI_Dash["Executive Basin Dashboard"]
-        UI_Lake["Journey A: Glacial Lake Monitor"]
-        UI_Res["Journey B: Reservoir Water Spread"]
-        UI_Exp["Journey C: Exposure Screening"]
-        UI_Map["Interactive Leaflet GIS Explorer"]
-        UI_Sci["Data Provenance & Scientific Methodology"]
+    subgraph Frontend["Undercurrent 16:9 Tactical HUD Dashboard (FastAPI Static Root)"]
+        UI_Dash["Tab 1: Overview & Decadal Basin Dynamics"]
+        UI_Lake["Tab 2: Glacial Lake Monitor & Spectral Delta"]
+        UI_Res["Tab 3: Independent Reservoir Surveillance"]
+        UI_Exp["Tab 4: 112km Downstream Exposure Reach"]
+        UI_Map["Tab 5: Interactive Multi-Layer Leaflet GIS Map + QGIS Exports"]
+        UI_Sci["Tab 6: Peer-Review Scientific Methodology & Validation Record"]
     end
 
     DataSources --> PP
-    PP --> NDWI & CHG & DEM
+    PP --> NDWI & AOI & DEM
     DEM & OSM --> EXP
-    NDWI & CHG & DEM & EXP --> Backend
+    NDWI & AOI & DEM & EXP --> Backend
     Backend --> Frontend
 ```
 
 ---
 
+## 📁 Required Satellite Rasters & Data Directory
+
+The physical raster processing engine (`process_real_satellite_raster`) requires the raw Sentinel-2 Level-2A GeoTIFF files located in `data/raw/satellite/`:
+
+| Date | File Name | Band / Description | Projection | Resolution |
+| :--- | :--- | :--- | :--- | :--- |
+| **2023-09-26** (Pre-burst) | `2023-09-26_B03.tiff.tiff` | Band 3 (Green, 560nm) | EPSG:32645 (UTM 45N) | 10.0m GSD |
+| **2023-09-26** (Pre-burst) | `2023-09-26_B08.tiff.tiff` | Band 8 (NIR, 842nm) | EPSG:32645 (UTM 45N) | 10.0m GSD |
+| **2023-10-09** (Post-burst) | `2023-10-09_B03.tiff.tiff` | Band 3 (Green, 560nm) | EPSG:32645 (UTM 45N) | 10.0m GSD |
+| **2023-10-09** (Post-burst) | `2023-10-09_B08.tiff.tiff` | Band 8 (NIR, 842nm) | EPSG:32645 (UTM 45N) | 10.0m GSD |
+
+Both dates share:
+* **Spatial Reference:** WGS 84 / UTM Zone 45N (`EPSG:32645`).
+* **True Pixel Area:** $100.02\text{ m}^2$ derived directly from the raster affine transform.
+* **Georeferenced AOI:** Evaluated within the canonical South Lhonak lake basin polygon (`data/processed/south_lhonak_boundaries.geojson`).
+
+---
+
 ## ⚡ Quickstart Guide
 
-### 1. Prerequisites
-* Python 3.10+ installed.
-* All core dependencies (`fastapi`, `uvicorn`, `pydantic`, `numpy`, `pandas`) are standard Python packages.
-
-### 2. Run the Application
-From the workspace root directory:
+### 1. Installation
+Install pinned dependencies from `backend/requirements.txt`:
 
 ```powershell
-# Start the FastAPI server (serves both API and Interactive UI)
-python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+pip install -r backend/requirements.txt
+```
+
+### 2. Run Test Suite
+Validate dependency imports, synthetic fixture processing (NoData, CRS mismatch, empty components), and all API routes:
+
+```powershell
+python tests/test_dependencies.py
+python tests/test_raster_processing.py
+python tests/test_api.py
+```
+
+### 3. Start the Application
+Run the FastAPI application from the project root:
+
+```powershell
+python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Open your browser to:
-* **Interactive Web Dashboard:** [http://localhost:8000/](http://localhost:8000/)
-* **Interactive Swagger API Documentation:** [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+* **Interactive Operations HUD:** [http://localhost:8000/](http://localhost:8000/)
+* **Interactive API Documentation:** [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
 * **ReDoc Documentation:** [http://localhost:8000/api/redoc](http://localhost:8000/api/redoc)
 
 ---
 
-## 📂 Repository Structure
+## 🎬 Recommended Demonstration Narrative (Section 10 Action Plan)
 
-```
-Undercurrent/
-├── backend/
-│   ├── app/
-│   │   ├── main.py                  # FastAPI application entry & static mount
-│   │   ├── routes/
-│   │   │   ├── health.py            # /api/health
-│   │   │   ├── lakes.py             # Glacial lake multi-date endpoints
-│   │   │   ├── reservoirs.py        # Reservoir water-spread endpoints
-│   │   │   ├── exposure.py          # Exposure screening & DEM profile
-│   │   │   ├── maps.py              # Map layer catalog & GeoJSON serving
-│   │   │   ├── alerts.py            # Rule-based screening anomaly flags
-│   │   │   └── analysis.py          # Interactive NDWI calculation engine
-│   │   ├── services/
-│   │   │   ├── data_service.py      # Geospatial cache & GeoJSON loaders
-│   │   │   ├── geospatial.py        # Geodesic distances, % change & exposure
-│   │   │   └── ndwi_engine.py       # NDWI matrix classification & simulation
-│   │   ├── schemas/
-│   │   │   └── models.py            # Pydantic models conforming to blueprint
-│   │   └── static/
-│   │       └── index.html           # Full interactive geospatial web application
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx                  # React component implementation
-│   │   ├── main.jsx                 # React root entry
-│   │   └── services/api.js          # API client connector
-│   ├── package.json
-│   ├── vite.config.js
-│   └── index.html
-├── data/
-│   ├── raw/                         # Raw satellite and DEM archives
-│   ├── processed/
-│   │   ├── south_lhonak_boundaries.geojson  # Multi-date lake polygons
-│   │   ├── chungthang_reservoir.geojson     # Reservoir water-spread polygons
-│   │   ├── teesta_v_reservoir.geojson       # Downstream dam reservoir
-│   │   ├── teesta_river_drainage.geojson    # 112km stream flowline
-│   │   ├── teesta_exposure_corridor.geojson # 500m & 1500m screening buffers
-│   │   ├── downstream_assets.geojson        # 8 settlements & infrastructure
-│   │   └── elevation_profile.json           # DEM elevation points & slope
-│   └── metadata/
-│       └── data_catalogue.json      # Complete sensor provenance & licences
-├── docs/
-│   ├── UNDERCURRENT_PROJECT_BLUEPRINT.md  # Comprehensive 17-section blueprint
-│   ├── ASTRA_PRESENTATION_SCRIPT.md       # 5-10 minute pitch & judge defense guide
-│   └── METHODOLOGY_AND_DATA_SOURCES.md    # NDWI mathematics & ISRO space data
-└── README.md
-```
+When presenting or demonstrating Project Undercurrent, follow this verified 6-step walkthrough:
+
+1. **Input Scenes & Metadata:** Open South Lhonak Lake on Tab 2. Point out the exact Copernicus Sentinel-2 Level-2A input scenes (26-Sep-2023 and 09-Oct-2023), UTM Zone 45N projection, and 10.0m spatial resolution.
+2. **Symmetric Reproducible Lake Classification:** Show that both dates pass through identical Band 3 (Green) and Band 8 (NIR) NDWI calculations and georeferenced AOI polygon spatial masking (no hardcoded row/column pixel crops).
+3. **Water Mask, Lake Boundary & Ground Truth Area:** Display the pre-burst lake extent ($1.666\text{ km}^2$, 16,660 pixels) alongside the post-burst stabilized residual extent ($0.976\text{ km}^2$, 9,762 pixels), showing the $-41.4\%$ surface drainage loss with $100.0\%$ valid data coverage and $0.0\%$ cloud cover.
+4. **Basin Drainage Context & Exposure Screening:** Switch to Tab 4 (Exposure). Trace the 112.4 km Teesta drainage line from $5,200\text{ m}$ to $280\text{ m}$. Show how local DEM slopes are dynamically interpolated from the ISRO CartoDEM valley profile ($22.0^\circ$ at Chungthang Dam vs $6.8^\circ$ at Rangpo), and review the weight sensitivity rank stability matrix.
+5. **Independent Reservoir Surveillance Track:** Switch to Tab 3 (Reservoirs). Highlight the Chungthang Dam ($0.512\text{ km}^2 \rightarrow 0.241\text{ km}^2$) and Dikchu Dam as an independent observation track, emphasizing that 2D water-spread loss is not equivalent to storage volume without rating curves.
+6. **Traceable Evidence Advisory with Human Review Gate:** Navigate to the Advisory panel. Review the automatically compiled multi-factor evidence advisory, and demonstrate the human review approval gate (`POST /api/alerts/ALT-2023-SK-01/review`) requiring official SDMA/NDMA sign-off before elevation to external stakeholders.
 
 ---
 
 ## 🔬 Scientific Methodology Summary
 
-### Water Extraction (NDWI)
-$$\text{NDWI} = \frac{\text{Green} - \text{NIR}}{\text{Green} + \text{NIR}}$$
-Using Sentinel-2 Band 3 ($560\text{ nm}$) and Band 8 ($842\text{ nm}$). Water pixels classified above threshold $\theta \approx 0.14$.
+### 1. Normalized Difference Water Index (NDWI)
+$$\text{NDWI} = \frac{\text{Green} - \text{NIR}}{\text{Green} + \text{NIR}} = \frac{\text{B03} - \text{B08}}{\text{B03} + \text{B08}}$$
 
-### Area Change Formula
+### 2. Physical Ground Area from Affine Transform
+$$\text{Pixel Area } (\text{m}^2) = |\Delta x| \times |\Delta y| \approx 9.995\text{ m} \times 10.007\text{ m} = 100.02\text{ m}^2$$
+$$\text{Lake Area } (\text{km}^2) = \frac{\sum \text{Water Pixels} \times 100.02\text{ m}^2}{10^6}$$
+
+### 3. Percentage Surface Area Change
 $$\% \text{ Area Change} = \left(\frac{A_{\text{later}} - A_{\text{earlier}}}{A_{\text{earlier}}}\right) \times 100$$
-All geometries projected into **UTM Zone 45N (EPSG:32645)** to calculate true planar surface area.
-
-### South Lhonak Historical Observations
-* **2013-10-18:** $0.984\text{ km}^2$ (Landsat-8 reference baseline)
-* **2019-10-05:** $1.348\text{ km}^2$ (+37.0% steady expansion)
-* **2021-10-12:** $1.492\text{ km}^2$ (+51.6% high melt impoundment)
-* **2023-09-17:** $1.682\text{ km}^2$ (+70.9% pre-outburst maximum)
-* **2023-10-04:** $1.031\text{ km}^2$ (**-38.7%** post-breach drainage, net loss of $0.651\text{ km}^2$)
 
 ---
 
-## 👥 Hackathon Team Structure
+## ⚖️ Responsible Scientific Claims
 
-| Team Member | Role | Core Deliverables |
-| :--- | :--- | :--- |
-| **Aerospace Member** | Remote Sensing & Scientific Analysis Lead | Image selection (Bhuvan, Copernicus), QGIS validation, scientific disclaimer governance, and judge defense on remote sensing. |
-| **CS Member 1** | Geospatial Processing & AI Engineer | Automated NDWI processing pipeline, raster matrix thresholding, area calculation algorithms. |
-| **CS Member 2** | Backend & Data Engineer | FastAPI architecture, REST endpoints, metadata catalogue, Pydantic schemas, and data caching. |
-| **CS Member 3** | Frontend & Product Engineer | Responsive web interface, Leaflet interactive GIS map, Chart.js telemetry charts, demo rehearsal. |
-
----
-
-## ⚖️ Responsible Presentation Guidelines
-
-* **Say:** *"Observed lake surface area increased between these dates."*  
+* **Say:** *"Observed lake surface area contracted between these dates."*  
   *(Do not say: "The lake is about to burst.")*
 * **Say:** *"This is a preliminary downstream exposure screening layer."*  
-  *(Do not say: "This is the predicted flood inundation wave.")*
+  *(Do not say: "This is the predicted hydrodynamic flood wave.")*
 * **Say:** *"The reservoir's mapped water-spread area varied."*  
   *(Do not say: "Reservoir storage fell by X million cubic meters.")*
 * **Say:** *"This prototype supports situational awareness."*  
-  *(Do not say: "This replaces official emergency warning authorities.")*
+  *(Do not say: "This replaces official disaster management warning authorities.")*
 
 ---
 

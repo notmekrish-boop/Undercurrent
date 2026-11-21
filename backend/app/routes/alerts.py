@@ -1,3 +1,6 @@
+import os
+import json
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any
 from ..schemas.models import AlertFlag, EvidenceAdvisory, HumanReviewSubmission
@@ -5,49 +8,82 @@ from ..services.data_service import data_service
 
 router = APIRouter(prefix="/alerts", tags=["Rule-Based Anomaly & Screening Flags"])
 
-_HUMAN_REVIEWS: Dict[str, Dict[str, Any]] = {}
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+REVIEWS_FILE = os.path.normpath(os.path.join(BASE_DIR, "..", "data", "processed", "human_reviews.json"))
+
+
+def _load_reviews() -> Dict[str, Dict[str, Any]]:
+    if os.path.isfile(REVIEWS_FILE):
+        try:
+            with open(REVIEWS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[Undercurrent] Error loading human reviews: {e}")
+            return {}
+    return {}
+
+
+def _save_reviews(reviews: Dict[str, Dict[str, Any]]) -> None:
+    os.makedirs(os.path.dirname(REVIEWS_FILE), exist_ok=True)
+    with open(REVIEWS_FILE, "w", encoding="utf-8") as f:
+        json.dump(reviews, f, indent=2)
+
 
 @router.post("/{alert_id}/review", summary="Human expert review sign-off before advisory elevation")
 def submit_human_review(alert_id: str, submission: HumanReviewSubmission):
-    _HUMAN_REVIEWS[alert_id] = {
+    now_utc = datetime.now(timezone.utc).isoformat()
+    review_record = {
         "alert_id": alert_id,
         "reviewed_by": submission.reviewer_name,
         "organization": submission.organization,
         "decision": submission.review_decision,
         "comments": submission.technical_comments,
-        "reviewed_at_utc": "2023-10-09T06:30:00Z",
+        "reviewed_at_utc": now_utc,
         "elevation_authorized": submission.review_decision == "ENDORSED_FOR_INTERNAL_ACTION"
     }
+
+    reviews = _load_reviews()
+    reviews[alert_id] = review_record
+    _save_reviews(reviews)
+
     return {
         "status": "success",
-        "message": f"Expert review recorded for alert {alert_id}",
-        "review_record": _HUMAN_REVIEWS[alert_id]
+        "message": f"Expert review recorded for alert {alert_id} at {now_utc}",
+        "review_record": review_record
     }
+
 
 @router.get("/{alert_id}/review", summary="Get human expert review record for an alert")
 def get_alert_review(alert_id: str):
-    if alert_id in _HUMAN_REVIEWS:
-        return _HUMAN_REVIEWS[alert_id]
+    reviews = _load_reviews()
+    if alert_id in reviews:
+        return reviews[alert_id]
+
     return {
         "alert_id": alert_id,
         "review_status": "PENDING_EXPERT_REVIEW",
+        "elevation_authorized": False,
         "gate_requirement": "Requires human review by State Disaster Management Authority before elevation to civil advisory."
     }
 
+
 @router.get("/advisory", response_model=EvidenceAdvisory, summary="Get structured evidence-based stakeholder advisory")
 def get_advisory():
+    # 1. Dynamically retrieve lake observations
     lake_history = data_service.get_lake_history("GL-SK-01")
+    if not lake_history:
+        raise HTTPException(status_code=404, detail="No lake history records found for GL-SK-01.")
+
     obs_map = {o["date"]: o for o in lake_history}
-    
-    # Validated Sentinel-2 Level-2A empirical observations
-    latest_obs = obs_map.get("2023-10-09", lake_history[-1] if lake_history else {})
-    baseline_obs = obs_map.get("2023-09-26", lake_history[0] if lake_history else {})
-    
-    area_latest = latest_obs.get("area_km2", 1.003)
-    area_base = baseline_obs.get("area_km2", 1.666)
-    delta_km2 = round(area_latest - area_base, 3)
+    latest_obs = obs_map.get("2023-10-09", lake_history[-1])
+    baseline_obs = obs_map.get("2023-09-26", lake_history[0])
+
+    area_latest = latest_obs.get("area_km2", 0.0)
+    area_base = baseline_obs.get("area_km2", 0.0)
+    delta_km2 = round(area_latest - area_base, 3) if area_base > 0 else 0.0
     pct_change = round((delta_km2 / area_base) * 100.0, 1) if area_base > 0 else 0.0
 
+    # 2. Dynamically retrieve and score assets
     raw_assets = data_service.get_assets()
     critical_assets = [
         {
@@ -60,9 +96,25 @@ def get_advisory():
         for a in raw_assets if a.get("exposure_rating") == "Critical"
     ]
 
+    # 3. Dynamically retrieve independent reservoir track
+    reservoirs = data_service.get_reservoirs()
+    res_map = {r.get("id"): r for r in reservoirs}
+    chungthang = res_map.get("RES-TK-01", {})
+    dikchu = res_map.get("RES-TK-02", {})
+
+    chungthang_peak = chungthang.get("peak_monsoon_area_km2", 0.512)
+    chungthang_latest = chungthang.get("latest_area_km2", 0.241)
+    chungthang_pct = round(((chungthang_latest - chungthang_peak) / chungthang_peak) * 100.0, 1) if chungthang_peak > 0 else 0.0
+
+    # 4. Check persisted human expert review gate
+    reviews = _load_reviews()
+    basin_review = reviews.get("ALT-2023-SK-01", {})
+    review_status_str = basin_review.get("decision", "Awaiting Human Expert Review")
+    elevation_authorized = basin_review.get("elevation_authorized", False)
+
     return EvidenceAdvisory(
         advisory_id="ADV-2023-SK-TEESTA-01",
-        timestamp_utc="2023-10-09T04:58:31Z",
+        timestamp_utc=latest_obs.get("date", "2023-10-09") + "T04:58:31Z",
         basin="Teesta River Basin (Upper & Middle Reach)",
         target_lake="South Lhonak Glacial Lake",
         latest_observation={
@@ -92,29 +144,33 @@ def get_advisory():
             "track_description": "Track B: Independent Downstream Reservoir Water-Spread Surveillance",
             "chungthang_dam": {
                 "id": "RES-TK-01",
-                "pre_flood_spread_km2": 0.512,
-                "post_flood_spread_km2": 0.114,
-                "percentage_change": -77.7,
-                "status": "Water-spread contracted; bypass flow through breached spillway/dam section"
+                "pre_flood_spread_km2": chungthang_peak,
+                "post_flood_spread_km2": chungthang_latest,
+                "percentage_change": chungthang_pct,
+                "status": chungthang.get("status", "Breached Oct 2023 / Bypass Reconstruction Flow")
             },
             "dikchu_dam": {
                 "id": "RES-TK-02",
-                "operating_spread_km2": 0.385,
-                "status": "Operational; intake protected; high sediment load screening active"
+                "operating_spread_km2": dikchu.get("latest_area_km2", 0.385),
+                "status": dikchu.get("status", "Operational / Post-desiltation")
             },
             "hydrological_safeguard": "Reservoir water-spread area is monitored as an independent empirical track. Storage volume cannot be inferred directly from 2D water-spread alone without bathymetric rating curves."
         },
         imagery_quality_and_confidence={
             "spatial_resolution_m": 10.0,
-            "cloud_cover_pct": 1.8,
-            "qa_flag": "Valid (Clear Observation, High Atmospheric Transmittance)",
+            "cloud_cover_pct": latest_obs.get("cloud_cover_pct", 3.4),
+            "qa_flag": latest_obs.get("quality_flag", "Valid (Clear Sky Verification)"),
             "bands_used": "B03 (Green, 560nm), B08 (NIR, 842nm), B11 (SWIR-1, 1610nm)",
             "validation_reference": "ISRO NRSC Disaster Management Support Programme & Copernicus Open Access Hub",
             "confidence_rating": "High (Multi-spectral + Terrain validated)"
         },
         recommended_response="Review the evidence and relevant reservoir conditions with authorized disaster-management and reservoir personnel.",
-        scientific_safeguards="Undercurrent is a research prototype for monitoring and preliminary exposure screening. It is not an operational GLOF early warning system (EWS) or hydrodynamic flood dispatch model. Real-world emergency response relies on official NDMA/SDMA directives."
+        scientific_safeguards="Undercurrent is a research prototype for monitoring and preliminary exposure screening. It is not an operational GLOF early warning system (EWS) or hydrodynamic flood dispatch model. Real-world emergency response relies on official NDMA/SDMA directives.",
+        review_status=review_status_str,
+        review_authority="Sikkim SDMA / NDMA Glacial Risk Cell",
+        can_elevate_to_public=False
     )
+
 
 @router.get("", response_model=List[AlertFlag], summary="List rule-based change detection flags")
 def get_alert_flags():
@@ -158,32 +214,10 @@ def get_alert_flags():
             evidence_fields=[
                 "Copernicus Sentinel-2 optical imagery post-surge",
                 "Central Water Commission (CWC) stage hydrograph anomalies",
-                "Dam crest overtopping observed in satellite telemetry"
+                "ISRO RISAT-1A SAR structural displacement signatures"
             ],
-            rule_applied="IF reservoir_water_spread_pct_change < -50% during non-drawdown period THEN flag_infrastructure_failure_risk",
-            confidence_level="High",
-            disclaimer="Surface water-spread reduction indicates uncontrolled emptying or breach; does not replace on-site dam safety structural inspection."
-        ),
-        AlertFlag(
-            alert_id="ALT-2021-HIST-01",
-            level="WARNING",
-            category="Decadal Glacial Lake Expansion Trend",
-            target_name="South Lhonak Glacial Lake",
-            observation_date="2021-10-12",
-            summary="Long-term multi-year expansion from 0.984 km² (2013) to 1.492 km² (2021), an increase of +51.6% over 8 years (~0.063 km²/year).",
-            metrics={
-                "area_2013_km2": 0.984,
-                "area_2021_km2": 1.492,
-                "expansion_pct": 51.6,
-                "observation_span_years": 8
-            },
-            evidence_fields=[
-                "Landsat-8 OLI time series (2013-2021)",
-                "Sentinel-2 MSI time series",
-                "Glacier retreat rate from Cartosat stereo DEM"
-            ],
-            rule_applied="IF multi_year_growth_rate > 3%_per_annum THEN flag_expansion_hazard_screening",
-            confidence_level="High",
-            disclaimer="Observed lake expansion demonstrates moraine retreat and water impoundment; hazard screening requires ongoing moraine stability analysis."
+            rule_applied="IF reservoir_surface_loss > 50% following upstream breach THEN flag_critical_reservoir_breach",
+            confidence_level="High (Multi-mission verified)",
+            disclaimer="Track B Independent observation. 2D water-spread loss is not equivalent to storage volume depletion without rating curves."
         )
     ]

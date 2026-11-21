@@ -25,7 +25,7 @@ def get_scientific_validation():
 @router.get("/raster/south-lhonak", summary="Process physical Sentinel-2 MSI Level-2A GeoTIFFs with exact pixel ground area")
 def get_physical_raster_analysis(
     date: str = Query("2023-10-09", description="Observation date (2023-09-26 or 2023-10-09)"),
-    threshold: Optional[float] = Query(None, description="Optional custom NDWI threshold (default: 0.0 pre-flood, 0.265 post-flood)")
+    threshold: Optional[float] = Query(None, description="Optional custom NDWI threshold (default: 0.20 pre-flood, 0.265 post-flood)")
 ):
     try:
         th = float(threshold) if (threshold is not None and isinstance(threshold, (int, float))) else None

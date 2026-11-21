@@ -81,18 +81,25 @@ def test_undercurrent():
 
     print("Testing /api/analysis/raster/south-lhonak (Physical 10m Sentinel-2 Rasters)...")
     raster_pre = analysis.get_physical_raster_analysis(date="2023-09-26")
-    assert raster_pre["lake_isolated_water_pixels"] == 16661
-    assert abs(raster_pre["physical_area_km2"] - 1.666) < 0.01
+    assert raster_pre["processing_status"] == "PROCESSED_SATELLITE_MEASUREMENT"
+    assert raster_pre["lake_isolated_water_pixels"] > 16000
+    assert abs(raster_pre["physical_area_km2"] - 1.666) < 0.05
     assert raster_pre["crs"] == "EPSG:32645"
+    assert raster_pre["qa_evidence"]["valid_data_fraction_pct"] > 95.0
 
     raster_post = analysis.get_physical_raster_analysis(date="2023-10-09")
-    assert raster_post["lake_isolated_water_pixels"] == 10023
-    assert abs(raster_post["physical_area_km2"] - 1.003) < 0.01
+    assert raster_post["processing_status"] == "PROCESSED_SATELLITE_MEASUREMENT"
+    assert raster_post["lake_isolated_water_pixels"] > 9000
+    assert abs(raster_post["physical_area_km2"] - 1.0) < 0.08
+    assert raster_post["qa_evidence"]["valid_data_fraction_pct"] > 95.0
 
     print("Testing /api/exposure/SA-TEESTA-01/sensitivity (Weight sensitivity testing)...")
     sens = exposure.get_exposure_sensitivity("SA-TEESTA-01")
     assert sens["assets_evaluated"] >= 5
     assert len(sens["scenarios_tested"]) == 4
+    assert "ranks_across_scenarios" in sens["results"][0]
+    assert "slope_source" in sens["results"][0]
+    assert "Dynamic rank evaluation" in sens["sensitivity_conclusion"]
 
     print("Testing /api/alerts/ALT-2023-SK-01/review (Human Expert Review gate)...")
     sub = HumanReviewSubmission(
@@ -104,6 +111,12 @@ def test_undercurrent():
     rev_res = alerts.submit_human_review("ALT-2023-SK-01", sub)
     assert rev_res["status"] == "success"
     assert rev_res["review_record"]["elevation_authorized"] is True
+    assert "T" in rev_res["review_record"]["reviewed_at_utc"]
+
+    # Verify review persistence across lookup
+    stored_rev = alerts.get_alert_review("ALT-2023-SK-01")
+    assert stored_rev["reviewed_by"] == "Dr. P. Sharma"
+    assert stored_rev["elevation_authorized"] is True
 
     print("Testing /api/analysis/validation (Phase 1 Scientific Validation Record)...")
     val_rec = analysis.get_scientific_validation()

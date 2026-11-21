@@ -1,0 +1,11 @@
+{
+  "ALT-2023-SK-01": {
+    "alert_id": "ALT-2023-SK-01",
+    "reviewed_by": "Dr. P. Sharma",
+    "organization": "Sikkim State Disaster Management Authority",
+    "decision": "ENDORSED_FOR_INTERNAL_ACTION",
+    "comments": "Validated against Sentinel-2 MSI 10m Ground Sampling Distance. Drainage footprint confirmed.",
+    "reviewed_at_utc": "2026-11-21T21:57:25.729986+00:00",
+    "elevation_authorized": true
+  }
+}
