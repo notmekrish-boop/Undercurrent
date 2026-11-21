@@ -72,10 +72,10 @@
       50% { transform: scale(1.3); opacity: 0.4; }
       100% { transform: scale(0.95); opacity: 0.9; }
     }
-    /* 16:9 Widescreen aspect ratio utility & full-width scaling */
-    .widescreen-canvas {
-      width: 100%;
-      max-width: 100%;
+    .tab-button {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease-in-out;
     }
   </style>
 </head>
@@ -132,33 +132,33 @@
       </div>
     </div>
 
-    <!-- MANDATORY SCIENTIFIC DISCLAIMER BANNER (Blue-print Section 1 & Section 15 Compliance) -->
+    <!-- MANDATORY SCIENTIFIC DISCLAIMER BANNER -->
     <div class="bg-gradient-to-r from-amber-950/60 via-slate-900 to-amber-950/60 border-t border-b border-amber-500/20 px-4 py-1.5 text-center text-xs text-amber-200/90 flex items-center justify-center gap-2">
       <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 flex-shrink-0"></i>
       <span><strong>Prototype Positioning:</strong> Undercurrent is a research prototype for monitoring and preliminary exposure screening. It is not an operational GLOF early-warning system or validated hydrodynamic forecast.</span>
     </div>
 
-    <!-- NAVIGATION TABS (FULL WIDTH) -->
-    <div class="w-full px-4 sm:px-6 lg:px-8 flex overflow-x-auto custom-scrollbar space-x-1 py-1.5 text-sm font-medium">
-      <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-sky-400 bg-sky-950/60 border border-sky-800/50">
+    <!-- NAVIGATION TABS (FULL WIDTH, ROBUST ONCLICK & EVENT LISTENERS) -->
+    <div class="w-full px-4 sm:px-6 lg:px-8 flex overflow-x-auto custom-scrollbar space-x-1 py-1.5 text-sm font-medium border-b border-slate-800/50 bg-slate-900/40">
+      <button type="button" onclick="window.switchTab('overview')" id="tab-btn-overview" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-sky-400 bg-sky-950/60 border border-sky-800/50">
         <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
       </button>
-      <button onclick="switchTab('lakes')" id="tab-btn-lakes" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+      <button type="button" onclick="window.switchTab('lakes')" id="tab-btn-lakes" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
         <i data-lucide="mountain-snow" class="w-4 h-4"></i> Glacial Lake Monitor
       </button>
-      <button onclick="switchTab('reservoirs')" id="tab-btn-reservoirs" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+      <button type="button" onclick="window.switchTab('reservoirs')" id="tab-btn-reservoirs" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
         <i data-lucide="database" class="w-4 h-4"></i> Reservoir Water Spread
       </button>
-      <button onclick="switchTab('exposure')" id="tab-btn-exposure" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+      <button type="button" onclick="window.switchTab('exposure')" id="tab-btn-exposure" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
         <i data-lucide="shield-alert" class="w-4 h-4"></i> Downstream Exposure
       </button>
-      <button onclick="switchTab('gis-map')" id="tab-btn-gis-map" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+      <button type="button" onclick="window.switchTab('gis-map')" id="tab-btn-gis-map" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
         <i data-lucide="map" class="w-4 h-4"></i> Interactive GIS Map
       </button>
-      <button onclick="switchTab('methodology')" id="tab-btn-methodology" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+      <button type="button" onclick="window.switchTab('methodology')" id="tab-btn-methodology" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
         <i data-lucide="file-text" class="w-4 h-4"></i> Data & Provenance
       </button>
-      <button onclick="switchTab('hackathon')" id="tab-btn-hackathon" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+      <button type="button" onclick="window.switchTab('hackathon')" id="tab-btn-hackathon" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
         <i data-lucide="award" class="w-4 h-4"></i> ASTRA 2026 Blueprint
       </button>
     </div>
@@ -236,7 +236,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Journey A -->
-              <div onclick="switchTab('lakes')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-sky-500/50 hover:bg-slate-800/40 transition">
+              <div onclick="window.switchTab('lakes')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-sky-500/50 hover:bg-slate-800/40 transition">
                 <div class="w-9 h-9 rounded-lg bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400 mb-3 group-hover:scale-105 transition">
                   <i data-lucide="mountain-snow" class="w-5 h-5"></i>
                 </div>
@@ -249,7 +249,7 @@
               </div>
 
               <!-- Journey B -->
-              <div onclick="switchTab('reservoirs')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/40 transition">
+              <div onclick="window.switchTab('reservoirs')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/40 transition">
                 <div class="w-9 h-9 rounded-lg bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition">
                   <i data-lucide="database" class="w-5 h-5"></i>
                 </div>
@@ -262,7 +262,7 @@
               </div>
 
               <!-- Journey C -->
-              <div onclick="switchTab('exposure')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-rose-500/50 hover:bg-slate-800/40 transition">
+              <div onclick="window.switchTab('exposure')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-rose-500/50 hover:bg-slate-800/40 transition">
                 <div class="w-9 h-9 rounded-lg bg-rose-950 border border-rose-800 flex items-center justify-center text-rose-400 mb-3 group-hover:scale-105 transition">
                   <i data-lucide="shield-alert" class="w-5 h-5"></i>
                 </div>
@@ -385,7 +385,7 @@
           </div>
         </div>
 
-        <!-- Metrics & Comparison Strip (Full Widescreen 4-Column Strip) -->
+        <!-- Metrics & Comparison Strip -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
           <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl">
             <div class="text-xs text-slate-400 font-medium">Mapped Surface Area</div>
@@ -409,7 +409,7 @@
           </div>
         </div>
 
-        <!-- Interactive NDWI Simulator & Decadal Trend (Widescreen 16:9 Grid) -->
+        <!-- Interactive NDWI Simulator & Decadal Trend -->
         <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
           <!-- NDWI Simulation Canvas / Grid (5 cols) -->
           <div class="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
@@ -492,7 +492,7 @@
           </div>
         </div>
 
-        <!-- Reservoir Observations Table & Trend Chart (16:9 Grid) -->
+        <!-- Reservoir Observations Table & Trend Chart -->
         <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
           <!-- Multi-date observations table (5 cols) -->
           <div class="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-3">
@@ -549,7 +549,7 @@
           </div>
         </div>
 
-        <!-- DEM Elevation Profile Along Valley Gorge (Panoramic 16:9 Profile) -->
+        <!-- DEM Elevation Profile Along Valley Gorge -->
         <div class="mt-6 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
@@ -595,7 +595,7 @@
       </div>
     </div>
 
-    <!-- 5. INTERACTIVE GIS MAP EXPLORER (16:9 EXPANSIVE FULLSCREEN VIEW) -->
+    <!-- 5. INTERACTIVE GIS MAP EXPLORER (16:9 FULLSCREEN CANVAS) -->
     <div id="tab-gis-map" class="tab-content hidden space-y-4">
       <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
         <!-- Map Control Bar -->
@@ -633,7 +633,7 @@
           </div>
         </div>
 
-        <!-- The Leaflet Map Container (Expands into 16:9 Fullscreen Canvas) -->
+        <!-- The Leaflet Map Container -->
         <div id="map-container" class="w-full h-[calc(100vh-250px)] min-h-[640px] rounded-xl border border-slate-800 relative z-10"></div>
 
         <!-- Map Legend -->
@@ -884,42 +884,113 @@
     </div>
   </footer>
 
-  <!-- APPLICATION SCRIPTS -->
+  <!-- DEFENSIVE, BULLETPROOF SCRIPT -->
   <script>
-    // Lucide icons initialization
-    lucide.createIcons();
+    // 1. DEFINE switchTab IMMEDIATELY AT TOP LEVEL TO GUARANTEE TAB CLICKABILITY
+    window.switchTab = function(tabId) {
+      try {
+        console.log('[Undercurrent] Switching to tab:', tabId);
+        window.currentTab = tabId;
 
-    // State Variables
-    let currentTab = 'overview';
-    let map = null;
-    let mapLayers = {};
-    let lakeHistoryChart = null;
-    let reservoirChart = null;
-    let elevationProfileChart = null;
-    let lakeData = [];
-    let reservoirData = [];
-    let assetData = [];
-    let profileData = [];
+        // Hide all tab contents
+        const contents = document.querySelectorAll('.tab-content');
+        for (let i = 0; i < contents.length; i++) {
+          contents[i].classList.add('hidden');
+        }
+
+        // Show target tab
+        const targetView = document.getElementById('tab-' + tabId);
+        if (targetView) {
+          targetView.classList.remove('hidden');
+        } else {
+          console.warn('[Undercurrent] Target tab content not found: tab-' + tabId);
+        }
+
+        // Update button styles
+        const buttons = document.querySelectorAll('.tab-button');
+        for (let i = 0; i < buttons.length; i++) {
+          buttons[i].classList.remove('text-sky-400', 'bg-sky-950/60', 'border-sky-800/50');
+          buttons[i].classList.add('text-slate-400');
+        }
+
+        const activeBtn = document.getElementById('tab-btn-' + tabId);
+        if (activeBtn) {
+          activeBtn.classList.remove('text-slate-400');
+          activeBtn.classList.add('text-sky-400', 'bg-sky-950/60', 'border-sky-800/50');
+        }
+
+        // Special handling for GIS Map
+        if (tabId === 'gis-map') {
+          setTimeout(() => {
+            if (!window.mapInstance && typeof window.initMap === 'function') {
+              window.initMap();
+            } else if (window.mapInstance && typeof window.mapInstance.invalidateSize === 'function') {
+              window.mapInstance.invalidateSize();
+            }
+          }, 120);
+        }
+
+        // Resize any active charts
+        if (tabId === 'lakes' && window.lakeHistoryChart) {
+          setTimeout(() => window.lakeHistoryChart.resize(), 100);
+        }
+        if (tabId === 'reservoirs' && window.reservoirChart) {
+          setTimeout(() => window.reservoirChart.resize(), 100);
+        }
+        if (tabId === 'exposure' && window.elevationProfileChart) {
+          setTimeout(() => window.elevationProfileChart.resize(), 100);
+        }
+      } catch (err) {
+        console.error('[Undercurrent] Error in switchTab:', err);
+      }
+    };
+
+    // Global state
+    window.currentTab = 'overview';
+    window.mapInstance = null;
+    window.mapLayers = {};
+    window.lakeHistoryChart = null;
+    window.reservoirChart = null;
+    window.elevationProfileChart = null;
+    window.lakeData = [];
+    window.reservoirData = [];
+    window.assetData = [];
+    window.profileData = [];
+
+    // Safe Lucide icon initializer
+    window.safeRenderIcons = function() {
+      if (typeof lucide !== 'undefined' && lucide && typeof lucide.createIcons === 'function') {
+        try {
+          lucide.createIcons();
+        } catch (e) {
+          console.warn('[Undercurrent] Lucide icon render warning:', e);
+        }
+      }
+    };
 
     // Fullscreen Toggle for 16:9 Presentations
-    function toggleFullscreen() {
+    window.toggleFullscreen = function() {
       const fsIcon = document.getElementById('fs-icon');
       const fsLabel = document.getElementById('fs-label');
       
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().then(() => {
-          if (fsLabel) fsLabel.innerText = 'Exit Fullscreen';
-          if (map) setTimeout(() => map.invalidateSize(), 200);
-        }).catch(err => console.log('Fullscreen error:', err));
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().then(() => {
-            if (fsLabel) fsLabel.innerText = '16:9 Fullscreen';
-            if (map) setTimeout(() => map.invalidateSize(), 200);
-          });
+      try {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().then(() => {
+            if (fsLabel) fsLabel.innerText = 'Exit Fullscreen';
+            if (window.mapInstance) setTimeout(() => window.mapInstance.invalidateSize(), 200);
+          }).catch(err => console.log('Fullscreen error:', err));
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+              if (fsLabel) fsLabel.innerText = '16:9 Fullscreen';
+              if (window.mapInstance) setTimeout(() => window.mapInstance.invalidateSize(), 200);
+            });
+          }
         }
+      } catch (e) {
+        console.error('Fullscreen exception:', e);
       }
-    }
+    };
 
     document.addEventListener('fullscreenchange', () => {
       const fsLabel = document.getElementById('fs-label');
@@ -928,61 +999,44 @@
       } else {
         if (fsLabel) fsLabel.innerText = '16:9 Fullscreen';
       }
-      if (map) setTimeout(() => map.invalidateSize(), 150);
+      if (window.mapInstance) setTimeout(() => window.mapInstance.invalidateSize(), 150);
     });
 
-    // Tab Switching
-    function switchTab(tabId) {
-      currentTab = tabId;
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('text-sky-400', 'bg-sky-950/60', 'border-sky-800/50');
-        btn.classList.add('text-slate-400');
-      });
-
-      const targetView = document.getElementById('tab-' + tabId);
-      if (targetView) targetView.classList.remove('hidden');
-
-      const targetBtn = document.getElementById('tab-btn-' + tabId);
-      if (targetBtn) {
-        targetBtn.classList.remove('text-slate-400');
-        targetBtn.classList.add('text-sky-400', 'bg-sky-950/60', 'border-sky-800/50');
+    // Initialize Leaflet Map (Safe Guarded)
+    window.initMap = function() {
+      if (window.mapInstance) return;
+      if (typeof L === 'undefined') {
+        console.warn('[Undercurrent] Leaflet library (L) is not yet loaded.');
+        return;
       }
 
-      if (tabId === 'gis-map') {
-        setTimeout(() => {
-          if (!map) initMap();
-          else map.invalidateSize();
-        }, 120);
+      try {
+        window.mapInstance = L.map('map-container', {
+          zoomControl: true,
+          attributionControl: true
+        }).setView([27.55, 88.50], 10);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; CartoDB &copy; OpenStreetMap contributors',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(window.mapInstance);
+
+        window.loadMapLayers();
+      } catch (err) {
+        console.error('[Undercurrent] Map init error:', err);
       }
-    }
+    };
 
-    // Initialize Leaflet Map
-    function initMap() {
-      if (map) return;
-      map = L.map('map-container', {
-        zoomControl: true,
-        attributionControl: true
-      }).setView([27.55, 88.50], 10);
+    window.loadMapLayers = async function() {
+      if (!window.mapInstance || typeof L === 'undefined') return;
 
-      // Dark Basemap Tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; CartoDB &copy; OpenStreetMap contributors',
-        subdomains: 'abcd',
-        maxZoom: 19
-      }).addTo(map);
-
-      // Load Layers from API
-      loadMapLayers();
-    }
-
-    async function loadMapLayers() {
       try {
         // 1. Exposure Corridor Buffer
         const expRes = await fetch('/api/map/geojson/exposure');
         if (expRes.ok) {
           const expData = await expRes.json();
-          mapLayers.exposure = L.geoJSON(expData, {
+          window.mapLayers.exposure = L.geoJSON(expData, {
             style: function(feat) {
               const lvl = feat.properties.exposure_level;
               return {
@@ -995,14 +1049,14 @@
             onEachFeature: function(feat, layer) {
               layer.bindPopup(`<strong class="text-rose-600">${feat.properties.zone_name}</strong><br>Width: ${feat.properties.buffer_width_m}m buffer<br><span class="text-xs text-gray-600">${feat.properties.methodology_note}</span>`);
             }
-          }).addTo(map);
+          }).addTo(window.mapInstance);
         }
 
         // 2. Teesta River Drainage Line
         const riverRes = await fetch('/api/map/geojson/drainage');
         if (riverRes.ok) {
           const riverData = await riverRes.json();
-          mapLayers.river = L.geoJSON(riverData, {
+          window.mapLayers.river = L.geoJSON(riverData, {
             style: {
               color: '#38bdf8',
               weight: 3.5,
@@ -1011,14 +1065,14 @@
             onEachFeature: function(feat, layer) {
               layer.bindPopup(`<strong>${feat.properties.river_name}</strong><br>Length: ${feat.properties.total_flow_length_km} km<br>Drop: ${feat.properties.elevation_drop_m} m`);
             }
-          }).addTo(map);
+          }).addTo(window.mapInstance);
         }
 
         // 3. Glacial Lake Boundaries
         const lakeRes = await fetch('/api/map/geojson/south_lhonak');
         if (lakeRes.ok) {
           const lkData = await lakeRes.json();
-          mapLayers.lakes = L.geoJSON(lkData, {
+          window.mapLayers.lakes = L.geoJSON(lkData, {
             style: function(feat) {
               return {
                 color: feat.properties.color || '#0ea5e9',
@@ -1030,14 +1084,14 @@
             onEachFeature: function(feat, layer) {
               layer.bindPopup(`<strong>${feat.properties.name}</strong><br>Date: ${feat.properties.date}<br>Area: ${feat.properties.area_km2} km²<br>Status: ${feat.properties.period}`);
             }
-          }).addTo(map);
+          }).addTo(window.mapInstance);
         }
 
         // 4. Reservoirs
         const resRes = await fetch('/api/map/geojson/chungthang');
         if (resRes.ok) {
           const resData = await resRes.json();
-          mapLayers.reservoirs = L.geoJSON(resData, {
+          window.mapLayers.reservoirs = L.geoJSON(resData, {
             style: function(feat) {
               return {
                 color: feat.properties.color || '#0284c7',
@@ -1049,14 +1103,14 @@
             onEachFeature: function(feat, layer) {
               layer.bindPopup(`<strong>${feat.properties.name}</strong><br>Date: ${feat.properties.date}<br>Water-spread: ${feat.properties.water_spread_area_km2} km²<br><span class="text-xs text-gray-500">${feat.properties.label_note}</span>`);
             }
-          }).addTo(map);
+          }).addTo(window.mapInstance);
         }
 
         // 5. Assets / Settlements
         const assetRes = await fetch('/api/map/geojson/assets');
         if (assetRes.ok) {
           const aData = await assetRes.json();
-          mapLayers.assets = L.geoJSON(aData, {
+          window.mapLayers.assets = L.geoJSON(aData, {
             pointToLayer: function(feat, latlng) {
               const isInfra = feat.properties.type === 'Infrastructure';
               const rating = feat.properties.exposure_rating;
@@ -1074,33 +1128,33 @@
               const p = feat.properties;
               layer.bindPopup(`<strong>${p.name}</strong><br>Type: ${p.category}<br>Dist from Lake: ${p.distance_from_lake_km} km<br>Rating: <span class="font-bold text-red-600">${p.exposure_rating}</span><br>Vulnerability: ${p.key_vulnerability}`);
             }
-          }).addTo(map);
+          }).addTo(window.mapInstance);
         }
 
       } catch (err) {
-        console.error('Error loading map layers:', err);
+        console.error('[Undercurrent] Error loading map layers:', err);
       }
-    }
+    };
 
-    function toggleMapLayer(layerKey) {
+    window.toggleMapLayer = function(layerKey) {
       const chk = document.getElementById('layer-chk-' + layerKey);
-      if (!mapLayers[layerKey] || !map) return;
-      if (chk.checked) {
-        map.addLayer(mapLayers[layerKey]);
+      if (!window.mapLayers[layerKey] || !window.mapInstance) return;
+      if (chk && chk.checked) {
+        window.mapInstance.addLayer(window.mapLayers[layerKey]);
       } else {
-        map.removeLayer(mapLayers[layerKey]);
+        window.mapInstance.removeLayer(window.mapLayers[layerKey]);
       }
-    }
+    };
 
-    function resetMapView() {
-      if (map) map.setView([27.55, 88.50], 10);
-    }
-    function zoomToLake() {
-      if (map) map.setView([27.9128, 88.2045], 14);
-    }
-    function zoomToDam() {
-      if (map) map.setView([27.6040, 88.6485], 14);
-    }
+    window.resetMapView = function() {
+      if (window.mapInstance) window.mapInstance.setView([27.55, 88.50], 10);
+    };
+    window.zoomToLake = function() {
+      if (window.mapInstance) window.mapInstance.setView([27.9128, 88.2045], 14);
+    };
+    window.zoomToDam = function() {
+      if (window.mapInstance) window.mapInstance.setView([27.6040, 88.6485], 14);
+    };
 
     // Load Lake Data & Setup Charts
     async function initLakeData() {
@@ -1108,8 +1162,8 @@
         const res = await fetch('/api/lakes/GL-SK-01/history');
         if (res.ok) {
           const data = await res.json();
-          lakeData = data.history || [];
-          renderLakeHistoryChart(lakeData);
+          window.lakeData = data.history || [];
+          renderLakeHistoryChart(window.lakeData);
           onLakeDateChange();
         }
       } catch (e) {
@@ -1119,78 +1173,93 @@
 
     function renderLakeHistoryChart(items) {
       const ctx = document.getElementById('lake-history-chart');
-      if (!ctx) return;
-      const labels = items.map(d => d.date);
-      const values = items.map(d => d.area_km2);
+      if (!ctx || typeof Chart === 'undefined') return;
 
-      lakeHistoryChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Lake Surface Area (km²)',
-            data: values,
-            borderColor: '#0ea5e9',
-            backgroundColor: 'rgba(14, 165, 233, 0.15)',
-            borderWidth: 2.5,
-            fill: true,
-            tension: 0.2,
-            pointBackgroundColor: labels.map(l => l.includes('2023-10') ? '#ef4444' : '#38bdf8'),
-            pointRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
+      try {
+        const labels = items.map(d => d.date);
+        const values = items.map(d => d.area_km2);
+
+        window.lakeHistoryChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Lake Surface Area (km²)',
+              data: values,
+              borderColor: '#0ea5e9',
+              backgroundColor: 'rgba(14, 165, 233, 0.15)',
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.2,
+              pointBackgroundColor: labels.map(l => l.includes('2023-10') ? '#ef4444' : '#38bdf8'),
+              pointRadius: 6
+            }]
           },
-          scales: {
-            y: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8' },
-              title: { display: true, text: 'Area (km²)', color: '#64748b' }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
             },
-            x: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8' }
+            scales: {
+              y: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#94a3b8' },
+                title: { display: true, text: 'Area (km²)', color: '#64748b' }
+              },
+              x: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#94a3b8' }
+              }
             }
           }
-        }
-      });
+        });
+      } catch (e) {
+        console.warn('Chart render warning:', e);
+      }
     }
 
-    function onLakeDateChange() {
-      const selDate = document.getElementById('lake-date-select').value;
-      const obs = lakeData.find(d => d.date === selDate) || lakeData[0];
+    window.onLakeDateChange = function() {
+      const selElem = document.getElementById('lake-date-select');
+      if (!selElem) return;
+      const selDate = selElem.value;
+      const obs = window.lakeData.find(d => d.date === selDate) || window.lakeData[0];
       if (!obs) return;
 
-      document.getElementById('lake-metric-area').innerText = obs.area_km2 + ' km²';
-      document.getElementById('lake-metric-sensor').innerText = obs.sensor || 'Sentinel-2 MSI';
-      document.getElementById('lake-metric-quality').innerText = `Cloud Cover: ${obs.cloud_cover_pct || 0}% (${obs.quality_flag || 'Good'})`;
+      const areaElem = document.getElementById('lake-metric-area');
+      const sensorElem = document.getElementById('lake-metric-sensor');
+      const qualityElem = document.getElementById('lake-metric-quality');
+      const deltaElem = document.getElementById('lake-metric-delta');
+      const pctElem = document.getElementById('lake-metric-pct');
+
+      if (areaElem) areaElem.innerText = obs.area_km2 + ' km²';
+      if (sensorElem) sensorElem.innerText = obs.sensor || 'Sentinel-2 MSI';
+      if (qualityElem) qualityElem.innerText = `Cloud Cover: ${obs.cloud_cover_pct || 0}% (${obs.quality_flag || 'Good'})`;
 
       if (obs.area_change_pct) {
-        document.getElementById('lake-metric-delta').innerText = obs.area_change_km2 + ' km²';
-        document.getElementById('lake-metric-pct').innerText = `${obs.area_change_pct}% (${obs.period || 'Breached'})`;
+        if (deltaElem) deltaElem.innerText = obs.area_change_km2 + ' km²';
+        if (pctElem) pctElem.innerText = `${obs.area_change_pct}% (${obs.period || 'Breached'})`;
       } else {
-        document.getElementById('lake-metric-delta').innerText = '0.00 km²';
-        document.getElementById('lake-metric-pct').innerText = 'Reference Baseline';
+        if (deltaElem) deltaElem.innerText = '0.00 km²';
+        if (pctElem) pctElem.innerText = 'Reference Baseline';
       }
 
-      // Re-render canvas grid simulation
-      drawNDWICanvas(0.14, selDate.includes('2023-10'));
-    }
+      window.drawNDWICanvas(0.14, selDate.includes('2023-10'));
+    };
 
-    function updateNDWIThreshold(val) {
-      document.getElementById('ndwi-threshold-display').innerText = 'Threshold: ' + parseFloat(val).toFixed(2);
-      const selDate = document.getElementById('lake-date-select').value;
-      drawNDWICanvas(parseFloat(val), selDate.includes('2023-10'));
-    }
+    window.updateNDWIThreshold = function(val) {
+      const display = document.getElementById('ndwi-threshold-display');
+      if (display) display.innerText = 'Threshold: ' + parseFloat(val).toFixed(2);
+      const selElem = document.getElementById('lake-date-select');
+      const selDate = selElem ? selElem.value : '';
+      window.drawNDWICanvas(parseFloat(val), selDate.includes('2023-10'));
+    };
 
-    function drawNDWICanvas(threshold, isPostOutburst) {
+    window.drawNDWICanvas = function(threshold, isPostOutburst) {
       const canvas = document.getElementById('ndwi-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
+      if (!ctx) return;
       const size = 24;
       const pxSize = canvas.width / size;
 
@@ -1224,23 +1293,19 @@
 
           // Coloring
           if (ndwi >= threshold) {
-            // Water
             ctx.fillStyle = '#0ea5e9';
           } else if (isPostOutburst && dx > 0.15 && distSq <= 1.4) {
-            // Breach scar / sediment
             ctx.fillStyle = '#b45309';
           } else if (distSq <= 1.3) {
-            // Moraine
             ctx.fillStyle = '#334155';
           } else {
-            // Mountain terrain
             ctx.fillStyle = '#1e293b';
           }
 
           ctx.fillRect(j * pxSize, i * pxSize, pxSize - 1, pxSize - 1);
         }
       }
-    }
+    };
 
     // Reservoir Data & Chart
     async function initReservoirs() {
@@ -1248,9 +1313,9 @@
         const res = await fetch('/api/reservoirs/RES-TK-01/history');
         if (res.ok) {
           const data = await res.json();
-          reservoirData = data.history || [];
-          renderReservoirTable(reservoirData);
-          renderReservoirChart(reservoirData);
+          window.reservoirData = data.history || [];
+          renderReservoirTable(window.reservoirData);
+          renderReservoirChart(window.reservoirData);
         }
       } catch (e) {
         console.error('Failed to load reservoir history:', e);
@@ -1272,53 +1337,61 @@
 
     function renderReservoirChart(items) {
       const ctx = document.getElementById('reservoir-chart');
-      if (!ctx) return;
-      const labels = items.map(d => d.date);
-      const values = items.map(d => d.water_spread_area_km2);
+      if (!ctx || typeof Chart === 'undefined') return;
 
-      reservoirChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Water-Spread Area (km²)',
-            data: values,
-            backgroundColor: labels.map(l => l.includes('2023-10') ? '#f97316' : '#0284c7'),
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8' },
-              title: { display: true, text: 'Area (km²)', color: '#64748b' }
-            },
-            x: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8' }
+      try {
+        const labels = items.map(d => d.date);
+        const values = items.map(d => d.water_spread_area_km2);
+
+        window.reservoirChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Water-Spread Area (km²)',
+              data: values,
+              backgroundColor: labels.map(l => l.includes('2023-10') ? '#f97316' : '#0284c7'),
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#94a3b8' },
+                title: { display: true, text: 'Area (km²)', color: '#64748b' }
+              },
+              x: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#94a3b8' }
+              }
             }
           }
-        }
-      });
+        });
+      } catch (e) {
+        console.warn('Reservoir chart error:', e);
+      }
     }
 
-    function onReservoirChange() {
-      const selId = document.getElementById('reservoir-select').value;
+    window.onReservoirChange = function() {
+      const sel = document.getElementById('reservoir-select');
+      if (!sel) return;
+      const selId = sel.value;
       fetch(`/api/reservoirs/${selId}/history`)
         .then(r => r.json())
         .then(data => {
           renderReservoirTable(data.history || []);
-          if (reservoirChart) {
-            reservoirChart.data.labels = data.history.map(d => d.date);
-            reservoirChart.data.datasets[0].data = data.history.map(d => d.water_spread_area_km2);
-            reservoirChart.update();
+          if (window.reservoirChart) {
+            window.reservoirChart.data.labels = data.history.map(d => d.date);
+            window.reservoirChart.data.datasets[0].data = data.history.map(d => d.water_spread_area_km2);
+            window.reservoirChart.update();
           }
-        });
-    }
+        })
+        .catch(err => console.error(err));
+    };
 
     // Downstream Exposure & Profile
     async function initExposure() {
@@ -1330,14 +1403,14 @@
 
         if (profRes.ok) {
           const pData = await profRes.json();
-          profileData = pData.profile || [];
-          renderElevationProfileChart(profileData);
+          window.profileData = pData.profile || [];
+          renderElevationProfileChart(window.profileData);
         }
 
         if (astRes.ok) {
           const aData = await astRes.json();
-          assetData = aData.assets || [];
-          renderAssetsTable(assetData);
+          window.assetData = aData.assets || [];
+          renderAssetsTable(window.assetData);
         }
       } catch (e) {
         console.error('Failed to load exposure data:', e);
@@ -1346,52 +1419,57 @@
 
     function renderElevationProfileChart(items) {
       const ctx = document.getElementById('elevation-profile-chart');
-      if (!ctx) return;
-      const labels = items.map(d => `${d.distance_km} km (${d.landmark.split(' ')[0]})`);
-      const elevations = items.map(d => d.elevation_m);
+      if (!ctx || typeof Chart === 'undefined') return;
 
-      elevationProfileChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Elevation (m ASL)',
-            data: elevations,
-            borderColor: '#38bdf8',
-            backgroundColor: 'rgba(56, 189, 248, 0.15)',
-            borderWidth: 2,
-            fill: true,
-            pointBackgroundColor: '#0284c7',
-            pointRadius: 4,
-            tension: 0.1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                afterLabel: function(ctx) {
-                  const pt = items[ctx.dataIndex];
-                  return `Slope: ${pt.slope_deg}° | Zone: ${pt.zone}`;
+      try {
+        const labels = items.map(d => `${d.distance_km} km (${d.landmark.split(' ')[0]})`);
+        const elevations = items.map(d => d.elevation_m);
+
+        window.elevationProfileChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Elevation (m ASL)',
+              data: elevations,
+              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              borderWidth: 2,
+              fill: true,
+              pointBackgroundColor: '#0284c7',
+              pointRadius: 4,
+              tension: 0.1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  afterLabel: function(ctx) {
+                    const pt = items[ctx.dataIndex];
+                    return `Slope: ${pt.slope_deg}° | Zone: ${pt.zone}`;
+                  }
                 }
               }
-            }
-          },
-          scales: {
-            y: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8' },
-              title: { display: true, text: 'Elevation (meters)', color: '#64748b' }
             },
-            x: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8', maxRotation: 45 }
+            scales: {
+              y: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#94a3b8' },
+                title: { display: true, text: 'Elevation (meters)', color: '#64748b' }
+              },
+              x: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#94a3b8', maxRotation: 45 }
+              }
             }
           }
-        }
-      });
+        });
+      } catch (e) {
+        console.warn('Elevation chart error:', e);
+      }
     }
 
     function renderAssetsTable(items) {
@@ -1413,12 +1491,28 @@
       }).join('');
     }
 
-    // App Initialization on DOM Load
+    // Attach Event Listeners to Tabs directly as a secondary safety layer
+    function setupTabClickListeners() {
+      const tabIds = ['overview', 'lakes', 'reservoirs', 'exposure', 'gis-map', 'methodology', 'hackathon'];
+      tabIds.forEach(id => {
+        const btn = document.getElementById('tab-btn-' + id);
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.switchTab(id);
+          });
+        }
+      });
+    }
+
+    // Initialize all components safely
     window.addEventListener('DOMContentLoaded', () => {
+      window.safeRenderIcons();
+      setupTabClickListeners();
       initLakeData();
       initReservoirs();
       initExposure();
-      drawNDWICanvas(0.14, true);
+      window.drawNDWICanvas(0.14, true);
     });
   </script>
 </body>
