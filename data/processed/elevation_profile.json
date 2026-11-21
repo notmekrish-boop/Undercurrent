@@ -1,0 +1,76 @@
+{
+  "profile": [
+    {
+      "distance_km": 0.0,
+      "elevation_m": 5200,
+      "slope_deg": 4.5,
+      "landmark": "South Lhonak Glacial Lake",
+      "zone": "Glacial Source"
+    },
+    {
+      "distance_km": 8.5,
+      "elevation_m": 4980,
+      "slope_deg": 28.2,
+      "landmark": "Moraine Breach Snout",
+      "zone": "High Mountain Gorge"
+    },
+    {
+      "distance_km": 18.0,
+      "elevation_m": 4650,
+      "slope_deg": 34.0,
+      "landmark": "Muguthang Confluence",
+      "zone": "High Mountain Gorge"
+    },
+    {
+      "distance_km": 32.5,
+      "elevation_m": 4120,
+      "slope_deg": 38.5,
+      "landmark": "Zemu Chu Inflow",
+      "zone": "Steep Valley Gorge"
+    },
+    {
+      "distance_km": 48.0,
+      "elevation_m": 3100,
+      "slope_deg": 42.0,
+      "landmark": "Lachen Chu Junction",
+      "zone": "Steep Valley Gorge"
+    },
+    {
+      "distance_km": 68.2,
+      "elevation_m": 1560,
+      "slope_deg": 22.0,
+      "landmark": "Chungthang (Teesta-III Dam)",
+      "zone": "Valley Floor Settlement"
+    },
+    {
+      "distance_km": 76.5,
+      "elevation_m": 1120,
+      "slope_deg": 25.5,
+      "landmark": "Toong Bridge",
+      "zone": "Transport Chokepoint"
+    },
+    {
+      "distance_km": 86.1,
+      "elevation_m": 650,
+      "slope_deg": 18.0,
+      "landmark": "Dikchu (Teesta-V Dam)",
+      "zone": "Hydroelectric Basin"
+    },
+    {
+      "distance_km": 98.4,
+      "elevation_m": 350,
+      "slope_deg": 12.5,
+      "landmark": "Singtam (Indreni Bridge)",
+      "zone": "Urban Fluvial Plain"
+    },
+    {
+      "distance_km": 112.4,
+      "elevation_m": 280,
+      "slope_deg": 6.8,
+      "landmark": "Rangpo Border Checkpost",
+      "zone": "Broad River Valley"
+    }
+  ],
+  "basin": "Teesta River Basin",
+  "datum": "WGS84 / EGM96"
+}

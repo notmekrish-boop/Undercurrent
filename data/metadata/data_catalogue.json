@@ -1,0 +1,84 @@
+{
+  "project_name": "Undercurrent",
+  "version": "1.0.0",
+  "study_area": {
+    "basin": "Teesta River Basin",
+    "region": "Sikkim Himalaya, India",
+    "bbox": [
+      88.15,
+      27.1,
+      88.75,
+      27.98
+    ],
+    "projected_crs": "EPSG:32645 (WGS 84 / UTM Zone 45N)"
+  },
+  "datasets": [
+    {
+      "id": "DS-01",
+      "name": "Sentinel-2 MSI Level-2A",
+      "provider": "European Space Agency / Copernicus Data Space Ecosystem",
+      "mission_type": "Optical Earth Observation",
+      "spatial_resolution": "10m (Bands 2, 3, 4, 8) / 20m (Bands 5, 6, 7, 8A, 11, 12)",
+      "temporal_resolution": "5 days (constellation)",
+      "use_in_project": "Water extraction via NDWI = (B3 - B8) / (B3 + B8); multi-date surface area tracking",
+      "licence": "Open Access / Copernicus Terms",
+      "acquisition_dates": [
+        "2019-10-05",
+        "2021-10-12",
+        "2023-09-17",
+        "2023-10-04",
+        "2024-05-20"
+      ]
+    },
+    {
+      "id": "DS-02",
+      "name": "CartoDEM / Bhuvan ISRO",
+      "provider": "National Remote Sensing Centre (NRSC) / ISRO",
+      "mission_type": "Indian Space Mission (Cartosat-1 Stereo DEM)",
+      "spatial_resolution": "30m (interpolated / calibrated)",
+      "temporal_resolution": "Static reference",
+      "use_in_project": "ASTRA Domain 01 alignment: elevation, slope calculation, hydrological stream network derivation",
+      "licence": "Open Government Data License India (Bhuvan Portal)",
+      "portal_url": "https://bhuvan.nrsc.gov.in"
+    },
+    {
+      "id": "DS-03",
+      "name": "RISAT-1A (EOS-04) SAR Coherence",
+      "provider": "ISRO / Bhoonidhi Portal",
+      "mission_type": "Indian Space Mission (C-band Synthetic Aperture Radar)",
+      "spatial_resolution": "3m to 25m depending on beam mode (MRS / FRS)",
+      "temporal_resolution": "All-weather day/night radar imaging",
+      "use_in_project": "Cloud-penetrating validation during monsoon/post-event cloud cover",
+      "licence": "Bhoonidhi NRSC Open Portal",
+      "portal_url": "https://bhoonidhi.nrsc.gov.in"
+    },
+    {
+      "id": "DS-04",
+      "name": "Landsat 8-9 OLI/TIRS",
+      "provider": "USGS / NASA",
+      "mission_type": "Long-term Earth Observation",
+      "spatial_resolution": "30m multispectral, 15m panchromatic",
+      "temporal_resolution": "16 days",
+      "use_in_project": "Decadal baseline comparison (2013-2023) for glacial lake expansion",
+      "licence": "Public Domain (USGS)",
+      "portal_url": "https://earthexplorer.usgs.gov"
+    },
+    {
+      "id": "DS-05",
+      "name": "OpenStreetMap & Official Administrative Boundaries",
+      "provider": "OpenStreetMap Contributors / Survey of India / Sikkim SDMA",
+      "mission_type": "Geospatial vector layers",
+      "spatial_resolution": "Vector (meter-scale positional accuracy)",
+      "temporal_resolution": "Continuously updated",
+      "use_in_project": "Downstream asset overlay: settlements, bridges, dams, roads (NH-10)",
+      "licence": "ODbL / Open Data",
+      "portal_url": "https://www.openstreetmap.org"
+    }
+  ],
+  "provenance_rules": [
+    "All areas calculated in projected coordinates (UTM Zone 45N, EPSG:32645), never degrees squared.",
+    "Reservoir metric strictly labeled as 'water-spread area', not storage volume.",
+    "Downstream exposure labeled as 'preliminary screening corridor', not calibrated flood wave.",
+    "Indian space portals (Bhuvan, Bhoonidhi, MOSDAC, VEDAS) acknowledged with explicit data usage notes."
+  ]
+}

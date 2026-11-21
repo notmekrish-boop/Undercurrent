@@ -1,0 +1,204 @@
+{
+  "type": "FeatureCollection",
+  "name": "Downstream_Assets_and_Settlements",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-SET-01",
+        "name": "Chungthang Town",
+        "type": "Settlement",
+        "category": "Town / Administrative Sub-Division",
+        "lon": 88.6475,
+        "lat": 27.6045,
+        "elevation_m": 1560,
+        "distance_from_lake_km": 68.2,
+        "exposure_rating": "Critical",
+        "population_approx": 4200,
+        "key_vulnerability": "Confluence of Lachen Chu & Lachung Chu; direct downstream path of Teesta-III Dam",
+        "status_notes": "Severely impacted in Oct 2023 surge; key army transit hub and market."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6475,
+          27.6045
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-INF-01",
+        "name": "Teesta-III Hydroelectric Project (Chungthang Dam)",
+        "type": "Infrastructure",
+        "category": "Hydropower Dam (1,200 MW)",
+        "lon": 88.6482,
+        "lat": 27.6035,
+        "elevation_m": 1560,
+        "distance_from_lake_km": 68.5,
+        "exposure_rating": "Critical",
+        "population_approx": 350,
+        "key_vulnerability": "Concrete-face rockfill dam directly in narrow gorge flow channel",
+        "status_notes": "Dam structure was overtopped and breached during Oct 4, 2023 flood wave."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6482,
+          27.6035
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-INF-02",
+        "name": "Indreni Suspension Bridge (Singtam)",
+        "type": "Infrastructure",
+        "category": "Bridge / Transport Link",
+        "lon": 88.4985,
+        "lat": 27.2345,
+        "elevation_m": 350,
+        "distance_from_lake_km": 98.4,
+        "exposure_rating": "High",
+        "population_approx": 0,
+        "key_vulnerability": "Low clearance above normal high-water level in gorge",
+        "status_notes": "Washed away in 2023 event; critical connectivity between East and South Sikkim."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4985,
+          27.2345
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-SET-02",
+        "name": "Singtam Municipal Town",
+        "type": "Settlement",
+        "category": "Commercial Center",
+        "lon": 88.497,
+        "lat": 27.236,
+        "elevation_m": 355,
+        "distance_from_lake_km": 98.6,
+        "exposure_rating": "High",
+        "population_approx": 5900,
+        "key_vulnerability": "Dense riverfront residential and commercial development",
+        "status_notes": "Lower market inundated up to 2-3 meters during surge."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.497,
+          27.236
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-INF-03",
+        "name": "Teesta-V Dam (Dikchu)",
+        "type": "Infrastructure",
+        "category": "Hydropower Dam (510 MW)",
+        "lon": 88.5205,
+        "lat": 27.4215,
+        "elevation_m": 650,
+        "distance_from_lake_km": 86.1,
+        "exposure_rating": "High",
+        "population_approx": 200,
+        "key_vulnerability": "Power station and spillway siltation under extreme bedload",
+        "status_notes": "Shut down due to massive silt load and structural scouring."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5205,
+          27.4215
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-SET-03",
+        "name": "Rangpo Border Town",
+        "type": "Settlement",
+        "category": "Border Town / Industrial Area",
+        "lon": 88.529,
+        "lat": 27.176,
+        "elevation_m": 280,
+        "distance_from_lake_km": 112.4,
+        "exposure_rating": "Moderate",
+        "population_approx": 10400,
+        "key_vulnerability": "Mining ground, industrial plots and NH-10 roadbed",
+        "status_notes": "Flooding of low-lying industrial estate and highway closure."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.529,
+          27.176
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-INF-04",
+        "name": "National Highway 10 (NH-10) Corridor",
+        "type": "Infrastructure",
+        "category": "Lifeline Highway",
+        "lon": 88.51,
+        "lat": 27.28,
+        "elevation_m": 420,
+        "distance_from_lake_km": 92.0,
+        "exposure_rating": "Critical",
+        "population_approx": 0,
+        "key_vulnerability": "Direct riverbank alignment along unstable debris slopes",
+        "status_notes": "Multiple breach sections cutting off Sikkim from Siliguri/Rest of India."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.51,
+          27.28
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "AST-SET-04",
+        "name": "Toong & Naga Villages",
+        "type": "Settlement",
+        "category": "Rural Settlements",
+        "lon": 88.605,
+        "lat": 27.52,
+        "elevation_m": 1120,
+        "distance_from_lake_km": 76.5,
+        "exposure_rating": "High",
+        "population_approx": 1200,
+        "key_vulnerability": "Toong bridge approach roads and terrace agriculture",
+        "status_notes": "Bridge cut off; isolated North Sikkim communities."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.605,
+          27.52
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undercurrent | Himalayan Water Intelligence & Glacial Risk Monitoring</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Chart.js for time series & elevation profiles -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              900: '#0c4a6e',
+              950: '#082f49',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #030712;
+      color: #f3f4f6;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .leaflet-container {
+      background: #0b1120;
+    }
+    .pulse-dot {
+      animation: pulseAnimation 2s infinite;
+    }
+    @keyframes pulseAnimation {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.3); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.9; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- TOP STATUS BAR -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo and Project Identity -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/20">
+            <i data-lucide="waves" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-200 bg-clip-text text-transparent">UNDERCURRENT</span>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-950/80 border border-sky-800/80 text-sky-400">ASTRA 2026</span>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span> Active Basin
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 font-medium">Himalayan Water Intelligence & Glacial Risk Monitoring System</p>
+          </div>
+        </div>
+
+        <!-- Controls & Meta -->
+        <div class="hidden md:flex items-center space-x-4">
+          <div class="flex items-center bg-slate-800/70 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs">
+            <span class="text-slate-400 mr-2">Basin:</span>
+            <span class="font-semibold text-slate-200 flex items-center gap-1">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-400"></i> Teesta Basin (Sikkim)
+            </span>
+          </div>
+
+          <div class="flex items-center bg-slate-800/70 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs">
+            <span class="text-slate-400 mr-2">Space Portals:</span>
+            <span class="font-semibold text-amber-300 flex items-center gap-1">
+              <i data-lucide="satellite" class="w-3.5 h-3.5"></i> Bhuvan / Bhoonidhi / Sentinel
+            </span>
+          </div>
+
+          <a href="/api/docs" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition">
+            <i data-lucide="code-2" class="w-3.5 h-3.5 text-cyan-400"></i> API Docs
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANDATORY SCIENTIFIC DISCLAIMER BANNER (Blue-print Section 1 & Section 15 Compliance) -->
+    <div class="bg-gradient-to-r from-amber-950/60 via-slate-900 to-amber-950/60 border-t border-b border-amber-500/20 px-4 py-1.5 text-center text-xs text-amber-200/90 flex items-center justify-center gap-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 flex-shrink-0"></i>
+      <span><strong>Prototype Positioning:</strong> Undercurrent is a research prototype for monitoring and preliminary exposure screening. It is not an operational GLOF early-warning system or validated hydrodynamic forecast.</span>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto custom-scrollbar space-x-1 py-1.5 text-sm font-medium">
+      <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-sky-400 bg-sky-950/60 border border-sky-800/50">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+      </button>
+      <button onclick="switchTab('lakes')" id="tab-btn-lakes" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        <i data-lucide="mountain-snow" class="w-4 h-4"></i> Glacial Lake Monitor
+      </button>
+      <button onclick="switchTab('reservoirs')" id="tab-btn-reservoirs" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        <i data-lucide="database" class="w-4 h-4"></i> Reservoir Water Spread
+      </button>
+      <button onclick="switchTab('exposure')" id="tab-btn-exposure" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        <i data-lucide="shield-alert" class="w-4 h-4"></i> Downstream Exposure
+      </button>
+      <button onclick="switchTab('gis-map')" id="tab-btn-gis-map" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        <i data-lucide="map" class="w-4 h-4"></i> Interactive GIS Map
+      </button>
+      <button onclick="switchTab('methodology')" id="tab-btn-methodology" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        <i data-lucide="file-text" class="w-4 h-4"></i> Data & Provenance
+      </button>
+      <button onclick="switchTab('hackathon')" id="tab-btn-hackathon" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        <i data-lucide="award" class="w-4 h-4"></i> ASTRA 2026 Blueprint
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- 1. OVERVIEW TAB -->
+    <div id="tab-overview" class="tab-content space-y-6">
+      <!-- Hero Telemetry Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/70 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400 font-medium">Monitored Basin</div>
+            <div class="text-lg font-bold text-white mt-1">Teesta River, Sikkim</div>
+            <div class="text-xs text-sky-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="mountain" class="w-3 h-3"></i> 5,200m &rarr; 280m
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400">
+            <i data-lucide="compass" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400 font-medium">Glacial Lake Target</div>
+            <div class="text-lg font-bold text-white mt-1">South Lhonak Lake</div>
+            <div class="text-xs text-rose-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="trending-down" class="w-3 h-3"></i> -38.7% Breached Post-Event
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-rose-950 border border-rose-800 flex items-center justify-center text-rose-400">
+            <i data-lucide="mountain-snow" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400 font-medium">Downstream Reservoir</div>
+            <div class="text-lg font-bold text-white mt-1">Chungthang (Teesta-III)</div>
+            <div class="text-xs text-amber-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="info" class="w-3 h-3"></i> Water-spread: 0.241 km²
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-amber-950 border border-amber-800 flex items-center justify-center text-amber-400">
+            <i data-lucide="database" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400 font-medium">Screened Corridor Length</div>
+            <div class="text-lg font-bold text-white mt-1">112.4 km</div>
+            <div class="text-xs text-emerald-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> 8 Critical Assets Identified
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Overview 2-Column Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left: Quick Action Journeys -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+            <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+              <i data-lucide="workflow" class="w-5 h-5 text-sky-400"></i> Core User Journeys
+            </h2>
+            <p class="text-sm text-slate-400 mb-6">Explore the three linked analytical modules designed for the ASTRA 2026 Space Hackathon evaluation.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Journey A -->
+              <div onclick="switchTab('lakes')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-sky-500/50 hover:bg-slate-800/40 transition">
+                <div class="w-9 h-9 rounded-lg bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400 mb-3 group-hover:scale-105 transition">
+                  <i data-lucide="mountain-snow" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs font-semibold text-sky-400 tracking-wider uppercase mb-1">Journey A</div>
+                <h3 class="text-sm font-bold text-slate-100 group-hover:text-sky-300">Glacial Lake Review</h3>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Multi-date satellite extraction, NDWI calculation, area expansion and moraine breach detection.</p>
+                <div class="mt-3 text-xs text-sky-400 font-medium flex items-center gap-1 group-hover:translate-x-1 transition">
+                  Launch Monitor &rarr;
+                </div>
+              </div>
+
+              <!-- Journey B -->
+              <div onclick="switchTab('reservoirs')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/40 transition">
+                <div class="w-9 h-9 rounded-lg bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition">
+                  <i data-lucide="database" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs font-semibold text-cyan-400 tracking-wider uppercase mb-1">Journey B</div>
+                <h3 class="text-sm font-bold text-slate-100 group-hover:text-cyan-300">Reservoir Water-Spread</h3>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Multi-date surface area tracking with explicit water spread vs storage volume scientific distinction.</p>
+                <div class="mt-3 text-xs text-cyan-400 font-medium flex items-center gap-1 group-hover:translate-x-1 transition">
+                  Inspect Reservoirs &rarr;
+                </div>
+              </div>
+
+              <!-- Journey C -->
+              <div onclick="switchTab('exposure')" class="cursor-pointer group p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-rose-500/50 hover:bg-slate-800/40 transition">
+                <div class="w-9 h-9 rounded-lg bg-rose-950 border border-rose-800 flex items-center justify-center text-rose-400 mb-3 group-hover:scale-105 transition">
+                  <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs font-semibold text-rose-400 tracking-wider uppercase mb-1">Journey C</div>
+                <h3 class="text-sm font-bold text-slate-100 group-hover:text-rose-300">Exposure Screening</h3>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">DEM slope, valley elevation profile, drainage pathway and settlement/infrastructure intersection.</p>
+                <div class="mt-3 text-xs text-rose-400 font-medium flex items-center gap-1 group-hover:translate-x-1 transition">
+                  Run Screening &rarr;
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Basin Geographic Context -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+            <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+              <i data-lucide="map-pin" class="w-5 h-5 text-emerald-400"></i> The Teesta Basin Context (Sikkim Himalaya)
+            </h2>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              In October 2023, the sudden outburst of South Lhonak Glacial Lake (~5,200m altitude) cascaded through the steep Lhonak and Zemu Chu gorges, severely overtopping and breaching the 1,200 MW Chungthang Dam (Teesta-III) and damaging bridges and highways down to Singtam and Rangpo.
+              <strong>Undercurrent</strong> provides an integrated platform linking satellite observations across this entire hydraulic gradient without fragmented data silos.
+            </p>
+            <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div class="p-3 bg-slate-950/60 rounded-lg border border-slate-800">
+                <div class="text-slate-400">Lake Origin Elevation</div>
+                <div class="text-sm font-bold text-slate-200 mt-0.5">5,200 m ASL</div>
+              </div>
+              <div class="p-3 bg-slate-950/60 rounded-lg border border-slate-800">
+                <div class="text-slate-400">Chungthang Dam Elevation</div>
+                <div class="text-sm font-bold text-slate-200 mt-0.5">1,560 m ASL</div>
+              </div>
+              <div class="p-3 bg-slate-950/60 rounded-lg border border-slate-800">
+                <div class="text-slate-400">Total Elevation Drop</div>
+                <div class="text-sm font-bold text-slate-200 mt-0.5">4,920 m</div>
+              </div>
+              <div class="p-3 bg-slate-950/60 rounded-lg border border-slate-800">
+                <div class="text-slate-400">Hydraulic Distance</div>
+                <div class="text-sm font-bold text-slate-200 mt-0.5">112.4 km</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Rule-Based Anomaly Flags & Indian Space Data -->
+        <div class="space-y-6">
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+            <h2 class="text-md font-bold text-white mb-3 flex items-center justify-between">
+              <span class="flex items-center gap-2">
+                <i data-lucide="bell" class="w-4 h-4 text-rose-400"></i> Active Anomaly Flags
+              </span>
+              <span class="text-xs bg-rose-950 text-rose-400 border border-rose-800 px-2 py-0.5 rounded-full font-mono">2 Active</span>
+            </h2>
+            <div id="overview-alerts-container" class="space-y-3">
+              <!-- Dynamically populated or rendered -->
+              <div class="p-3.5 rounded-xl bg-slate-950/80 border border-rose-900/50 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="px-2 py-0.5 rounded bg-rose-900/80 text-rose-300 font-bold">CRITICAL</span>
+                  <span class="text-slate-400 font-mono">2023-10-04</span>
+                </div>
+                <div class="text-sm font-semibold text-slate-200">South Lhonak Moraine Breach</div>
+                <p class="text-xs text-slate-400 leading-normal">Rapid lake drainage of -38.7% (1.68 km² &rarr; 1.03 km²). Verified via Sentinel-2 & RISAT-1A SAR.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-950/80 border border-amber-900/50 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="px-2 py-0.5 rounded bg-amber-900/80 text-amber-300 font-bold">WARNING</span>
+                  <span class="text-slate-400 font-mono">2021-10-12</span>
+                </div>
+                <div class="text-sm font-semibold text-slate-200">Decadal Lake Growth Trend</div>
+                <p class="text-xs text-slate-400 leading-normal">+51.6% expansion between 2013 (0.98 km²) and 2021 (1.49 km²). Growth rate &gt;3%/yr.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Indian Space Missions Focus Box (ASTRA Domain 01) -->
+          <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-indigo-900/50 rounded-2xl p-6">
+            <h3 class="text-sm font-bold text-indigo-300 mb-2 flex items-center gap-2">
+              <i data-lucide="satellite" class="w-4 h-4 text-indigo-400"></i> Indian Space Missions Priority
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed mb-4">
+              ASTRA's briefing emphasizes meaningful use of Indian satellite missions. Undercurrent incorporates datasets and portals from:
+            </p>
+            <ul class="text-xs space-y-2 text-slate-400">
+              <li class="flex items-start gap-2">
+                <span class="text-indigo-400 font-bold">•</span>
+                <span><strong>ISRO Bhuvan / CartoDEM:</strong> 30m stereo elevation for terrain slope and stream flow derivation.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-indigo-400 font-bold">•</span>
+                <span><strong>ISRO Bhoonidhi / RISAT-1A:</strong> C-band SAR coherence change detection during heavy monsoon cloud cover.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-indigo-400 font-bold">•</span>
+                <span><strong>MOSDAC / VEDAS:</strong> Basin meteorology and Earth observation visualization layers.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. GLACIAL LAKE MONITOR (JOURNEY A) -->
+    <div id="tab-lakes" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="mountain-snow" class="w-6 h-6 text-sky-400"></i> South Lhonak Glacial Lake Multi-Date Review
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Latitude: 27.9128° N | Longitude: 88.2045° E | Altitude: 5,200 m ASL | CRS: EPSG:32645</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400">Observation Date:</span>
+            <select id="lake-date-select" onchange="onLakeDateChange()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-sky-500">
+              <option value="2023-09-17">2023-09-17 (Pre-Event Peak - 1.68 km²)</option>
+              <option value="2023-10-04" selected>2023-10-04 (Post-Outburst Breach - 1.03 km²)</option>
+              <option value="2021-10-12">2021-10-12 (Baseline - 1.49 km²)</option>
+              <option value="2019-10-05">2019-10-05 (Baseline - 1.35 km²)</option>
+              <option value="2013-10-18">2013-10-18 (Landsat Baseline - 0.98 km²)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Metrics & Comparison Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl">
+            <div class="text-xs text-slate-400 font-medium">Mapped Surface Area</div>
+            <div id="lake-metric-area" class="text-2xl font-black text-sky-400 mt-1 font-mono">1.031 km²</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Calculated in UTM Zone 45N</div>
+          </div>
+          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl">
+            <div class="text-xs text-slate-400 font-medium">Area Delta (vs Sep 2023)</div>
+            <div id="lake-metric-delta" class="text-2xl font-black text-rose-400 mt-1 font-mono">-0.651 km²</div>
+            <div id="lake-metric-pct" class="text-[11px] text-rose-400 font-medium mt-0.5">-38.70% (Catastrophic Drainage)</div>
+          </div>
+          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl">
+            <div class="text-xs text-slate-400 font-medium">Sensor & Resolution</div>
+            <div id="lake-metric-sensor" class="text-sm font-bold text-slate-200 mt-1">Sentinel-2 MSI (10m)</div>
+            <div id="lake-metric-quality" class="text-[11px] text-emerald-400 mt-0.5">Cloud Cover: 6.8% (Valid)</div>
+          </div>
+          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl">
+            <div class="text-xs text-slate-400 font-medium">Method & Threshold</div>
+            <div class="text-sm font-bold text-slate-200 mt-1">NDWI &ge; 0.14</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">(Green - NIR) / (Green + NIR)</div>
+          </div>
+        </div>
+
+        <!-- Interactive NDWI Threshold Simulator & Visual Comparison Grid -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- NDWI Simulation Canvas / Grid -->
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="scan" class="w-4 h-4 text-sky-400"></i> Interactive NDWI Water Classification Grid
+              </h3>
+              <span id="ndwi-threshold-display" class="text-xs font-mono bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded">Threshold: 0.14</span>
+            </div>
+
+            <!-- Dynamic Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>Conservative (0.25)</span>
+                <span class="text-slate-300 font-semibold">Classification Cutoff</span>
+                <span>Permissive (0.05)</span>
+              </div>
+              <input type="range" id="ndwi-slider" min="0.05" max="0.25" step="0.01" value="0.14" oninput="updateNDWIThreshold(this.value)" class="w-full accent-sky-500 cursor-pointer">
+            </div>
+
+            <!-- Grid Visualization (Canvas) -->
+            <div class="relative bg-slate-900 border border-slate-800 rounded-lg p-2 flex flex-col items-center">
+              <canvas id="ndwi-canvas" width="288" height="288" class="rounded shadow-inner"></canvas>
+              <div class="flex items-center justify-center gap-4 mt-3 text-xs text-slate-400">
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-sky-500 inline-block"></span> Classified Water</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-700/60 inline-block"></span> Moraine / Breach Scar</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-700 inline-block"></span> Surrounding Rock</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 leading-normal">
+              Adjusting the threshold demonstrates Section 7.1 and 15 of the Blueprint: water extraction sensitivity varies with shoreline debris and turbid meltwater; a single universal threshold should never be assumed blindly.
+            </p>
+          </div>
+
+          <!-- Multi-Year Area Evolution Chart -->
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="line-chart" class="w-4 h-4 text-sky-400"></i> Decadal Lake Expansion & Breach Event (km²)
+            </h3>
+            <div class="flex-1 min-h-[260px] relative">
+              <canvas id="lake-history-chart"></canvas>
+            </div>
+            <div class="text-xs text-slate-400 border-t border-slate-800/80 pt-3 flex items-center justify-between">
+              <span>Baseline Expansion: +51.6% (2013-2021)</span>
+              <span class="text-rose-400 font-semibold">Breach Drainage: -38.7% (Oct 2023)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. RESERVOIR MONITOR (JOURNEY B) -->
+    <div id="tab-reservoirs" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="database" class="w-6 h-6 text-cyan-400"></i> Downstream Reservoir Water-Spread Variations
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Case: Teesta-III Chungthang Dam & Teesta-V Dam (Dikchu)</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400">Select Reservoir:</span>
+            <select id="reservoir-select" onchange="onReservoirChange()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500">
+              <option value="RES-TK-01" selected>Teesta-III Chungthang Dam (Breached Oct 2023)</option>
+              <option value="RES-TK-02">Teesta-V Dikchu Dam (NHPC)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Strict Scientific Warning Box on Volume vs Surface Area -->
+        <div class="mt-4 p-4 rounded-xl bg-cyan-950/40 border border-cyan-800/50 flex items-start gap-3">
+          <i data-lucide="info" class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5"></i>
+          <div class="text-xs text-cyan-200 space-y-1">
+            <strong>Mandatory Scientific Distinction (Blueprint Section 7.4):</strong>
+            <p class="text-slate-300">
+              Satellite optical imagery measures <strong>water-spread surface area</strong>, which varies seasonally with monsoon inflows. It is <strong>NOT a direct measurement of storage volume</strong>.
+              Converting surface area to storage volume requires bathymetric surveys and elevation-area-capacity (EAC) curves. Undercurrent intentionally reports water-spread only to maintain scientific defensibility before judges.
+            </p>
+          </div>
+        </div>
+
+        <!-- Reservoir Observations Table & Trend Chart -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Multi-date observations table -->
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Multi-Date Water-Spread Record
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+                  <tr>
+                    <th class="py-2 px-3">Date</th>
+                    <th class="py-2 px-3">Season / Context</th>
+                    <th class="py-2 px-3">Water Spread</th>
+                    <th class="py-2 px-3">Status Note</th>
+                  </tr>
+                </thead>
+                <tbody id="reservoir-table-body" class="divide-y divide-slate-800/60">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Reservoir Trend Chart -->
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i> Water-Spread Area Variation (km²)
+            </h3>
+            <div class="flex-1 min-h-[250px] relative">
+              <canvas id="reservoir-chart"></canvas>
+            </div>
+            <div class="text-xs text-slate-400 border-t border-slate-800/80 pt-3">
+              Notice the abrupt 77.7% plunge on Oct 06, 2023 immediately following the Chungthang Dam overtopping and breach.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. DOWNSTREAM EXPOSURE SCREENING (JOURNEY C) -->
+    <div id="tab-exposure" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="shield-alert" class="w-6 h-6 text-rose-400"></i> Downstream Drainage & Exposure Screening
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Corridor: South Lhonak Outlet &rarr; Zemu Chu &rarr; Chungthang &rarr; Singtam &rarr; Rangpo (112.4 km)</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-rose-950/80 border border-rose-800/80 text-rose-300 text-xs rounded-lg font-semibold">
+              Elevation Drop: 4,920 m (Avg Slope 4.4%)
+            </span>
+          </div>
+        </div>
+
+        <!-- DEM Elevation Profile Along Valley Gorge -->
+        <div class="mt-6 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="trending-down" class="w-4 h-4 text-sky-400"></i> Valley Profile (CartoDEM / SRTM 30m Elevation vs Distance)
+            </h3>
+            <span class="text-xs text-slate-400">Source: South Lhonak (0km) to Rangpo (112km)</span>
+          </div>
+          <div class="h-64 relative">
+            <canvas id="elevation-profile-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Exposed Assets Table with Multi-Factor Scoring Breakdown -->
+        <div class="mt-6 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="building-2" class="w-4 h-4 text-amber-400"></i> Screened Downstream Settlements & Infrastructure Intersections
+              </h3>
+              <p class="text-xs text-slate-400">Transparent Multi-Factor Indicators (Section 7.7) - Proximity, Slope Gradient, Criticality, Population</p>
+            </div>
+            <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">8 Assets Evaluated</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-3">Asset / Settlement</th>
+                  <th class="py-2.5 px-3">Type</th>
+                  <th class="py-2.5 px-3">Dist from Lake</th>
+                  <th class="py-2.5 px-3">Elevation</th>
+                  <th class="py-2.5 px-3">Exposure Rating</th>
+                  <th class="py-2.5 px-3">Vulnerability Context</th>
+                </tr>
+              </thead>
+              <tbody id="assets-table-body" class="divide-y divide-slate-800/60">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. INTERACTIVE GIS MAP EXPLORER -->
+    <div id="tab-gis-map" class="tab-content hidden space-y-4">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
+        <!-- Map Control Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800 text-xs">
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i> Map Layer Controls:
+            </span>
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+              <input type="checkbox" id="layer-chk-lakes" checked onchange="toggleMapLayer('lakes')" class="accent-sky-500 rounded"> Glacial Lake
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+              <input type="checkbox" id="layer-chk-reservoirs" checked onchange="toggleMapLayer('reservoirs')" class="accent-cyan-500 rounded"> Reservoirs
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+              <input type="checkbox" id="layer-chk-river" checked onchange="toggleMapLayer('river')" class="accent-blue-500 rounded"> Teesta River
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+              <input type="checkbox" id="layer-chk-exposure" checked onchange="toggleMapLayer('exposure')" class="accent-rose-500 rounded"> Exposure Corridor
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+              <input type="checkbox" id="layer-chk-assets" checked onchange="toggleMapLayer('assets')" class="accent-amber-500 rounded"> Assets & Towns
+            </label>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="resetMapView()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 transition">
+              Reset View
+            </button>
+            <button onclick="zoomToLake()" class="px-2.5 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 rounded border border-sky-800 transition">
+              Zoom to Lake
+            </button>
+            <button onclick="zoomToDam()" class="px-2.5 py-1 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 rounded border border-cyan-800 transition">
+              Zoom to Chungthang Dam
+            </button>
+          </div>
+        </div>
+
+        <!-- The Leaflet Map Container -->
+        <div id="map-container" class="w-full h-[600px] rounded-xl border border-slate-800 relative z-10"></div>
+
+        <!-- Map Legend -->
+        <div class="mt-3 flex flex-wrap items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-sky-500 inline-block"></span> Pre-Burst Lake Boundary (1.68 km²)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> Post-Burst Lake Boundary (1.03 km²)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500/40 border border-rose-500 inline-block"></span> High Exposure Corridor (&le;500m)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> Critical Infrastructure</span>
+          </div>
+          <span class="font-mono text-[11px] text-slate-500">CartoDB Dark Tiles &bull; WGS84 GeoJSON Projections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. DATA PROVENANCE & SCIENTIFIC METHODOLOGY -->
+    <div id="tab-methodology" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="file-text" class="w-6 h-6 text-sky-400"></i> Scientific Methodology & Data Provenance
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Traceable data lineage and mathematical formulation per Section 5.3 & Section 7 of the Blueprint</p>
+        </div>
+
+        <!-- Formulas Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div class="text-xs font-bold text-sky-400 uppercase tracking-wider">Formula 1: Normalized Difference Water Index (NDWI)</div>
+            <div class="p-3 bg-slate-900 rounded-lg font-mono text-sm text-sky-200 border border-slate-800">
+              NDWI = (Green - NIR) / (Green + NIR)
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              For Sentinel-2 MSI, Band 3 (Green, 560nm) and Band 8 (NIR, 842nm) at 10m spatial resolution. Water pixels absorb NIR while reflecting green, resulting in positive index values.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div class="text-xs font-bold text-sky-400 uppercase tracking-wider">Formula 2: Percentage Surface Area Change</div>
+            <div class="p-3 bg-slate-900 rounded-lg font-mono text-sm text-sky-200 border border-slate-800">
+              % Change = ((A_later - A_earlier) / A_earlier) &times; 100
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Area calculated in UTM Zone 45N (EPSG:32645). A positive delta reflects growth/impoundment; a negative delta reflects seasonal ablation or sudden drainage.
+            </p>
+          </div>
+        </div>
+
+        <!-- ASTRA Domain Alignment Table -->
+        <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i> ASTRA Hackathon Domain Alignment
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2 px-3">ASTRA Domain</th>
+                  <th class="py-2 px-3">Undercurrent Contribution</th>
+                  <th class="py-2 px-3">Evidence in Prototype</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60">
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">01 | Indian Space Missions & Space Data</td>
+                  <td class="py-2.5 px-3 text-slate-300">Integration with ISRO Bhuvan CartoDEM for 30m terrain slope & stream routing; RISAT-1A SAR coherence verification.</td>
+                  <td class="py-2.5 px-3 text-sky-400 font-mono">Bhuvan / Bhoonidhi data catalogue records & elevation profile.</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">02 | Earth Observation & Satellite Applications</td>
+                  <td class="py-2.5 px-3 text-slate-300">Multi-date NDWI extraction, boundary polygon delta tracking, and historical area trends (2013-2024).</td>
+                  <td class="py-2.5 px-3 text-sky-400 font-mono">Glacial lake & reservoir multi-date comparison tables and charts.</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">03 | Space-Based Disaster Management</td>
+                  <td class="py-2.5 px-3 text-slate-300">Screening downstream river corridors, buffering gorge valley floors, and overlaying vulnerable assets.</td>
+                  <td class="py-2.5 px-3 text-sky-400 font-mono">112km exposure corridor overlay and 8 screened asset intersections.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Responsible Presentation Language Table (Section 15 Compliance) -->
+        <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i> Responsible Scientific Claims (Section 15 Guidelines)
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="p-3 bg-emerald-950/30 border border-emerald-800/50 rounded-lg space-y-2">
+              <span class="font-bold text-emerald-400 flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> PREFER SAYING:</span>
+              <ul class="space-y-1.5 text-slate-300">
+                <li>&bull; &ldquo;Observed lake surface area changed between these dates.&rdquo;</li>
+                <li>&bull; &ldquo;This is a preliminary downstream exposure screening layer.&rdquo;</li>
+                <li>&bull; &ldquo;The reservoir's mapped water-spread area varied.&rdquo;</li>
+                <li>&bull; &ldquo;The prototype supports situational awareness.&rdquo;</li>
+              </ul>
+            </div>
+            <div class="p-3 bg-rose-950/30 border border-rose-800/50 rounded-lg space-y-2">
+              <span class="font-bold text-rose-400 flex items-center gap-1.5"><i data-lucide="x" class="w-4 h-4"></i> AVOID SAYING:</span>
+              <ul class="space-y-1.5 text-slate-300">
+                <li>&bull; &ldquo;The lake is about to burst.&rdquo;</li>
+                <li>&bull; &ldquo;This is the predicted flood inundation wave.&rdquo;</li>
+                <li>&bull; &ldquo;Reservoir storage fell by X million cubic meters.&rdquo;</li>
+                <li>&bull; &ldquo;This replaces official disaster management systems.&rdquo;</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. HACKATHON & PRESENTATION BLUEPRINT -->
+    <div id="tab-hackathon" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="award" class="w-6 h-6 text-amber-400"></i> ASTRA 2026 Evaluation & Defense Blueprint
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">100-Point Scoring Strategy, Team Roles, and Live Demo Rehearsal Guide</p>
+        </div>
+
+        <!-- 100-Point Rubric Table -->
+        <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="target" class="w-4 h-4 text-amber-400"></i> ASTRA 100-Point Scoring Rubric Alignment
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2 px-3">Criterion</th>
+                  <th class="py-2 px-3">Marks</th>
+                  <th class="py-2 px-3">Undercurrent Evidence to Present to Judges</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60">
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">Technical Implementation</td>
+                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">25</td>
+                  <td class="py-2.5 px-3">FastAPI backend, clean modular routes, NumPy NDWI matrix classification, pure GeoJSON spatial pipeline, and zero black-box calculations.</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">Working Prototype & Demo</td>
+                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">20</td>
+                  <td class="py-2.5 px-3">End-to-end working system linking South Lhonak lake &rarr; Teesta River &rarr; Chungthang Dam &rarr; Downstream settlements in a live browser session.</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">Presentation & Defense</td>
+                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">15</td>
+                  <td class="py-2.5 px-3">Clear speaking split between Aerospace (Remote Sensing/Science Lead) and CS members (Pipeline, Backend, Frontend).</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">Innovation & Creativity</td>
+                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
+                  <td class="py-2.5 px-3">Unified basin-oriented upstream/downstream water intelligence, connecting glacial lake risk to reservoir infrastructure.</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">Problem Relevance</td>
+                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
+                  <td class="py-2.5 px-3">Real-world Teesta Sikkim context (Oct 2023 disaster), supporting disaster management planners and water resource departments.</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">UI/UX & Experience</td>
+                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
+                  <td class="py-2.5 px-3">Interactive Leaflet GIS map, NDWI threshold slider, elevation profile chart, transparent alert indicators, and responsive dark aerospace UI.</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-200">Scalability & Feasibility</td>
+                  <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
+                  <td class="py-2.5 px-3">Modular JSON schema; new Himalayan river basins (Satluj, Chamoli, Bhagirathi) can be added via configuration without rebuilding code.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4-Member Team Role Distribution (Section 9 Compliance) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <span class="text-xs px-2 py-0.5 rounded bg-purple-950 border border-purple-800 text-purple-300 font-semibold">Aerospace Member</span>
+            <div class="text-sm font-bold text-white">Remote Sensing & Science Lead</div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Owns satellite image selection (Bhuvan/Copernicus), QGIS project setup, GLOF physical mechanisms, and scientific validation notes.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <span class="text-xs px-2 py-0.5 rounded bg-sky-950 border border-sky-800 text-sky-300 font-semibold">CS Member 1</span>
+            <div class="text-sm font-bold text-white">Geospatial Processing Lead</div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Automates NDWI band calculation, water mask extraction, area change detection, and spatial intersection routines.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800 text-cyan-300 font-semibold">CS Member 2</span>
+            <div class="text-sm font-bold text-white">Backend & Data Engineer</div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Builds FastAPI endpoints, schemas, CORS middleware, metadata catalogue, and data caching services.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-300 font-semibold">CS Member 3</span>
+            <div class="text-sm font-bold text-white">Frontend & UI/UX Engineer</div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Builds responsive web dashboard, Leaflet interactive map, Chart.js graphs, and demo rehearsal flow.
+            </p>
+          </div>
+        </div>
+
+        <!-- Anticipated Judge Q&A Defense Cards -->
+        <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-4">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="help-circle" class="w-4 h-4 text-sky-400"></i> Judge Defense Cheat Sheet (Section 14.4)
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
+              <strong class="text-slate-200">Q: Does lake expansion mean a GLOF is imminent?</strong>
+              <p class="text-slate-400"><strong>A:</strong> No. Surface expansion indicates meltwater accumulation or moraine impoundment. An outburst requires moraine failure triggers (avalanches, earthquakes, piping). It flags the lake for field inspection.</p>
+            </div>
+            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
+              <strong class="text-slate-200">Q: Can you predict flood arrival time or depth?</strong>
+              <p class="text-slate-400"><strong>A:</strong> Not in this prototype. That requires calibrated 2D hydrodynamic modeling (e.g., HEC-RAS or FLO-2D) and breach bathymetry. Undercurrent strictly provides preliminary exposure screening.</p>
+            </div>
+            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
+              <strong class="text-slate-200">Q: Does reservoir area tell you storage volume?</strong>
+              <p class="text-slate-400"><strong>A:</strong> No. Optical imagery detects water-spread area only. Converting this to storage volume requires bathymetry or validated elevation-capacity tables.</p>
+            </div>
+            <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-1">
+              <strong class="text-slate-200">Q: What is the Indian space-data contribution?</strong>
+              <p class="text-slate-400"><strong>A:</strong> ISRO CartoDEM from Bhuvan for elevation/slope profiling and ISRO Bhoonidhi RISAT-1A SAR coherence for penetrating cloud cover during the Oct 2023 monsoon event.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-400">Project Undercurrent</span> &bull; ASTRA 2026 Space Hackathon
+      </div>
+      <div>
+        Sikkim Teesta River Basin &bull; ISRO Bhuvan & Copernicus Space Data
+      </div>
+    </div>
+  </footer>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script>
+    // Lucide icons initialization
+    lucide.createIcons();
+
+    // State Variables
+    let currentTab = 'overview';
+    let map = null;
+    let mapLayers = {};
+    let lakeHistoryChart = null;
+    let reservoirChart = null;
+    let elevationProfileChart = null;
+    let lakeData = [];
+    let reservoirData = [];
+    let assetData = [];
+    let profileData = [];
+
+    // Tab Switching
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('text-sky-400', 'bg-sky-950/60', 'border-sky-800/50');
+        btn.classList.add('text-slate-400');
+      });
+
+      const targetView = document.getElementById('tab-' + tabId);
+      if (targetView) targetView.classList.remove('hidden');
+
+      const targetBtn = document.getElementById('tab-btn-' + tabId);
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-400');
+        targetBtn.classList.add('text-sky-400', 'bg-sky-950/60', 'border-sky-800/50');
+      }
+
+      if (tabId === 'gis-map') {
+        setTimeout(() => {
+          if (!map) initMap();
+          else map.invalidateSize();
+        }, 100);
+      }
+    }
+
+    // Initialize Leaflet Map
+    function initMap() {
+      if (map) return;
+      map = L.map('map-container', {
+        zoomControl: true,
+        attributionControl: true
+      }).setView([27.55, 88.50], 10);
+
+      // Dark Basemap Tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CartoDB &copy; OpenStreetMap contributors',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Load Layers from API
+      loadMapLayers();
+    }
+
+    async function loadMapLayers() {
+      try {
+        // 1. Exposure Corridor Buffer
+        const expRes = await fetch('/api/map/geojson/exposure');
+        if (expRes.ok) {
+          const expData = await expRes.json();
+          mapLayers.exposure = L.geoJSON(expData, {
+            style: function(feat) {
+              const lvl = feat.properties.exposure_level;
+              return {
+                color: lvl === 'High' ? '#ef4444' : '#f59e0b',
+                weight: 1.5,
+                fillColor: lvl === 'High' ? '#ef4444' : '#f59e0b',
+                fillOpacity: lvl === 'High' ? 0.25 : 0.12
+              };
+            },
+            onEachFeature: function(feat, layer) {
+              layer.bindPopup(`<strong class="text-rose-600">${feat.properties.zone_name}</strong><br>Width: ${feat.properties.buffer_width_m}m buffer<br><span class="text-xs text-gray-600">${feat.properties.methodology_note}</span>`);
+            }
+          }).addTo(map);
+        }
+
+        // 2. Teesta River Drainage Line
+        const riverRes = await fetch('/api/map/geojson/drainage');
+        if (riverRes.ok) {
+          const riverData = await riverRes.json();
+          mapLayers.river = L.geoJSON(riverData, {
+            style: {
+              color: '#38bdf8',
+              weight: 3.5,
+              opacity: 0.85
+            },
+            onEachFeature: function(feat, layer) {
+              layer.bindPopup(`<strong>${feat.properties.river_name}</strong><br>Length: ${feat.properties.total_flow_length_km} km<br>Drop: ${feat.properties.elevation_drop_m} m`);
+            }
+          }).addTo(map);
+        }
+
+        // 3. Glacial Lake Boundaries
+        const lakeRes = await fetch('/api/map/geojson/south_lhonak');
+        if (lakeRes.ok) {
+          const lkData = await lakeRes.json();
+          mapLayers.lakes = L.geoJSON(lkData, {
+            style: function(feat) {
+              return {
+                color: feat.properties.color || '#0ea5e9',
+                weight: 2,
+                fillColor: feat.properties.color || '#0ea5e9',
+                fillOpacity: 0.4
+              };
+            },
+            onEachFeature: function(feat, layer) {
+              layer.bindPopup(`<strong>${feat.properties.name}</strong><br>Date: ${feat.properties.date}<br>Area: ${feat.properties.area_km2} km²<br>Status: ${feat.properties.period}`);
+            }
+          }).addTo(map);
+        }
+
+        // 4. Reservoirs
+        const resRes = await fetch('/api/map/geojson/chungthang');
+        if (resRes.ok) {
+          const resData = await resRes.json();
+          mapLayers.reservoirs = L.geoJSON(resData, {
+            style: function(feat) {
+              return {
+                color: feat.properties.color || '#0284c7',
+                weight: 2,
+                fillColor: feat.properties.color || '#0284c7',
+                fillOpacity: 0.5
+              };
+            },
+            onEachFeature: function(feat, layer) {
+              layer.bindPopup(`<strong>${feat.properties.name}</strong><br>Date: ${feat.properties.date}<br>Water-spread: ${feat.properties.water_spread_area_km2} km²<br><span class="text-xs text-gray-500">${feat.properties.label_note}</span>`);
+            }
+          }).addTo(map);
+        }
+
+        // 5. Assets / Settlements
+        const assetRes = await fetch('/api/map/geojson/assets');
+        if (assetRes.ok) {
+          const aData = await assetRes.json();
+          mapLayers.assets = L.geoJSON(aData, {
+            pointToLayer: function(feat, latlng) {
+              const isInfra = feat.properties.type === 'Infrastructure';
+              const rating = feat.properties.exposure_rating;
+              const col = rating === 'Critical' ? '#ef4444' : (rating === 'High' ? '#f59e0b' : '#38bdf8');
+              return L.circleMarker(latlng, {
+                radius: isInfra ? 7 : 5,
+                fillColor: col,
+                color: '#ffffff',
+                weight: 1.5,
+                opacity: 1,
+                fillOpacity: 0.9
+              });
+            },
+            onEachFeature: function(feat, layer) {
+              const p = feat.properties;
+              layer.bindPopup(`<strong>${p.name}</strong><br>Type: ${p.category}<br>Dist from Lake: ${p.distance_from_lake_km} km<br>Rating: <span class="font-bold text-red-600">${p.exposure_rating}</span><br>Vulnerability: ${p.key_vulnerability}`);
+            }
+          }).addTo(map);
+        }
+
+      } catch (err) {
+        console.error('Error loading map layers:', err);
+      }
+    }
+
+    function toggleMapLayer(layerKey) {
+      const chk = document.getElementById('layer-chk-' + layerKey);
+      if (!mapLayers[layerKey] || !map) return;
+      if (chk.checked) {
+        map.addLayer(mapLayers[layerKey]);
+      } else {
+        map.removeLayer(mapLayers[layerKey]);
+      }
+    }
+
+    function resetMapView() {
+      if (map) map.setView([27.55, 88.50], 10);
+    }
+    function zoomToLake() {
+      if (map) map.setView([27.9128, 88.2045], 14);
+    }
+    function zoomToDam() {
+      if (map) map.setView([27.6040, 88.6485], 14);
+    }
+
+    // Load Lake Data & Setup Charts
+    async function initLakeData() {
+      try {
+        const res = await fetch('/api/lakes/GL-SK-01/history');
+        if (res.ok) {
+          const data = await res.json();
+          lakeData = data.history || [];
+          renderLakeHistoryChart(lakeData);
+          onLakeDateChange();
+        }
+      } catch (e) {
+        console.error('Failed to load lake history:', e);
+      }
+    }
+
+    function renderLakeHistoryChart(items) {
+      const ctx = document.getElementById('lake-history-chart');
+      if (!ctx) return;
+      const labels = items.map(d => d.date);
+      const values = items.map(d => d.area_km2);
+
+      lakeHistoryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Lake Surface Area (km²)',
+            data: values,
+            borderColor: '#0ea5e9',
+            backgroundColor: 'rgba(14, 165, 233, 0.15)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.2,
+            pointBackgroundColor: labels.map(l => l.includes('2023-10') ? '#ef4444' : '#38bdf8'),
+            pointRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' },
+              title: { display: true, text: 'Area (km²)', color: '#64748b' }
+            },
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' }
+            }
+          }
+        }
+      });
+    }
+
+    function onLakeDateChange() {
+      const selDate = document.getElementById('lake-date-select').value;
+      const obs = lakeData.find(d => d.date === selDate) || lakeData[0];
+      if (!obs) return;
+
+      document.getElementById('lake-metric-area').innerText = obs.area_km2 + ' km²';
+      document.getElementById('lake-metric-sensor').innerText = obs.sensor || 'Sentinel-2 MSI';
+      document.getElementById('lake-metric-quality').innerText = `Cloud Cover: ${obs.cloud_cover_pct || 0}% (${obs.quality_flag || 'Good'})`;
+
+      if (obs.area_change_pct) {
+        document.getElementById('lake-metric-delta').innerText = obs.area_change_km2 + ' km²';
+        document.getElementById('lake-metric-pct').innerText = `${obs.area_change_pct}% (${obs.period || 'Breached'})`;
+      } else {
+        document.getElementById('lake-metric-delta').innerText = '0.00 km²';
+        document.getElementById('lake-metric-pct').innerText = 'Reference Baseline';
+      }
+
+      // Re-render canvas grid simulation
+      drawNDWICanvas(0.14, selDate.includes('2023-10'));
+    }
+
+    function updateNDWIThreshold(val) {
+      document.getElementById('ndwi-threshold-display').innerText = 'Threshold: ' + parseFloat(val).toFixed(2);
+      const selDate = document.getElementById('lake-date-select').value;
+      drawNDWICanvas(parseFloat(val), selDate.includes('2023-10'));
+    }
+
+    function drawNDWICanvas(threshold, isPostOutburst) {
+      const canvas = document.getElementById('ndwi-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const size = 24;
+      const pxSize = canvas.width / size;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const cy = size / 2;
+      const cx = size / 2;
+      const ry = isPostOutburst ? size * 0.26 : size * 0.32;
+      const rx = isPostOutburst ? size * 0.30 : size * 0.42;
+
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          const dy = (i - cy) / ry;
+          const dx = (j - cx) / rx;
+          let distSq = dy*dy + dx*dx;
+          if (isPostOutburst && dx > 0.15) {
+            distSq += (dx - 0.15) * 2.2;
+          }
+
+          let ndwi = 0;
+          if (distSq <= 0.80) {
+            ndwi = 0.38 + 0.12 * Math.cos(i * 0.3) * Math.sin(j * 0.3);
+          } else if (distSq <= 1.05) {
+            let t = (distSq - 0.80) / 0.25;
+            ndwi = (1.0 - t) * 0.35 + t * 0.05;
+          } else if (distSq <= 1.35) {
+            ndwi = -0.05;
+          } else {
+            ndwi = -0.28;
+          }
+
+          // Coloring
+          if (ndwi >= threshold) {
+            // Water
+            ctx.fillStyle = '#0ea5e9';
+          } else if (isPostOutburst && dx > 0.15 && distSq <= 1.4) {
+            // Breach scar / sediment
+            ctx.fillStyle = '#b45309';
+          } else if (distSq <= 1.3) {
+            // Moraine
+            ctx.fillStyle = '#334155';
+          } else {
+            // Mountain terrain
+            ctx.fillStyle = '#1e293b';
+          }
+
+          ctx.fillRect(j * pxSize, i * pxSize, pxSize - 1, pxSize - 1);
+        }
+      }
+    }
+
+    // Reservoir Data & Chart
+    async function initReservoirs() {
+      try {
+        const res = await fetch('/api/reservoirs/RES-TK-01/history');
+        if (res.ok) {
+          const data = await res.json();
+          reservoirData = data.history || [];
+          renderReservoirTable(reservoirData);
+          renderReservoirChart(reservoirData);
+        }
+      } catch (e) {
+        console.error('Failed to load reservoir history:', e);
+      }
+    }
+
+    function renderReservoirTable(items) {
+      const tbody = document.getElementById('reservoir-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = items.map(d => `
+        <tr class="hover:bg-slate-900/50">
+          <td class="py-2.5 px-3 font-mono">${d.date}</td>
+          <td class="py-2.5 px-3">${d.season}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-cyan-400">${d.water_spread_area_km2} km²</td>
+          <td class="py-2.5 px-3 text-slate-400">${d.quality_flag}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderReservoirChart(items) {
+      const ctx = document.getElementById('reservoir-chart');
+      if (!ctx) return;
+      const labels = items.map(d => d.date);
+      const values = items.map(d => d.water_spread_area_km2);
+
+      reservoirChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Water-Spread Area (km²)',
+            data: values,
+            backgroundColor: labels.map(l => l.includes('2023-10') ? '#f97316' : '#0284c7'),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' },
+              title: { display: true, text: 'Area (km²)', color: '#64748b' }
+            },
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' }
+            }
+          }
+        }
+      });
+    }
+
+    function onReservoirChange() {
+      const selId = document.getElementById('reservoir-select').value;
+      fetch(`/api/reservoirs/${selId}/history`)
+        .then(r => r.json())
+        .then(data => {
+          renderReservoirTable(data.history || []);
+          if (reservoirChart) {
+            reservoirChart.data.labels = data.history.map(d => d.date);
+            reservoirChart.data.datasets[0].data = data.history.map(d => d.water_spread_area_km2);
+            reservoirChart.update();
+          }
+        });
+    }
+
+    // Downstream Exposure & Profile
+    async function initExposure() {
+      try {
+        const [profRes, astRes] = await Promise.all([
+          fetch('/api/exposure/SA-TEESTA-01/profile'),
+          fetch('/api/exposure/SA-TEESTA-01/assets')
+        ]);
+
+        if (profRes.ok) {
+          const pData = await profRes.json();
+          profileData = pData.profile || [];
+          renderElevationProfileChart(profileData);
+        }
+
+        if (astRes.ok) {
+          const aData = await astRes.json();
+          assetData = aData.assets || [];
+          renderAssetsTable(assetData);
+        }
+      } catch (e) {
+        console.error('Failed to load exposure data:', e);
+      }
+    }
+
+    function renderElevationProfileChart(items) {
+      const ctx = document.getElementById('elevation-profile-chart');
+      if (!ctx) return;
+      const labels = items.map(d => `${d.distance_km} km (${d.landmark.split(' ')[0]})`);
+      const elevations = items.map(d => d.elevation_m);
+
+      elevationProfileChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Elevation (m ASL)',
+            data: elevations,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.15)',
+            borderWidth: 2,
+            fill: true,
+            pointBackgroundColor: '#0284c7',
+            pointRadius: 4,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                afterLabel: function(ctx) {
+                  const pt = items[ctx.dataIndex];
+                  return `Slope: ${pt.slope_deg}° | Zone: ${pt.zone}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8' },
+              title: { display: true, text: 'Elevation (meters)', color: '#64748b' }
+            },
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8', maxRotation: 45 }
+            }
+          }
+        }
+      });
+    }
+
+    function renderAssetsTable(items) {
+      const tbody = document.getElementById('assets-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = items.map(a => {
+        const rating = a.exposure_rating;
+        const badgeCol = rating === 'Critical' ? 'bg-rose-950 text-rose-300 border-rose-800' : (rating === 'High' ? 'bg-amber-950 text-amber-300 border-amber-800' : 'bg-sky-950 text-sky-300 border-sky-800');
+        return `
+          <tr class="hover:bg-slate-900/50">
+            <td class="py-2.5 px-3 font-semibold text-slate-100">${a.name}</td>
+            <td class="py-2.5 px-3 text-slate-400">${a.category}</td>
+            <td class="py-2.5 px-3 font-mono">${a.distance_from_lake_km} km</td>
+            <td class="py-2.5 px-3 font-mono">${a.elevation_m} m</td>
+            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-bold border ${badgeCol}">${a.exposure_rating}</span></td>
+            <td class="py-2.5 px-3 text-slate-400 max-w-xs truncate" title="${a.key_vulnerability}">${a.key_vulnerability}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // App Initialization on DOM Load
+    window.addEventListener('DOMContentLoaded', () => {
+      initLakeData();
+      initReservoirs();
+      initExposure();
+      drawNDWICanvas(0.14, true);
+    });
+  </script>
+</body>
+</html>
