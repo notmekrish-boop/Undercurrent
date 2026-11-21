@@ -132,11 +132,70 @@ def test_undercurrent():
     print("Testing /api/pipeline/end-to-end (Phase 3 Unified Workflow MVP)...")
     pipe = pipeline.get_end_to_end_pipeline()
     assert pipe["pipeline_version"].startswith("1.0.0")
+    assert pipe["pipeline_status"] == "SUCCESS"
+    assert pipe["is_measured"] is True
+    assert pipe["is_fallback"] is False
     assert "step_1_lake_only_change" in pipe["workflow_steps"]
     assert "step_2_drainage_corridor" in pipe["workflow_steps"]
     assert "step_3_screened_asset_overlays" in pipe["workflow_steps"]
     assert "step_4_independent_reservoir_track" in pipe["workflow_steps"]
     assert "step_5_evidence_advisory" in pipe["workflow_steps"]
+
+    print("Testing /api/lakes/assess-risk (Multi-Date Glacial Outburst Risk Engine)...")
+    from backend.app.schemas.models import GlacierLakeRiskAssessmentRequest, GlacierLakeObservationInput
+
+    # Scenario 1: Critical moraine breach drainage
+    req_breach = GlacierLakeRiskAssessmentRequest(
+        lake_name="South Lhonak Lake",
+        basin="Teesta River Basin",
+        elevation_masl=5200.0,
+        downstream_distance_km=68.0,
+        channel_slope_deg=22.0,
+        dam_type="Moraine-dammed",
+        observations=[
+            GlacierLakeObservationInput(date="2023-09-26", area_km2=1.6664),
+            GlacierLakeObservationInput(date="2023-10-09", area_km2=0.9764)
+        ]
+    )
+    res_b = lakes.assess_glacier_lake_risk(req_breach)
+    assert res_b.hazard_classification["risk_tier"] == "CRITICAL"
+    assert res_b.temporal_metrics["percentage_change"] < -40.0
+    assert res_b.hazard_classification["hazard_score_0_to_100"] > 80.0
+
+    # Scenario 2: Accelerated expansion hazard
+    req_exp = GlacierLakeRiskAssessmentRequest(
+        lake_name="Imja Tsho",
+        basin="Dudh Koshi",
+        elevation_masl=5010.0,
+        downstream_distance_km=45.0,
+        channel_slope_deg=18.0,
+        dam_type="Ice-cored moraine",
+        observations=[
+            GlacierLakeObservationInput(date="2018-10-01", area_km2=0.95),
+            GlacierLakeObservationInput(date="2023-10-01", area_km2=1.35)
+        ]
+    )
+    res_e = lakes.assess_glacier_lake_risk(req_exp)
+    assert res_e.hazard_classification["risk_tier"] == "HIGH"
+    assert res_e.temporal_metrics["percentage_change"] > 35.0
+
+    # Scenario 3: Stable baseline lake
+    req_stable = GlacierLakeRiskAssessmentRequest(
+        lake_name="Stable Alpine Tarn",
+        observations=[
+            GlacierLakeObservationInput(date="2021-10-01", area_km2=1.00),
+            GlacierLakeObservationInput(date="2023-10-01", area_km2=1.02)
+        ]
+    )
+    res_s = lakes.assess_glacier_lake_risk(req_stable)
+    assert res_s.hazard_classification["risk_tier"] == "LOW"
+
+    # Scenario 4: Ingestion endpoint
+    ing_res = lakes.ingest_lake_observation(
+        lake_id="GL-CUSTOM-01",
+        obs=GlacierLakeObservationInput(date="2024-10-15", area_km2=1.01)
+    )
+    assert ing_res["status"] == "success"
 
     print("Testing input validation and error handling...")
     from fastapi import HTTPException
@@ -153,6 +212,16 @@ def test_undercurrent():
     try:
         NDWICalculationRequest(lake_id="GL-SK-01", threshold=2.5)
         assert False, "Should raise ValidationError for threshold > 1.0"
+    except ValidationError:
+        pass
+
+    # Invalid risk assessment (< 2 observations)
+    try:
+        req_bad = GlacierLakeRiskAssessmentRequest(
+            lake_name="Bad Lake",
+            observations=[GlacierLakeObservationInput(date="2023-01-01", area_km2=1.0)]
+        )
+        assert False, "Should raise ValidationError for < 2 observations"
     except ValidationError:
         pass
 

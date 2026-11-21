@@ -91,11 +91,12 @@ def get_corridor_assets(study_area_id: str):
         )
         score_data["location_slope_deg"] = local_slope
         score_data["elevation_drop_m"] = elev_drop
-        score_data["slope_source"] = "DEM-derived corridor elevation profile"
+        score_data["slope_source"] = "ISRO CartoDEM 30m Valley Elevation Profile (EPSG:32645)"
 
         item = dict(a)
         item["location_slope_deg"] = local_slope
         item["elevation_drop_m"] = elev_drop
+        item["slope_source"] = "ISRO CartoDEM 30m Valley Elevation Profile (EPSG:32645)"
         item["scoring_breakdown"] = score_data
         scored_assets.append(item)
     return {

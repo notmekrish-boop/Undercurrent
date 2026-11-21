@@ -4,18 +4,19 @@
 **Repository Branch:** `main`  
 **Execution Environment:** Python 3.14 (Windows) with Rasterio 1.5.2, SciPy 1.18.1, FastAPI 0.110+, NumPy 2.x  
 **OpenBLAS Configuration:** `OPENBLAS_NUM_THREADS=1`  
+**Automated CI Pipeline:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) (Automated GitHub Actions CI on Ubuntu Latest)
 
 ---
 
 ## 1. Executive Summary
 
-All automated test suites executed successfully with **100% pass rate** across dependency import, synthetic raster fixture processing, and full REST API integration tests.
+All automated test suites executed successfully with **100% pass rate** across dependency import, synthetic raster fixture processing, arbitrary multi-temporal glacial risk assessment, and full REST API integration tests.
 
 | Test Suite | Purpose & Coverage | Total Tests | Status |
 | :--- | :--- | :--- | :--- |
 | [`tests/test_dependencies.py`](../tests/test_dependencies.py) | Verifies clean installation, core imports, FastAPI, Rasterio, and SciPy morphological labeling. | 4 | **PASSED** |
 | [`tests/test_raster_processing.py`](../tests/test_raster_processing.py) | Synthetic fixtures for NoData (-3.4e38/NaN), CRS mismatch, dimension mismatch, AOI polygon clipping, empty seed safety, and real Sentinel-2 Level-2A symmetric runs. | 6 | **PASSED** |
-| [`tests/test_api.py`](../tests/test_api.py) | Full integration test across all 8 router families, dynamic advisory, human review persistence, weight sensitivity arrays, and zero-fallback pipeline. | 19 | **PASSED** |
+| [`tests/test_api.py`](../tests/test_api.py) | Full integration test across all 9 router families, multi-temporal risk engine (`/api/lakes/assess-risk`), human review persistence, weight sensitivity arrays, and zero-fallback pipeline. | 22 | **PASSED** |
 
 ---
 
@@ -63,7 +64,12 @@ Testing /api/alerts/ALT-2023-SK-01/review (Durable human review persistence)... 
 Testing /api/analysis/validation (Regenerated Phase 1 Scientific Validation Record)... [PASS]
 Testing /api/map/download/south_lhonak (Direct QGIS GeoJSON downloads)... [PASS]
 Testing /api/pipeline/end-to-end (Zero-fallback 5-stage pipeline)... [PASS]
-Testing input validation and error handling (400 on invalid date, validation on threshold)... [PASS]
+Testing /api/lakes/assess-risk (Multi-Date Glacial Outburst Risk Engine)... [PASS]
+  - Scenario 1 (Rapid Drainage Outflow / Moraine Breach -> CRITICAL): [PASS]
+  - Scenario 2 (Accelerated Glacial Melt Expansion -> HIGH): [PASS]
+  - Scenario 3 (Stable Glacial Baseline -> LOW): [PASS]
+  - Scenario 4 (Multi-temporal observation ingestion): [PASS]
+Testing input validation and error handling (400 on invalid date, validation on threshold, validation on <2 observations)... [PASS]
 Result: ALL API & VALIDATION TESTS PASSED SUCCESSFULLY!
 ```
 
@@ -71,7 +77,7 @@ Result: ALL API & VALIDATION TESTS PASSED SUCCESSFULLY!
 
 ## 3. Quantitative Accuracy Metrics (Sentinel-2 Level-2A vs Reference Polygons)
 
-Validation against published ground-truth reference polygons in `data/processed/south_lhonak_boundaries.geojson`:
+Validation against ground-truth reference polygons in `data/processed/south_lhonak_boundaries.geojson`:
 
 | Date | Isolated Pixels | Physical Area ($100.02\text{ m}^2/\text{px}$) | NDWI Threshold | IoU (Jaccard Index) | Precision | Recall | F1 Score |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -81,8 +87,11 @@ Validation against published ground-truth reference polygons in `data/processed/
 
 ---
 
-## 4. Scientific & Operational Safeguards Verified
+## 4. Multi-Temporal Glacier Lake Risk Engine Verification
 
-1. **Zero Silent Fallback Policy:** The `/api/pipeline/end-to-end` endpoint strictly halts and reports `pipeline_status: "FAILED"` with stage and remediation detail if any raster or input is missing, rather than fabricating plausible fallback numbers.
-2. **2D Area vs 3D Volume:** Planar surface water-spread area is explicitly distinguished from impoundment volume across all endpoints, metadata files, and UI cards.
-3. **Terrain Screening vs Hydrodynamic Waves:** Downstream exposure screening represents preliminary heuristic hazard confinement; it does not replace calibrated flood routing or official disaster warning directives (Sikkim SDMA / NDMA).
+The new `POST /api/lakes/assess-risk` endpoint evaluates arbitrary multi-temporal observations using GAPHAZ and ICIMOD glacial hazard classification:
+
+1. **Moraine Breach & Piping Outflow ($\le -20.0\%$ in $\le 90$ days):** Flags `CRITICAL` with emergency downvalley dispatch instructions.
+2. **Accelerated Meltwater Expansion ($\ge 15.0\%/\text{yr}$ and area $\ge 0.5\text{ km}^2$):** Flags `HIGH` with high-cadence Sentinel-2 monitoring and bathymetric survey recommendations.
+3. **Steady Expansion ($5.0\% - 15.0\%/\text{yr}$):** Flags `MODERATE` with routine seasonal tracking.
+4. **Stable Baseline ($-5.0\%$ to $+5.0\%$):** Flags `LOW` baseline equilibrium.

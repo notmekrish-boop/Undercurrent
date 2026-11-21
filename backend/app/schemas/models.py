@@ -161,3 +161,33 @@ class NDWICalculationResult(BaseModel):
     formula: str = "NDWI = (Green - NIR) / (Green + NIR)"
     matrix_grid: List[List[float]]
     classification_grid: List[List[int]]
+
+class GlacierLakeObservationInput(BaseModel):
+    date: str
+    area_km2: float = Field(..., gt=0.0, description="Measured or extracted lake surface area in km²")
+    sensor: Optional[str] = "Sentinel-2 MSI Level-2A"
+    source: Optional[str] = "Satellite Observation Feed"
+    water_pixel_count: Optional[int] = None
+    spatial_res_m: Optional[float] = 10.0
+
+class GlacierLakeRiskAssessmentRequest(BaseModel):
+    lake_id: Optional[str] = "GL-CUSTOM-01"
+    lake_name: str = Field(..., description="Name of the glacial lake")
+    basin: Optional[str] = "Himalayan Basin"
+    elevation_masl: Optional[float] = Field(5200.0, ge=1000.0, le=8000.0, description="Lake elevation in meters ASL")
+    observations: List[GlacierLakeObservationInput] = Field(..., min_length=2, description="At least two dated observations for multi-temporal analysis")
+    downstream_distance_km: Optional[float] = Field(50.0, ge=1.0, le=300.0, description="Distance along river corridor to nearest critical infrastructure")
+    channel_slope_deg: Optional[float] = Field(20.0, ge=0.5, le=60.0, description="Average downstream channel gradient in degrees")
+    dam_type: Optional[str] = Field("Moraine-dammed", description="Dam type: Moraine-dammed, Ice-dammed, or Bedrock")
+
+class GlacierLakeRiskAssessmentResult(BaseModel):
+    lake_id: str
+    lake_name: str
+    basin: str
+    elevation_masl: float
+    dam_type: str
+    temporal_metrics: Dict[str, Any]
+    hazard_classification: Dict[str, Any]
+    downstream_screening: Dict[str, Any]
+    recommended_response: str
+    scientific_safeguards: str

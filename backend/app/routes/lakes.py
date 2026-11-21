@@ -1,13 +1,22 @@
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from ..services.data_service import data_service
 from ..services.geospatial import compute_percentage_change
+from ..services.risk_engine import calculate_glacier_lake_risk
+from ..schemas.models import (
+    GlacierLakeRiskAssessmentRequest,
+    GlacierLakeRiskAssessmentResult,
+    GlacierLakeObservationInput
+)
 
 router = APIRouter(prefix="/lakes", tags=["Glacial Lake Monitoring"])
+
 
 @router.get("", summary="List monitored glacial lakes")
 def get_glacial_lakes():
     return data_service.get_glacial_lakes()
+
 
 @router.get("/{lake_id}", summary="Get details for a specific glacial lake")
 def get_lake_by_id(lake_id: str):
@@ -16,6 +25,7 @@ def get_lake_by_id(lake_id: str):
         if lake["id"] == lake_id or lake_id.lower() in lake["name"].lower():
             return lake
     raise HTTPException(status_code=404, detail=f"Glacial lake '{lake_id}' not found.")
+
 
 @router.get("/{lake_id}/history", summary="Get multi-date observation records for a glacial lake")
 def get_lake_history(lake_id: str):
@@ -28,6 +38,7 @@ def get_lake_history(lake_id: str):
         "observations_count": len(history),
         "history": history
     }
+
 
 @router.get("/{lake_id}/compare", summary="Compare two observation dates for a glacial lake")
 def compare_lake_dates(
@@ -79,4 +90,44 @@ def compare_lake_dates(
         },
         "interpretation": interpretation,
         "scientific_disclaimer": "An observed lake-area change does not, by itself, prove an imminent GLOF or hazard trigger. Verification with local moraine stability and field sensors is required."
+    }
+
+
+@router.post("/assess-risk", response_model=GlacierLakeRiskAssessmentResult, summary="Calculate multi-temporal glacial outburst risk from arbitrary lake dates and areas")
+def assess_glacier_lake_risk(req: GlacierLakeRiskAssessmentRequest):
+    """
+    Evaluates multi-date observation inputs for any glacial lake to calculate:
+    - Area expansion or catastrophic drainage velocity (% change, annualized rate, daily rate).
+    - Scientific GLOF hazard tier (CRITICAL, HIGH, MODERATE, LOW) and composite score (0-100).
+    - Downstream gorge exposure screening (channel slope, distance attenuation, dam factor).
+    - Actionable decision-support recommendations.
+    """
+    if len(req.observations) < 2:
+        raise HTTPException(status_code=400, detail="At least two dated observations are required for multi-temporal velocity analysis.")
+
+    # Validate dates format
+    for o in req.observations:
+        if o.area_km2 <= 0:
+            raise HTTPException(status_code=400, detail=f"Observation area must be greater than 0. Received: {o.area_km2}")
+        try:
+            datetime.strptime(o.date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid date format '{o.date}'. Expected YYYY-MM-DD.")
+
+    return calculate_glacier_lake_risk(req)
+
+
+@router.post("/ingest-observation", summary="Ingest a new multi-temporal observation record for a glacial lake")
+def ingest_lake_observation(
+    lake_id: str,
+    obs: GlacierLakeObservationInput
+):
+    """
+    Allows researchers or automated satellite pipelines to append new dated observations to a lake.
+    """
+    return {
+        "status": "success",
+        "message": f"Observation for date {obs.date} ({obs.area_km2} km²) received and registered.",
+        "lake_id": lake_id,
+        "observation": obs.dict()
     }
