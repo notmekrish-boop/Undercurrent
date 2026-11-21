@@ -36,10 +36,16 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    body {
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #030712;
       color: #f3f4f6;
+      overflow-x: hidden;
     }
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
@@ -66,23 +72,29 @@
       50% { transform: scale(1.3); opacity: 0.4; }
       100% { transform: scale(0.95); opacity: 0.9; }
     }
+    /* 16:9 Widescreen aspect ratio utility & full-width scaling */
+    .widescreen-canvas {
+      width: 100%;
+      max-width: 100%;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-sky-500 selection:text-white">
 
-  <!-- TOP STATUS BAR -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- TOP STATUS BAR (16:9 FULLSCREEN WIDTH) -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo and Project Identity -->
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/20 flex-shrink-0">
             <i data-lucide="waves" class="w-6 h-6 text-white"></i>
           </div>
           <div>
             <div class="flex items-center space-x-2">
               <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-200 bg-clip-text text-transparent">UNDERCURRENT</span>
               <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-950/80 border border-sky-800/80 text-sky-400">ASTRA 2026</span>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-950/80 border border-indigo-800/80 text-indigo-300 font-mono">16:9 Widescreen</span>
               <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span> Active Basin
               </span>
@@ -91,21 +103,27 @@
           </div>
         </div>
 
-        <!-- Controls & Meta -->
-        <div class="hidden md:flex items-center space-x-4">
-          <div class="flex items-center bg-slate-800/70 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs">
+        <!-- Controls & Meta (Widescreen Toolbar) -->
+        <div class="flex items-center space-x-3">
+          <div class="hidden md:flex items-center bg-slate-800/70 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs">
             <span class="text-slate-400 mr-2">Basin:</span>
             <span class="font-semibold text-slate-200 flex items-center gap-1">
               <i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-400"></i> Teesta Basin (Sikkim)
             </span>
           </div>
 
-          <div class="flex items-center bg-slate-800/70 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs">
+          <div class="hidden lg:flex items-center bg-slate-800/70 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs">
             <span class="text-slate-400 mr-2">Space Portals:</span>
             <span class="font-semibold text-amber-300 flex items-center gap-1">
               <i data-lucide="satellite" class="w-3.5 h-3.5"></i> Bhuvan / Bhoonidhi / Sentinel
             </span>
           </div>
+
+          <!-- 16:9 Fullscreen Toggle Button -->
+          <button onclick="toggleFullscreen()" id="fs-btn" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-sky-950/80 hover:bg-sky-900 text-sky-300 border border-sky-800 rounded-lg transition shadow-sm" title="Toggle 16:9 Fullscreen Mode">
+            <i data-lucide="maximize" class="w-3.5 h-3.5" id="fs-icon"></i>
+            <span id="fs-label" class="hidden sm:inline">16:9 Fullscreen</span>
+          </button>
 
           <a href="/api/docs" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition">
             <i data-lucide="code-2" class="w-3.5 h-3.5 text-cyan-400"></i> API Docs
@@ -120,8 +138,8 @@
       <span><strong>Prototype Positioning:</strong> Undercurrent is a research prototype for monitoring and preliminary exposure screening. It is not an operational GLOF early-warning system or validated hydrodynamic forecast.</span>
     </div>
 
-    <!-- NAVIGATION TABS -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto custom-scrollbar space-x-1 py-1.5 text-sm font-medium">
+    <!-- NAVIGATION TABS (FULL WIDTH) -->
+    <div class="w-full px-4 sm:px-6 lg:px-8 flex overflow-x-auto custom-scrollbar space-x-1 py-1.5 text-sm font-medium">
       <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-button px-3.5 py-1.5 rounded-lg flex items-center gap-2 text-sky-400 bg-sky-950/60 border border-sky-800/50">
         <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
       </button>
@@ -146,12 +164,12 @@
     </div>
   </header>
 
-  <!-- MAIN VIEW CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+  <!-- MAIN VIEW CONTAINER (EXPANDED TO FULL 16:9 VIEWPORT) -->
+  <main class="flex-1 w-full px-4 sm:px-6 lg:px-8 py-5 space-y-6">
 
     <!-- 1. OVERVIEW TAB -->
     <div id="tab-overview" class="tab-content space-y-6">
-      <!-- Hero Telemetry Cards -->
+      <!-- Hero Telemetry Cards (Full Width 4-Column Grid) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-slate-900/70 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
           <div>
@@ -197,7 +215,7 @@
             <div class="text-xs text-slate-400 font-medium">Screened Corridor Length</div>
             <div class="text-lg font-bold text-white mt-1">112.4 km</div>
             <div class="text-xs text-emerald-400 flex items-center gap-1 mt-0.5">
-              <i data-lucide="check-circle" class="w-3 h-3"></i> 8 Critical Assets Identified
+              <i data-lucide="check-circle" class="w-3 h-3"></i> 8 Critical Assets Screened
             </div>
           </div>
           <div class="w-10 h-10 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400">
@@ -206,10 +224,10 @@
         </div>
       </div>
 
-      <!-- Main Overview 2-Column Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Left: Quick Action Journeys -->
-        <div class="lg:col-span-2 space-y-6">
+      <!-- Main Overview 16:9 Widescreen Grid -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <!-- Left: Quick Action Journeys & Basin Context -->
+        <div class="xl:col-span-8 space-y-6">
           <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
             <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
               <i data-lucide="workflow" class="w-5 h-5 text-sky-400"></i> Core User Journeys
@@ -289,7 +307,7 @@
         </div>
 
         <!-- Right: Rule-Based Anomaly Flags & Indian Space Data -->
-        <div class="space-y-6">
+        <div class="xl:col-span-4 space-y-6">
           <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
             <h2 class="text-md font-bold text-white mb-3 flex items-center justify-between">
               <span class="flex items-center gap-2">
@@ -298,7 +316,6 @@
               <span class="text-xs bg-rose-950 text-rose-400 border border-rose-800 px-2 py-0.5 rounded-full font-mono">2 Active</span>
             </h2>
             <div id="overview-alerts-container" class="space-y-3">
-              <!-- Dynamically populated or rendered -->
               <div class="p-3.5 rounded-xl bg-slate-950/80 border border-rose-900/50 space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <span class="px-2 py-0.5 rounded bg-rose-900/80 text-rose-300 font-bold">CRITICAL</span>
@@ -346,7 +363,7 @@
       </div>
     </div>
 
-    <!-- 2. GLACIAL LAKE MONITOR (JOURNEY A) -->
+    <!-- 2. GLACIAL LAKE MONITOR (JOURNEY A - 16:9 PANORAMIC LAYOUT) -->
     <div id="tab-lakes" class="tab-content hidden space-y-6">
       <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
@@ -357,8 +374,8 @@
             <p class="text-xs text-slate-400 mt-1">Latitude: 27.9128° N | Longitude: 88.2045° E | Altitude: 5,200 m ASL | CRS: EPSG:32645</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400">Observation Date:</span>
-            <select id="lake-date-select" onchange="onLakeDateChange()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-sky-500">
+            <span class="text-xs text-slate-400 font-medium">Observation Date:</span>
+            <select id="lake-date-select" onchange="onLakeDateChange()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-sky-500 font-mono">
               <option value="2023-09-17">2023-09-17 (Pre-Event Peak - 1.68 km²)</option>
               <option value="2023-10-04" selected>2023-10-04 (Post-Outburst Breach - 1.03 km²)</option>
               <option value="2021-10-12">2021-10-12 (Baseline - 1.49 km²)</option>
@@ -368,7 +385,7 @@
           </div>
         </div>
 
-        <!-- Metrics & Comparison Strip -->
+        <!-- Metrics & Comparison Strip (Full Widescreen 4-Column Strip) -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
           <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl">
             <div class="text-xs text-slate-400 font-medium">Mapped Surface Area</div>
@@ -392,13 +409,13 @@
           </div>
         </div>
 
-        <!-- Interactive NDWI Threshold Simulator & Visual Comparison Grid -->
-        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- NDWI Simulation Canvas / Grid -->
-          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
+        <!-- Interactive NDWI Simulator & Decadal Trend (Widescreen 16:9 Grid) -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- NDWI Simulation Canvas / Grid (5 cols) -->
+          <div class="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                <i data-lucide="scan" class="w-4 h-4 text-sky-400"></i> Interactive NDWI Water Classification Grid
+                <i data-lucide="scan" class="w-4 h-4 text-sky-400"></i> Interactive NDWI Water Classification
               </h3>
               <span id="ndwi-threshold-display" class="text-xs font-mono bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded">Threshold: 0.14</span>
             </div>
@@ -414,8 +431,8 @@
             </div>
 
             <!-- Grid Visualization (Canvas) -->
-            <div class="relative bg-slate-900 border border-slate-800 rounded-lg p-2 flex flex-col items-center">
-              <canvas id="ndwi-canvas" width="288" height="288" class="rounded shadow-inner"></canvas>
+            <div class="relative bg-slate-900 border border-slate-800 rounded-lg p-3 flex flex-col items-center">
+              <canvas id="ndwi-canvas" width="320" height="320" class="rounded shadow-inner"></canvas>
               <div class="flex items-center justify-center gap-4 mt-3 text-xs text-slate-400">
                 <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-sky-500 inline-block"></span> Classified Water</span>
                 <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-700/60 inline-block"></span> Moraine / Breach Scar</span>
@@ -427,12 +444,12 @@
             </p>
           </div>
 
-          <!-- Multi-Year Area Evolution Chart -->
-          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col">
+          <!-- Multi-Year Area Evolution Chart (7 cols) -->
+          <div class="lg:col-span-7 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i data-lucide="line-chart" class="w-4 h-4 text-sky-400"></i> Decadal Lake Expansion & Breach Event (km²)
             </h3>
-            <div class="flex-1 min-h-[260px] relative">
+            <div class="flex-1 min-h-[340px] relative">
               <canvas id="lake-history-chart"></canvas>
             </div>
             <div class="text-xs text-slate-400 border-t border-slate-800/80 pt-3 flex items-center justify-between">
@@ -444,7 +461,7 @@
       </div>
     </div>
 
-    <!-- 3. RESERVOIR MONITOR (JOURNEY B) -->
+    <!-- 3. RESERVOIR MONITOR (JOURNEY B - WIDESCREEN) -->
     <div id="tab-reservoirs" class="tab-content hidden space-y-6">
       <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
@@ -455,8 +472,8 @@
             <p class="text-xs text-slate-400 mt-1">Case: Teesta-III Chungthang Dam & Teesta-V Dam (Dikchu)</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400">Select Reservoir:</span>
-            <select id="reservoir-select" onchange="onReservoirChange()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500">
+            <span class="text-xs text-slate-400 font-medium">Select Reservoir:</span>
+            <select id="reservoir-select" onchange="onReservoirChange()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500 font-mono">
               <option value="RES-TK-01" selected>Teesta-III Chungthang Dam (Breached Oct 2023)</option>
               <option value="RES-TK-02">Teesta-V Dikchu Dam (NHPC)</option>
             </select>
@@ -475,10 +492,10 @@
           </div>
         </div>
 
-        <!-- Reservoir Observations Table & Trend Chart -->
-        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Multi-date observations table -->
-          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-3">
+        <!-- Reservoir Observations Table & Trend Chart (16:9 Grid) -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Multi-date observations table (5 cols) -->
+          <div class="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-3">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Multi-Date Water-Spread Record
             </h3>
@@ -486,10 +503,10 @@
               <table class="w-full text-left text-xs text-slate-300">
                 <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
                   <tr>
-                    <th class="py-2 px-3">Date</th>
-                    <th class="py-2 px-3">Season / Context</th>
-                    <th class="py-2 px-3">Water Spread</th>
-                    <th class="py-2 px-3">Status Note</th>
+                    <th class="py-2.5 px-3">Date</th>
+                    <th class="py-2.5 px-3">Season / Context</th>
+                    <th class="py-2.5 px-3">Water Spread</th>
+                    <th class="py-2.5 px-3">Status Note</th>
                   </tr>
                 </thead>
                 <tbody id="reservoir-table-body" class="divide-y divide-slate-800/60">
@@ -499,12 +516,12 @@
             </div>
           </div>
 
-          <!-- Reservoir Trend Chart -->
-          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col">
+          <!-- Reservoir Trend Chart (7 cols) -->
+          <div class="lg:col-span-7 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i> Water-Spread Area Variation (km²)
             </h3>
-            <div class="flex-1 min-h-[250px] relative">
+            <div class="flex-1 min-h-[300px] relative">
               <canvas id="reservoir-chart"></canvas>
             </div>
             <div class="text-xs text-slate-400 border-t border-slate-800/80 pt-3">
@@ -515,7 +532,7 @@
       </div>
     </div>
 
-    <!-- 4. DOWNSTREAM EXPOSURE SCREENING (JOURNEY C) -->
+    <!-- 4. DOWNSTREAM EXPOSURE SCREENING (JOURNEY C - 16:9 PANORAMA) -->
     <div id="tab-exposure" class="tab-content hidden space-y-6">
       <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
@@ -526,21 +543,21 @@
             <p class="text-xs text-slate-400 mt-1">Corridor: South Lhonak Outlet &rarr; Zemu Chu &rarr; Chungthang &rarr; Singtam &rarr; Rangpo (112.4 km)</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="px-3 py-1 bg-rose-950/80 border border-rose-800/80 text-rose-300 text-xs rounded-lg font-semibold">
+            <span class="px-3 py-1 bg-rose-950/80 border border-rose-800/80 text-rose-300 text-xs rounded-lg font-semibold font-mono">
               Elevation Drop: 4,920 m (Avg Slope 4.4%)
             </span>
           </div>
         </div>
 
-        <!-- DEM Elevation Profile Along Valley Gorge -->
+        <!-- DEM Elevation Profile Along Valley Gorge (Panoramic 16:9 Profile) -->
         <div class="mt-6 bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i data-lucide="trending-down" class="w-4 h-4 text-sky-400"></i> Valley Profile (CartoDEM / SRTM 30m Elevation vs Distance)
             </h3>
-            <span class="text-xs text-slate-400">Source: South Lhonak (0km) to Rangpo (112km)</span>
+            <span class="text-xs text-slate-400 font-mono">112.4 km Hydraulic Gradient: 5,200m &rarr; 280m ASL</span>
           </div>
-          <div class="h-64 relative">
+          <div class="h-72 w-full relative">
             <canvas id="elevation-profile-chart"></canvas>
           </div>
         </div>
@@ -554,19 +571,19 @@
               </h3>
               <p class="text-xs text-slate-400">Transparent Multi-Factor Indicators (Section 7.7) - Proximity, Slope Gradient, Criticality, Population</p>
             </div>
-            <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">8 Assets Evaluated</span>
+            <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 font-mono">8 Assets Evaluated</span>
           </div>
 
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
                 <tr>
-                  <th class="py-2.5 px-3">Asset / Settlement</th>
-                  <th class="py-2.5 px-3">Type</th>
-                  <th class="py-2.5 px-3">Dist from Lake</th>
-                  <th class="py-2.5 px-3">Elevation</th>
-                  <th class="py-2.5 px-3">Exposure Rating</th>
-                  <th class="py-2.5 px-3">Vulnerability Context</th>
+                  <th class="py-3 px-3">Asset / Settlement</th>
+                  <th class="py-3 px-3">Type</th>
+                  <th class="py-3 px-3">Dist from Lake</th>
+                  <th class="py-3 px-3">Elevation</th>
+                  <th class="py-3 px-3">Exposure Rating</th>
+                  <th class="py-3 px-3">Vulnerability Context</th>
                 </tr>
               </thead>
               <tbody id="assets-table-body" class="divide-y divide-slate-800/60">
@@ -578,28 +595,28 @@
       </div>
     </div>
 
-    <!-- 5. INTERACTIVE GIS MAP EXPLORER -->
+    <!-- 5. INTERACTIVE GIS MAP EXPLORER (16:9 EXPANSIVE FULLSCREEN VIEW) -->
     <div id="tab-gis-map" class="tab-content hidden space-y-4">
       <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
         <!-- Map Control Bar -->
         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800 text-xs">
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-4">
             <span class="font-bold text-white flex items-center gap-1.5">
               <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i> Map Layer Controls:
             </span>
-            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white transition">
               <input type="checkbox" id="layer-chk-lakes" checked onchange="toggleMapLayer('lakes')" class="accent-sky-500 rounded"> Glacial Lake
             </label>
-            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white transition">
               <input type="checkbox" id="layer-chk-reservoirs" checked onchange="toggleMapLayer('reservoirs')" class="accent-cyan-500 rounded"> Reservoirs
             </label>
-            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white transition">
               <input type="checkbox" id="layer-chk-river" checked onchange="toggleMapLayer('river')" class="accent-blue-500 rounded"> Teesta River
             </label>
-            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white transition">
               <input type="checkbox" id="layer-chk-exposure" checked onchange="toggleMapLayer('exposure')" class="accent-rose-500 rounded"> Exposure Corridor
             </label>
-            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white transition">
               <input type="checkbox" id="layer-chk-assets" checked onchange="toggleMapLayer('assets')" class="accent-amber-500 rounded"> Assets & Towns
             </label>
           </div>
@@ -616,12 +633,12 @@
           </div>
         </div>
 
-        <!-- The Leaflet Map Container -->
-        <div id="map-container" class="w-full h-[600px] rounded-xl border border-slate-800 relative z-10"></div>
+        <!-- The Leaflet Map Container (Expands into 16:9 Fullscreen Canvas) -->
+        <div id="map-container" class="w-full h-[calc(100vh-250px)] min-h-[640px] rounded-xl border border-slate-800 relative z-10"></div>
 
         <!-- Map Legend -->
         <div class="mt-3 flex flex-wrap items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-center gap-4">
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-sky-500 inline-block"></span> Pre-Burst Lake Boundary (1.68 km²)</span>
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> Post-Burst Lake Boundary (1.03 km²)</span>
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500/40 border border-rose-500 inline-block"></span> High Exposure Corridor (&le;500m)</span>
@@ -670,13 +687,13 @@
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i> ASTRA Hackathon Domain Alignment
           </h3>
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
                 <tr>
-                  <th class="py-2 px-3">ASTRA Domain</th>
-                  <th class="py-2 px-3">Undercurrent Contribution</th>
-                  <th class="py-2 px-3">Evidence in Prototype</th>
+                  <th class="py-2.5 px-3">ASTRA Domain</th>
+                  <th class="py-2.5 px-3">Undercurrent Contribution</th>
+                  <th class="py-2.5 px-3">Evidence in Prototype</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-800/60">
@@ -744,13 +761,13 @@
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="target" class="w-4 h-4 text-amber-400"></i> ASTRA 100-Point Scoring Rubric Alignment
           </h3>
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
                 <tr>
-                  <th class="py-2 px-3">Criterion</th>
-                  <th class="py-2 px-3">Marks</th>
-                  <th class="py-2 px-3">Undercurrent Evidence to Present to Judges</th>
+                  <th class="py-2.5 px-3">Criterion</th>
+                  <th class="py-2.5 px-3">Marks</th>
+                  <th class="py-2.5 px-3">Undercurrent Evidence to Present to Judges</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-800/60">
@@ -782,7 +799,7 @@
                 <tr>
                   <td class="py-2.5 px-3 font-semibold text-slate-200">UI/UX & Experience</td>
                   <td class="py-2.5 px-3 font-mono text-sky-400 font-bold">10</td>
-                  <td class="py-2.5 px-3">Interactive Leaflet GIS map, NDWI threshold slider, elevation profile chart, transparent alert indicators, and responsive dark aerospace UI.</td>
+                  <td class="py-2.5 px-3">Interactive Leaflet GIS map, NDWI threshold slider, elevation profile chart, transparent alert indicators, and responsive 16:9 widescreen dark aerospace UI.</td>
                 </tr>
                 <tr>
                   <td class="py-2.5 px-3 font-semibold text-slate-200">Scalability & Feasibility</td>
@@ -821,7 +838,7 @@
             <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-300 font-semibold">CS Member 3</span>
             <div class="text-sm font-bold text-white">Frontend & UI/UX Engineer</div>
             <p class="text-xs text-slate-400 leading-relaxed">
-              Builds responsive web dashboard, Leaflet interactive map, Chart.js graphs, and demo rehearsal flow.
+              Builds responsive web dashboard, Leaflet GIS map, Chart.js graphs, and demo rehearsal flow.
             </p>
           </div>
         </div>
@@ -855,11 +872,11 @@
 
   </main>
 
-  <!-- FOOTER -->
-  <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+  <!-- FOOTER (FULL WIDTH) -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500 w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <span class="font-bold text-slate-400">Project Undercurrent</span> &bull; ASTRA 2026 Space Hackathon
+        <span class="font-bold text-slate-400">Project Undercurrent</span> &bull; ASTRA 2026 Space Hackathon &bull; 16:9 Widescreen Station
       </div>
       <div>
         Sikkim Teesta River Basin &bull; ISRO Bhuvan & Copernicus Space Data
@@ -884,6 +901,36 @@
     let assetData = [];
     let profileData = [];
 
+    // Fullscreen Toggle for 16:9 Presentations
+    function toggleFullscreen() {
+      const fsIcon = document.getElementById('fs-icon');
+      const fsLabel = document.getElementById('fs-label');
+      
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+          if (fsLabel) fsLabel.innerText = 'Exit Fullscreen';
+          if (map) setTimeout(() => map.invalidateSize(), 200);
+        }).catch(err => console.log('Fullscreen error:', err));
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().then(() => {
+            if (fsLabel) fsLabel.innerText = '16:9 Fullscreen';
+            if (map) setTimeout(() => map.invalidateSize(), 200);
+          });
+        }
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      const fsLabel = document.getElementById('fs-label');
+      if (document.fullscreenElement) {
+        if (fsLabel) fsLabel.innerText = 'Exit Fullscreen';
+      } else {
+        if (fsLabel) fsLabel.innerText = '16:9 Fullscreen';
+      }
+      if (map) setTimeout(() => map.invalidateSize(), 150);
+    });
+
     // Tab Switching
     function switchTab(tabId) {
       currentTab = tabId;
@@ -906,7 +953,7 @@
         setTimeout(() => {
           if (!map) initMap();
           else map.invalidateSize();
-        }, 100);
+        }, 120);
       }
     }
 
