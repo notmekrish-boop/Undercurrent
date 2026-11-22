@@ -2,6 +2,7 @@
 ### Himalayan Water Intelligence & Glacial Risk Monitoring System
 **Satellite-Data-Driven Geospatial Intelligence & Decision-Support Platform**
 
+[![Live Deployment](https://img.shields.io/badge/Live%20Demo-Render-00c58e?style=for-the-badge&logo=render&logoColor=white)](https://undercurrent-5fee.onrender.com/)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com/)
 [![Rasterio](https://img.shields.io/badge/Rasterio-1.3%2B-2E7D32.svg)](https://rasterio.readthedocs.io/)
@@ -10,6 +11,14 @@
 [![Leaflet](https://img.shields.io/badge/Leaflet-1.9.4-199900.svg)](https://leafletjs.com/)
 [![ISRO Space Data](https://img.shields.io/badge/ISRO-Bhuvan%20%7C%20Bhoonidhi-FF9933.svg)](https://bhuvan.nrsc.gov.in/)
 [![Copernicus](https://img.shields.io/badge/Copernicus-Sentinel--2-003399.svg)](https://dataspace.copernicus.eu/)
+
+---
+
+### 🌐 Live Production Deployment
+**Interactive Operations HUD:** **[https://undercurrent-5fee.onrender.com/](https://undercurrent-5fee.onrender.com/)**  
+* **Live Web Application:** [https://undercurrent-5fee.onrender.com/](https://undercurrent-5fee.onrender.com/)
+* **Live Interactive Swagger API Docs:** [https://undercurrent-5fee.onrender.com/api/docs](https://undercurrent-5fee.onrender.com/api/docs)
+* **Live ReDoc Documentation:** [https://undercurrent-5fee.onrender.com/api/redoc](https://undercurrent-5fee.onrender.com/api/redoc)
 
 ---
 
@@ -85,7 +94,7 @@ Addresses the core dam safety question: *"If a GLOF occurs upstream, does the re
 
 ## 🏗️ System Architecture & Workflow
 
-The FastAPI backend directly serves the unified **Undercurrent 16:9 Tactical Operations HUD** at `http://localhost:8000/`.
+The FastAPI backend directly serves the unified **Undercurrent 16:9 Tactical Operations HUD** both locally (`http://localhost:8000/`) and on production cloud (`https://undercurrent-5fee.onrender.com/`).
 
 ```mermaid
 flowchart TD
@@ -120,7 +129,7 @@ flowchart TD
         API_Maps["/api/map/layers & /geojson & /download"]
     end
 
-    subgraph Frontend["Operations HUD Dashboard (http://localhost:8000/)"]
+    subgraph Frontend["Operations HUD Dashboard (Live: undercurrent-5fee.onrender.com)"]
         UI_Dash["Tab 1: Overview & Decadal Basin Dynamics"]
         UI_Lake["Tab 2: Lake Monitor, Photo Upload & Risk Calculator"]
         UI_Res["Tab 3: Reservoirs & GLOF Holding Capacity Engine"]
@@ -163,16 +172,23 @@ Both dates share:
 
 ---
 
-## ⚡ Quickstart Guide
+## ⚡ Quickstart & Deployment
 
-### 1. Installation
+### 1. Live Deployment (Instant Cloud Access)
+The production application is running live:
+* **Live Web App:** **[https://undercurrent-5fee.onrender.com/](https://undercurrent-5fee.onrender.com/)**
+* **API Documentation:** **[https://undercurrent-5fee.onrender.com/api/docs](https://undercurrent-5fee.onrender.com/api/docs)**
+
+---
+
+### 2. Local Installation
 Install dependencies:
 
 ```powershell
 pip install -r backend/requirements.txt
 ```
 
-### 2. Run Test Suite
+### 3. Run Test Suite
 Validate dependency imports, synthetic fixture processing (NoData, CRS mismatch, empty components), photo upload decoding, reservoir capacity calculations, and all REST endpoints:
 
 ```powershell
@@ -181,7 +197,7 @@ python tests/test_raster_processing.py
 python tests/test_api.py
 ```
 
-### 3. Start the Dev Server
+### 4. Start Local Dev Server
 Launch FastAPI with live reload:
 
 ```powershell
@@ -189,7 +205,7 @@ python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Open your browser to:
-* **Interactive Operations HUD:** [http://localhost:8000/](http://localhost:8000/)
+* **Local Operations HUD:** [http://localhost:8000/](http://localhost:8000/)
 * **Swagger OpenAPI Documentation:** [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
 * **ReDoc Documentation:** [http://localhost:8000/api/redoc](http://localhost:8000/api/redoc)
 
