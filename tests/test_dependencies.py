@@ -40,9 +40,15 @@ def test_scipy_ndimage_dependency():
     assert num == 1
     assert lbl[0, 1] == 1
 
+def test_pillow_dependency():
+    import PIL
+    from PIL import Image
+    assert PIL.__version__ is not None
+
 if __name__ == "__main__":
     test_core_dependencies_importable()
     test_data_science_dependencies()
     test_geospatial_rasterio_dependency()
     test_scipy_ndimage_dependency()
+    test_pillow_dependency()
     print("ALL DEPENDENCY IMPORT & FUNCTIONALITY TESTS PASSED!")
